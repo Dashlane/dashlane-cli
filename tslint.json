@@ -1,0 +1,22 @@
+{
+    "extends": "@dashlane/linter-configs/tslint.json",
+    "rules": {
+        "variable-name": [
+            true,
+            "check-format",
+            "allow-pascal-case",
+            "allow-leading-underscore",
+            "ban-keywords"
+        ],
+        "interface-name": [
+            false
+        ],
+        "no-invalid-this": [
+            true
+        ],
+        "no-duplicate-switch-case": true
+    },
+    "jsRules": {
+        "no-empty": true
+    }
+}
