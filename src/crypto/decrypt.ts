@@ -35,23 +35,23 @@ export const argonDecrypt = (
     originalKey: Buffer,
     iv: Buffer,
     signature: Buffer
-): Buffer | Error => {
+): Buffer => {
     const combinedKey = sha512(originalKey);
     const cipheringKey = combinedKey.slice(0, 32);
     const macKey = combinedKey.slice(32);
 
     const testSignature = hmacSha256(macKey, Buffer.concat([iv, dataBuffer]));
     if (testSignature.toString('base64') !== signature.toString('base64')) {
-        return Error('mismatching signatures');
+        throw Error('mismatching signatures');
     }
     const decipher = crypto.createDecipheriv('aes-256-cbc', cipheringKey, iv);
     return Buffer.concat([decipher.update(dataBuffer), decipher.final()]);
 };
 
-export const getCipheringMethod = (cipheredData: string): Error | CipheringMethod => {
+export const getCipheringMethod = (cipheredData: string): CipheringMethod => {
     if (!cipheredData || cipheredData.length === 0) {
         console.log(cipheredData);
-        return new Error('invalid ciphered data');
+        throw new Error('invalid ciphered data');
     }
     const newMarkerDelimiter = '$';
     const buffer = Buffer.from(cipheredData, 'base64');
@@ -62,18 +62,18 @@ export const getCipheringMethod = (cipheredData: string): Error | CipheringMetho
         if (payloadHeader.length === 3) {
             const marker = payloadHeader[2] ? payloadHeader[2].toLowerCase() : null;
             if (marker !== 'argon2d') {
-                return new Error('unknown algo in marker');
+                throw new Error('unknown algo in marker');
             }
             return parseArgon2d(decodedBase64, buffer);
         }
     }
-    return new Error('unknown ciphering method');
+    throw new Error('unknown ciphering method');
 };
 
-const parseArgon2d = (decodedBase64: string, buffer: Buffer): Error | CipheringMethod => {
+const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod => {
     const payloadArray = decodedBase64.split('$', 10);
     if (payloadArray.length !== 10) {
-        return new Error('invalid payload for Argon2d');
+        throw new Error('invalid payload for Argon2d');
     }
 
     const [, version, algo, saltLength, tCost, mCost, parallelism, encryption, cipherMode, ivLength] = payloadArray;

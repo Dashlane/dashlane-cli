@@ -1,7 +1,7 @@
 import { signRequest } from './signRequest.js';
 import { PostRequestAPIParams } from './types';
 
-export const postRequestAPI = <T>(params: PostRequestAPIParams<T>, cb: Callback<T>) => {
+export const postRequestAPI = <T>(params: PostRequestAPIParams<T>): Promise<T> => {
     const { path, authentication, payload, query, method, userAgent, requestFunction } = params;
 
     const apiHost = `https://api.dashlane.com/`;
@@ -21,29 +21,21 @@ export const postRequestAPI = <T>(params: PostRequestAPIParams<T>, cb: Callback<
             body: payload,
             uri: '/' + path,
             headers: forgedHeaders,
-            query
+            query: query!
         });
     }
 
-    requestFunction(
+    return requestFunction(
         {
             method: method || 'POST',
             url: apiHost + path,
             json: payload,
             query: query || {},
-            headers: Object.assign(
-                {},
-                forgedHeaders,
-                {
-                    host: 'api.dashlane.com'
-                },
-                authorizationHeader
-                    ? {
-                          Authorization: authorizationHeader
-                      }
-                    : {}
-            )
-        },
-        cb
+            headers: {
+                ...forgedHeaders,
+                host: 'api.dashlane.com',
+                ...(authorizationHeader ? { Authorization: authorizationHeader } : {})
+            },
+        }
     );
 };

@@ -1,70 +1,59 @@
-import * as async from 'async';
 import * as sqlite3 from 'sqlite3';
+import { promisify } from 'util';
 import {
-    RequestDeviceRegistrationOutput,
-    PerformDuoPushVerificationOutput,
-    CompleteDeviceRegistrationOutput,
     requestDeviceRegistration,
     performDuoPushVerification,
-    completeDeviceRegistration
+    completeDeviceRegistration,
+    performTotpVerification,
+    performEmailTokenVerification
 } from '../steps/index.js';
-import { DeviceKeys } from '../types.js';
+import type { DeviceKeys } from '../types.js';
+import inquirer from 'inquirer';
 
 interface RegisterDevice {
     login: string;
-    deviceKeys: DeviceKeys;
     db: sqlite3.Database;
 }
 
-export const registerDevice = (params: RegisterDevice, cb: Callback<DeviceKeys>) => {
-    const { db, login, deviceKeys } = params;
+export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys> => {
+    const { db, login } = params;
+    console.log('Registering the device...');
 
-    if (!deviceKeys) {
-        console.log('Register the device...');
+    // Log in via a compatible verification method
+    const {  verification } = await requestDeviceRegistration({ login });
 
-        interface AsyncResultsRegister {
-            requestDeviceRegistration: RequestDeviceRegistrationOutput;
-            performRegistration: PerformDuoPushVerificationOutput;
-            completeDeviceRegistration: CompleteDeviceRegistrationOutput;
-            saveDeviceKeys: void;
-        }
-        return async.auto<AsyncResultsRegister>(
-            {
-                requestDeviceRegistration: (cb) => requestDeviceRegistration({ login }, cb),
-                performRegistration: [
-                    'requestDeviceRegistration',
-                    (results, cb) => {
-                        const verificationMethods = results.requestDeviceRegistration.verification;
-                        if (verificationMethods.findIndex((method) => method.type === 'duo_push')) {
-                            return performDuoPushVerification({ login }, cb);
-                        }
-                        return cb(new Error('Auth not supported'));
-                    }
-                ],
-                completeDeviceRegistration: [
-                    'performRegistration',
-                    (results, cb) => {
-                        const authTicket = results.performRegistration.authTicket;
-                        completeDeviceRegistration({ login, authTicket }, cb);
-                    }
-                ],
-                saveDeviceKeys: [
-                    'completeDeviceRegistration',
-                    (results, cb) => {
-                        const { deviceAccessKey, deviceSecretKey } = results.completeDeviceRegistration;
-                        db.run('REPLACE INTO device VALUES (?, ?, ?)', [login, deviceAccessKey, deviceSecretKey], cb);
-                    }
-                ]
-            },
-            (error, results) => {
-                if (error) {
-                    return cb(error);
+    let authTicket;
+    if (verification.find((method) => method.type === 'duo_push')) {
+        authTicket = (await performDuoPushVerification({ login })).authTicket;
+    } else if (verification.find((method) => method.type === 'totp')) {
+        const { otp } = await inquirer
+            .prompt([
+                {
+                    type: 'number',
+                    name: 'otp',
+                    message: 'Please enter your OTP code'
                 }
-
-                const { deviceAccessKey, deviceSecretKey } = results.completeDeviceRegistration;
-                return cb(null, { accessKey: deviceAccessKey, secretKey: deviceSecretKey });
-            }
-        );
+            ]);
+        authTicket = (await performTotpVerification({ login, otp })).authTicket;
+    } else if (verification.find((method) => method.type === 'email_token')) {
+        const { token } = await inquirer
+            .prompt([
+                {
+                    type: 'number',
+                    name: 'token',
+                    message: 'Please enter the code you received by email'
+                }
+            ]);
+        authTicket = (await performEmailTokenVerification({ login, token })).authTicket;
+    } else {
+        throw new Error('Auth verification method not supported: ' + verification[0].type);
     }
-    return cb(null, null);
+
+    // Complete the device registration and save the result
+    const { deviceAccessKey, deviceSecretKey } = await completeDeviceRegistration({ login, authTicket });
+    await promisify<string, any[], void>(db.run).bind(db)(
+        'REPLACE INTO device VALUES (?, ?, ?)',
+        [login, deviceAccessKey, deviceSecretKey]
+    );
+    return { accessKey: deviceAccessKey, secretKey: deviceSecretKey };
 };

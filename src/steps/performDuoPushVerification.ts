@@ -11,20 +11,10 @@ export interface PerformDuoPushVerificationOutput {
     authTicket: string;
 }
 
-export const performDuoPushVerification = (
-    params: PerformDuoPushVerification,
-    cb: Callback<PerformDuoPushVerificationOutput>
-) => {
-    const { login } = params;
-
-    requestApi(
-        {
+export const performDuoPushVerification =
+    (params: PerformDuoPushVerification): Promise<PerformDuoPushVerificationOutput> =>
+        requestApi({
             path: 'authentication/PerformDuoPushVerification',
-            login,
-            payload: {
-                login
-            }
-        },
-        cb
-    );
-};
+            login: params.login,
+            payload: { login: params.login },
+        });

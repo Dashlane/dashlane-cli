@@ -34,7 +34,8 @@ export const signRequest = (params: SignRequestParams) => {
 
     // Generate signature
     const key = createSecretKey(authentication);
-    const signature = crypto.createHmac('SHA256', key).update(stringToSign).digest('hex');
+    // TODO: figure out what to do when the key is null
+    const signature = crypto.createHmac('SHA256', key!).update(stringToSign).digest('hex');
 
     const authorizationHeader =
         signatureAlgorithm +
