@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import sqlite3 from 'sqlite3';
-import * as fs from 'fs';
 import { promisify } from 'util';
 import { registerDevice } from './middleware/registerDevice.js';
 import { sync } from './middleware/sync.js';
@@ -15,9 +14,7 @@ const login = 'apps@pixelswap.fr';
 
 const run = async () => {
     // create the db file if it doesn't exist
-    const DB_PATH = path.resolve(new URL('', import.meta.url).pathname, '../../database.db');
-    console.log(DB_PATH);
-    await new Promise(resolve => fs.writeFile(DB_PATH, '', { flag: 'wx' }, resolve));
+    const DB_PATH = path.resolve(new URL('', import.meta.url).pathname, '../../db/database.db');
     const db = await promisify<sqlite3.Database>(cb => {
         const db: sqlite3.Database =
             new sqlite3.Database(DB_PATH, (err) => cb(err, db));
