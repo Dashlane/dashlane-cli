@@ -72,14 +72,14 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     let websiteQueried = commandsParameters[0];
     if (!websiteQueried) {
-        inquirer.registerPrompt('autocomplete', inquirerAutocomplete as any);
+        inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
         websiteQueried = (await inquirer
             .prompt([
                 {
                     type: 'autocomplete',
                     name: 'website',
                     message: 'What password would you like to get?',
-                    source: (_answersSoFar: any, input: string) =>
+                    source: (_answersSoFar: string[], input: string) =>
                         passwordsDecrypted.map((item: any) =>
                             item.root.KWAuthentifiant?.KWDataItem.find((auth: any) =>
                                 auth.key === 'Title' && auth.$t?.includes(input || '')

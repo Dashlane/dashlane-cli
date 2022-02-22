@@ -16,7 +16,6 @@ export const sync = async (params: Sync) => {
     const formerSyncTimestamp = (await promisify<string, any>(db.get).bind(db)(
         'SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1'
     ))?.timestamp as number || 0;
-    console.log(formerSyncTimestamp);
 
     const latestContent = await getLatestContent({ login, timestamp: formerSyncTimestamp, deviceKeys });
 

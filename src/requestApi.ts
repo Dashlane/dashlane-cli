@@ -1,5 +1,6 @@
 import * as apiconnect from './api-connect/index.js';
 import { gotImplementation } from './utils/gotImplementation.js';
+import { HTTPError } from 'got';
 
 interface RequestApi {
     login: string;
@@ -45,8 +46,8 @@ export const requestApi = async (params: RequestApi): Promise<any> => {
             payload,
             userAgent: 'TURBOBOT' // the user agent is mandatory when using "fetch" module
         });
-    } catch (error: any) { // Generate a DashlaneApiError if appropriate
-        if (error.response?.body) {
+    } catch (error: unknown) { // Generate a DashlaneApiError if appropriate
+        if (error instanceof HTTPError && typeof error.response?.body === 'string') {
             let details;
             try {
                 details = JSON.parse(error.response.body).errors[0];
