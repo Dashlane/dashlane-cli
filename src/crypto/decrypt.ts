@@ -42,7 +42,7 @@ export const argonDecrypt = (
 
     const testSignature = hmacSha256(macKey, Buffer.concat([iv, dataBuffer]));
     if (testSignature.toString('base64') !== signature.toString('base64')) {
-        throw Error('mismatching signatures');
+        throw new Error('mismatching signatures');
     }
     const decipher = crypto.createDecipheriv('aes-256-cbc', cipheringKey, iv);
     return Buffer.concat([decipher.update(dataBuffer), decipher.final()]);
