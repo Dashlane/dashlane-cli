@@ -11,7 +11,7 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc --watch",
-        "lint:ts": "tslint --format stylish --project tsconfig2.json",
+        "lint:ts": "tslint --format stylish --project tsconfig.json",
         "start": "node dist"
     },
     "author": "",
