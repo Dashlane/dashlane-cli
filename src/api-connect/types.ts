@@ -6,7 +6,7 @@ export type RequestFunctionOptions = {
     query?: Dictionary<string | string[]>;
 };
 
-export type RequestFunction<T> = (options: RequestFunctionOptions, cb: Callback<T>) => void;
+export type RequestFunction<T> = (options: RequestFunctionOptions) => Promise<T>;
 
 type TeamDeviceAuthentication = {
     type: 'teamDevice';
@@ -55,7 +55,7 @@ export interface PostRequestAPIParams<T> {
 }
 
 export interface SignRequestParams {
-    authentication?: Authentication;
+    authentication: Authentication;
     method: string;
     body: object;
     uri: string;

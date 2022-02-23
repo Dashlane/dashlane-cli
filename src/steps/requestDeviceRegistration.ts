@@ -35,20 +35,10 @@ export interface RequestDeviceRegistrationOutput {
     )[];
 }
 
-export const requestDeviceRegistration = (
-    params: RequestDeviceRegistration,
-    cb: Callback<RequestDeviceRegistrationOutput>
-) => {
-    const { login } = params;
-
-    requestApi(
-        {
+export const requestDeviceRegistration =
+    (params: RequestDeviceRegistration): Promise<RequestDeviceRegistrationOutput> =>
+        requestApi({
             path: 'authentication/RequestDeviceRegistration',
-            login,
-            payload: {
-                login
-            }
-        },
-        cb
-    );
-};
+            login: params.login,
+            payload: { login: params.login }
+        });

@@ -43,16 +43,11 @@ export interface CompleteDeviceRegistrationOutput {
     [k: string]: any;
 }
 
-export const completeDeviceRegistration = (
-    params: CompleteDeviceRegistration,
-    cb: Callback<CompleteDeviceRegistrationOutput>
-) => {
-    const { login, authTicket } = params;
-
-    requestApi(
-        {
+export const completeDeviceRegistration =
+    (params: CompleteDeviceRegistration): Promise<CompleteDeviceRegistrationOutput> =>
+        requestApi({
             path: 'authentication/CompleteDeviceRegistrationWithAuthTicket',
-            login,
+            login: params.login,
             payload: {
                 device: {
                     deviceName: 'Dashlane CLI',
@@ -62,10 +57,7 @@ export const completeDeviceRegistration = (
                     osLanguage: 'fr_FR',
                     temporary: false
                 },
-                login,
-                authTicket
+                login: params.login,
+                authTicket: params.authTicket
             }
-        },
-        cb
-    );
-};
+        });

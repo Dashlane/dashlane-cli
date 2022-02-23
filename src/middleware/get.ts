@@ -3,133 +3,108 @@ import * as sqlite3 from 'sqlite3';
 import * as argon2 from 'argon2';
 import * as zlib from 'zlib';
 import * as xml2json from 'xml2json';
+import inquirer from 'inquirer';
+import { promisify } from 'util';
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
-import * as inquirer from 'inquirer';
+import { BackupEditTransaction } from '../types';
+import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
 interface GetPassword {
-    command: string;
     commandsParameters: string[];
     db: sqlite3.Database;
 }
 
-export const getPassword = (params: GetPassword, cb: CallbackErrorOnly) => {
-    const { command, commandsParameters, db } = params;
+export const getPassword = async (params: GetPassword): Promise<void> => {
+    const { commandsParameters, db } = params;
 
-    if (command === 'get') {
-        console.log('Retrieving:', commandsParameters[0]);
-
-        return db.all('SELECT * FROM transactions', async (error, resluts) => {
-            if (error) {
-                return cb(error);
-            }
-
-            const transactions = resluts.filter((item: any) => item.action !== 'BACKUP_REMOVE');
-
-            const settingsTransac = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId');
-            const passwords = transactions.filter((item: any) => true || item.type === 'AUTHENTIFIANT');
-
-            const cipheringMethod = getCipheringMethod(settingsTransac[0]['content']);
-
-            if (cipheringMethod instanceof Error) {
-                return cb(cipheringMethod);
-            }
-
-            const { keyDerivation, cypheredContent } = cipheringMethod;
-            const { encryptedData, hmac, iv, salt } = cypheredContent;
-
-            let deriv: Buffer;
-            try {
-                deriv = await argon2.hash(process.env.MP, {
-                    type: argon2.argon2d,
-                    saltLength: keyDerivation.saltLength,
-                    timeCost: keyDerivation.tCost,
-                    memoryCost: keyDerivation.mCost,
-                    parallelism: keyDerivation.parallelism,
-                    salt: salt,
-                    version: 19,
-                    hashLength: 32,
-                    raw: true
-                });
-            } catch (error) {
-                return cb(error);
-            }
-
-            const content = argonDecrypt(encryptedData, deriv, iv, hmac);
-
-            if (content instanceof Error) {
-                return cb(content);
-            }
-
-            let errorNum = 0;
-
-            const passwordsDecrypted = passwords
-                .map((password: any) => {
-                    const c = getCipheringMethod(password['content']);
-
-                    if (c instanceof Error) {
-                        errorNum += 1;
-                        console.error(password.type, c.message);
-                        return null;
-                    }
-                    const { encryptedData: encD, hmac: sign, iv } = c.cypheredContent;
-
-                    const content = argonDecrypt(encD, deriv, iv, sign);
-
-                    if (content instanceof Error) {
-                        errorNum += 1;
-                        console.error(password.identifier, content.message);
-                        return null;
-                    }
-
-                    const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
-
-                    return JSON.parse(xml2json.toJson(xmlContent));
-                })
-                .filter((n: any) => n);
-
-            console.log('Encountered decryption errors:', errorNum);
-
-            let secretToFind = commandsParameters[0];
-            if (!secretToFind) {
-                inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
-                inquirer
-                    .prompt([
-                        {
-                            type: 'autocomplete',
-                            name: 'from',
-                            message: 'Select a state to travel from',
-                            source: (_answersSoFar: any, input: string) => {
-                                return passwordsDecrypted.map((item: any) =>
-                                    item.root.KWAuthentifiant?.KWDataItem.find(
-                                        (auth: any) => auth.key === 'Title' && auth.$t?.includes(input)
-                                    )
-                                );
-                            }
-                        }
-                    ])
-                    .then((answers) => {
-                        secretToFind = answers;
-                    });
-            }
-
-            const wantedPwd: any = passwordsDecrypted.filter((item: any) =>
-                item.root.KWAuthentifiant?.KWDataItem.find(
-                    (auth: any) =>
-                        (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(commandsParameters[0])
-                )
-            );
-
-            if (wantedPwd.length === 0) {
-                return cb(new Error('No password found'));
-            }
-
-            clipboard.default.writeSync(
-                wantedPwd[0].root.KWAuthentifiant.KWDataItem.find((auth: any) => auth.key === 'Password').$t
-            );
-
-            console.log('Password copied to clipboard!');
-            return cb();
-        });
+    if (!process.env.MP) {
+        throw new Error('Please set the MP env variable with your master password');
     }
-    return cb();
+
+    console.log('Retrieving:', commandsParameters[0]);
+    const transactions = await promisify(db.all).bind(db)(
+        'SELECT * FROM transactions WHERE action = "BACKUP_EDIT"'
+    ) as BackupEditTransaction[];
+
+    const settingsTransac = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId');
+
+    const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransac[0].content);
+    const { salt } = cypheredContent;
+
+    const deriv = await argon2.hash(process.env.MP, {
+            type: argon2.argon2d,
+            saltLength: keyDerivation.saltLength,
+            timeCost: keyDerivation.tCost,
+            memoryCost: keyDerivation.mCost,
+            parallelism: keyDerivation.parallelism,
+            salt: salt,
+            version: 19,
+            hashLength: 32,
+            raw: true
+        });
+    let errorNum = 0;
+
+    const passwordsDecrypted = transactions
+        .map((password: any) => {
+            let cypheredContent;
+            try {
+                cypheredContent = getCipheringMethod(password['content']).cypheredContent;
+            } catch (error: any) {
+                errorNum += 1;
+                console.error(password.type, error.message);
+                return null;
+            }
+            const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
+
+            try {
+                const content = argonDecrypt(encD, deriv, iv, sign);
+                const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
+                return JSON.parse(xml2json.toJson(xmlContent));
+            } catch (error: any) {
+                errorNum += 1;
+                console.error(password.identifier, error.message);
+                return null;
+            }
+        })
+        .filter((n: any) => n);
+
+    console.log('Encountered decryption errors:', errorNum);
+
+    let websiteQueried = commandsParameters[0];
+    if (!websiteQueried) {
+        inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
+        websiteQueried = (await inquirer
+            .prompt([
+                {
+                    type: 'autocomplete',
+                    name: 'website',
+                    message: 'What password would you like to get?',
+                    source: (_answersSoFar: string[], input: string) =>
+                        passwordsDecrypted.map((item: any) =>
+                            item.root.KWAuthentifiant?.KWDataItem.find((auth: any) =>
+                                auth.key === 'Title' && auth.$t?.includes(input || '')
+                            )?.$t
+                        )
+                            .filter(name => name)
+                            .sort()
+                }
+            ])).website;
+    }
+
+    const wantedPwd: any = passwordsDecrypted.filter((item: any) =>
+        item.root.KWAuthentifiant?.KWDataItem.find(
+            (auth: any) =>
+                (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried)
+        )
+    );
+
+    if (wantedPwd.length === 0) {
+        throw new Error('No password found');
+    }
+
+    clipboard.default.writeSync(
+        wantedPwd[0].root.KWAuthentifiant.KWDataItem.find((auth: any) => auth.key === 'Password').$t
+    );
+
+    console.log('Password copied to clipboard!');
 };

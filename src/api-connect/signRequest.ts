@@ -34,6 +34,9 @@ export const signRequest = (params: SignRequestParams) => {
 
     // Generate signature
     const key = createSecretKey(authentication);
+    if (!key) {
+        throw new Error('Couldnt generate signature for request: authentication.type=none');
+    }
     const signature = crypto.createHmac('SHA256', key).update(stringToSign).digest('hex');
 
     const authorizationHeader =

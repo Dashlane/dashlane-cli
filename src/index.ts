@@ -1,7 +1,7 @@
-import * as async from 'async';
-
+#!/usr/bin/env node
 import sqlite3 from 'sqlite3';
-import { DeviceKeys } from './types.js';
+import { promisify } from 'util';
+import * as fs from 'fs';
 import { registerDevice } from './middleware/registerDevice.js';
 import { sync } from './middleware/sync.js';
 import { getPassword } from './middleware/get.js';
@@ -10,49 +10,42 @@ import { prepareDB } from './middleware/prepareDB.js';
 const command = process.argv[2];
 const commandsParameters = process.argv.slice(3);
 
-const login = 'apps@pixelswap.fr';
+const login = 'paullouis.hery@gmail.com';
 
-const db = new sqlite3.Database('./database/vault.db', sqlite3.OPEN_READWRITE || sqlite3.OPEN_CREATE, (error) => {
-    if (error) {
-        console.error(error.message);
-        process.exit(2);
+// The most appropriate folder to store the user's data, by OS
+const USER_DATA_PATH = process.env.APPDATA || (process.platform === 'darwin' ?
+        process.env.HOME + '/Library/Application Support' :
+        process.env.HOME + '/.local/share'
+);
+const DB_PATH = USER_DATA_PATH + '/dashlane-cli';
+
+const run = async () => {
+    // create the data folder if it doesn't exist
+    if (!fs.existsSync(DB_PATH)) {
+        fs.mkdirSync(DB_PATH, { recursive: true });
     }
+
+    const db = await promisify<sqlite3.Database>(cb => {
+        const db: sqlite3.Database =
+            new sqlite3.Database(DB_PATH + '/userdata.db', (err) => cb(err, db));
+    })();
     console.log('Connected to database.');
-});
 
-db.serialize(() => {
-    interface AsyncResults {
-        prepareDB: DeviceKeys | null;
-        registerDevice: DeviceKeys | null;
-        sync: void;
-        getPassword: void;
+    await promisify(db.serialize).bind(db)();
+
+    // Create the tables and load the deviceKeys if it exists
+    let deviceKeys = await prepareDB({ db, login });
+    if (!deviceKeys) {
+        // if deviceKeys does not exists, register this new device
+        deviceKeys = await registerDevice({ login, db });
     }
+    if (command === 'sync') {
+        await sync({ deviceKeys, login, db });
+    } else if (command === 'password') {
+        await getPassword({ db, commandsParameters });
+    } else {
+        console.error('Unknown command. Try "sync" or "password XXX"');
+    }
+};
 
-    async.auto<AsyncResults>(
-        {
-            prepareDB: (cb) => prepareDB({ db, login }, cb),
-            registerDevice: [
-                'prepareDB',
-                (results, cb) => registerDevice({ login, deviceKeys: results.prepareDB, db }, cb)
-            ],
-            sync: [
-                'prepareDB',
-                'registerDevice',
-                (results, cb) =>
-                    sync({ deviceKeys: results.registerDevice || results.prepareDB, login, db, command }, cb)
-            ],
-            getPassword: [
-                'prepareDB',
-                'registerDevice',
-                'sync',
-                (_results, cb) => getPassword({ db, command, commandsParameters }, cb)
-            ]
-        },
-        (error) => {
-            if (error) {
-                console.error(error);
-                process.exit(2);
-            }
-        }
-    );
-});
+run().catch(err => console.error(err));
