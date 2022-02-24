@@ -4,10 +4,10 @@ import * as argon2 from 'argon2';
 import * as zlib from 'zlib';
 import * as xml2json from 'xml2json';
 import inquirer from 'inquirer';
+import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { promisify } from 'util';
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
 import { BackupEditTransaction } from '../types';
-import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
 interface GetPassword {
     commandsParameters: string[];
@@ -22,9 +22,9 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     }
 
     console.log('Retrieving:', commandsParameters[0]);
-    const transactions = await promisify(db.all).bind(db)(
+    const transactions = (await promisify(db.all).bind(db)(
         'SELECT * FROM transactions WHERE action = "BACKUP_EDIT"'
-    ) as BackupEditTransaction[];
+    )) as BackupEditTransaction[];
 
     const settingsTransac = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId');
 
@@ -32,16 +32,16 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     const { salt } = cypheredContent;
 
     const deriv = await argon2.hash(process.env.MP, {
-            type: argon2.argon2d,
-            saltLength: keyDerivation.saltLength,
-            timeCost: keyDerivation.tCost,
-            memoryCost: keyDerivation.mCost,
-            parallelism: keyDerivation.parallelism,
-            salt: salt,
-            version: 19,
-            hashLength: 32,
-            raw: true
-        });
+        type: argon2.argon2d,
+        saltLength: keyDerivation.saltLength,
+        timeCost: keyDerivation.tCost,
+        memoryCost: keyDerivation.mCost,
+        parallelism: keyDerivation.parallelism,
+        salt: salt,
+        version: 19,
+        hashLength: 32,
+        raw: true
+    });
     let errorNum = 0;
 
     const passwordsDecrypted = transactions
@@ -73,28 +73,30 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     let websiteQueried = commandsParameters[0];
     if (!websiteQueried) {
         inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
-        websiteQueried = (await inquirer
-            .prompt([
+        websiteQueried = (
+            await inquirer.prompt([
                 {
                     type: 'autocomplete',
                     name: 'website',
                     message: 'What password would you like to get?',
                     source: (_answersSoFar: string[], input: string) =>
-                        passwordsDecrypted.map((item: any) =>
-                            item.root.KWAuthentifiant?.KWDataItem.find((auth: any) =>
-                                auth.key === 'Title' && auth.$t?.includes(input || '')
-                            )?.$t
-                        )
-                            .filter(name => name)
+                        passwordsDecrypted
+                            .map(
+                                (item: any) =>
+                                    item.root.KWAuthentifiant?.KWDataItem.find(
+                                        (auth: any) => auth.key === 'Title' && auth.$t?.includes(input || '')
+                                    )?.$t
+                            )
+                            .filter((name) => name)
                             .sort()
                 }
-            ])).website;
+            ])
+        ).website;
     }
 
     const wantedPwd: any = passwordsDecrypted.filter((item: any) =>
         item.root.KWAuthentifiant?.KWDataItem.find(
-            (auth: any) =>
-                (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried)
+            (auth: any) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried)
         )
     );
 

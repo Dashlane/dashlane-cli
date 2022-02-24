@@ -3,6 +3,10 @@ export interface DeviceKeys {
     secretKey: string;
 }
 
+export interface DeviceKeysWithLogin extends DeviceKeys {
+    login: string;
+}
+
 export interface BackupEditTransaction {
     /**
      * Version of the transaction (for treatproblems)
