@@ -70,7 +70,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     console.log('Encountered decryption errors:', errorNum);
 
-    let websiteQueried = commandsParameters[0];
+    let websiteQueried = commandsParameters[0]?.toLowerCase();
     if (!websiteQueried) {
         inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
         websiteQueried = (
@@ -84,7 +84,8 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
                             .map(
                                 (item: any) =>
                                     item.root.KWAuthentifiant?.KWDataItem.find(
-                                        (auth: any) => auth.key === 'Title' && auth.$t?.includes(input || '')
+                                        (auth: any) =>
+                                            auth.key === 'Title' && auth.$t?.toLowerCase().includes(input || '')
                                     )?.$t
                             )
                             .filter((name) => name)
@@ -92,21 +93,46 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
                 }
             ])
         ).website;
+    } else {
+        const queryResults = passwordsDecrypted
+            .map(
+                (item: any) =>
+                    item.root.KWAuthentifiant?.KWDataItem.find(
+                        (auth: any) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(websiteQueried || '')
+                    )?.$t
+            )
+            .filter((name) => name)
+            .sort();
+
+        if (queryResults.length === 0) {
+            throw new Error('No password found');
+        }
+
+        if (queryResults.length > 1) {
+            inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
+            websiteQueried = (
+                await inquirer.prompt([
+                    {
+                        type: 'autocomplete',
+                        name: 'website',
+                        default: websiteQueried,
+                        pageSize: 10,
+                        message: 'There are multiple results for your query, pick one:',
+                        source: (_answersSoFar: string[], input: string) =>
+                            queryResults.filter((name) => name.toLowerCase().includes(input || '')).sort()
+                    }
+                ])
+            ).website;
+        }
     }
 
     const wantedPwd: any = passwordsDecrypted.filter((item: any) =>
         item.root.KWAuthentifiant?.KWDataItem.find(
             (auth: any) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried)
         )
-    );
+    )[0].root.KWAuthentifiant.KWDataItem;
 
-    if (wantedPwd.length === 0) {
-        throw new Error('No password found');
-    }
+    clipboard.default.writeSync(wantedPwd.find((auth: any) => auth.key === 'Password').$t);
 
-    clipboard.default.writeSync(
-        wantedPwd[0].root.KWAuthentifiant.KWDataItem.find((auth: any) => auth.key === 'Password').$t
-    );
-
-    console.log('Password copied to clipboard!');
+    console.log(`Password for "${wantedPwd.find((auth: any) => auth.key === 'Title').$t}" copied to clipboard!`);
 };

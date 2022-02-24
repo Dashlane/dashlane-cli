@@ -10,10 +10,16 @@ In order to sync your vault:
 node dist/index.js sync
 ```
 
+You can list all your passwords:
+
+```
+node dist/index.js password toto.com
+```
+
 In order to get a specific password:
 
 ```
-node dist/index.js get toto.com
+node dist/index.js password toto.com
 ```
 
 ## Contributing
