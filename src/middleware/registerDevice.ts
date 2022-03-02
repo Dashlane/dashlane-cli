@@ -40,7 +40,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
                 message: 'Please enter your OTP code'
             }
         ]);
-        authTicket = (await performTotpVerification({ login, otp })).authTicket;
+        authTicket = (await performTotpVerification({ login, otp: String(otp).padStart(5, '0') })).authTicket;
     } else if (verification.find((method) => method.type === 'email_token')) {
         const { token } = await inquirer.prompt([
             {
@@ -49,7 +49,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
                 message: 'Please enter the code you received by email'
             }
         ]);
-        authTicket = (await performEmailTokenVerification({ login, token })).authTicket;
+        authTicket = (await performEmailTokenVerification({ login, token: String(token).padStart(5, '0') })).authTicket;
     } else {
         throw new Error('Auth verification method not supported: ' + verification[0].type);
     }
