@@ -17,5 +17,5 @@ export const performEmailTokenVerification =
         requestApi({
             path: 'authentication/PerformEmailTokenVerification',
             login: params.login,
-            payload: { login: params.login, token: params.token, activationFlow: false },
+            payload: { login: params.login, token: params.token },
         });
