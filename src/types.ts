@@ -56,3 +56,14 @@ export interface BackupRemoveTransaction {
      */
     action: 'BACKUP_REMOVE';
 }
+
+export interface AuthentifiantTransactionContent {
+    root: {
+        KWAuthentifiant: {
+            KWDataItem: {
+                key: string;
+                $t: string
+            }[]
+        }
+    };
+}

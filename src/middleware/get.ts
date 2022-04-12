@@ -7,12 +7,16 @@ import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { promisify } from 'util';
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
-import { BackupEditTransaction } from '../types';
+import { AuthentifiantTransactionContent, BackupEditTransaction } from '../types';
 
 interface GetPassword {
     commandsParameters: string[];
     db: sqlite3.Database;
 }
+
+const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => {
+    return value !== null && value !== undefined;
+};
 
 export const getPassword = async (params: GetPassword): Promise<void> => {
     const { commandsParameters, db } = params;
@@ -23,7 +27,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     console.log('Retrieving:', commandsParameters[0]);
     const transactions = (await promisify(db.all).bind(db)(
-        'SELECT * FROM transactions WHERE action = "BACKUP_EDIT"'
+        'SELECT * FROM transactions WHERE action = \'BACKUP_EDIT\''
     )) as BackupEditTransaction[];
 
     const settingsTransac = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId');
@@ -45,10 +49,11 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     let errorNum = 0;
 
     const passwordsDecrypted = transactions
-        .map((password: any) => {
+        .filter((transaction) => transaction.type === 'AUTHENTIFIANT')
+        .map((password) => {
             let cypheredContent;
             try {
-                cypheredContent = getCipheringMethod(password['content']).cypheredContent;
+                cypheredContent = getCipheringMethod(password.content).cypheredContent;
             } catch (error: any) {
                 errorNum += 1;
                 console.error(password.type, error.message);
@@ -59,16 +64,18 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
             try {
                 const content = argonDecrypt(encD, deriv, iv, sign);
                 const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
-                return JSON.parse(xml2json.toJson(xmlContent));
+                return JSON.parse(xml2json.toJson(xmlContent)) as AuthentifiantTransactionContent;
             } catch (error: any) {
                 errorNum += 1;
                 console.error(password.identifier, error.message);
                 return null;
             }
         })
-        .filter((n: any) => n);
+        .filter(notEmpty);
 
-    console.log('Encountered decryption errors:', errorNum);
+    if (errorNum > 0) {
+        console.log('Encountered decryption errors:', errorNum);
+    }
 
     let websiteQueried = commandsParameters[0]?.toLowerCase();
     if (!websiteQueried) {
@@ -82,13 +89,13 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
                     source: (_answersSoFar: string[], input: string) =>
                         passwordsDecrypted
                             .map(
-                                (item: any) =>
-                                    item.root.KWAuthentifiant?.KWDataItem.find(
-                                        (auth: any) =>
+                                (item) =>
+                                    item.root.KWAuthentifiant.KWDataItem.find(
+                                        (auth) =>
                                             auth.key === 'Title' && auth.$t?.toLowerCase().includes(input || '')
                                     )?.$t
                             )
-                            .filter((name) => name)
+                            .filter(notEmpty)
                             .sort()
                 }
             ])
@@ -96,19 +103,17 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     } else {
         const queryResults = passwordsDecrypted
             .map(
-                (item: any) =>
-                    item.root.KWAuthentifiant?.KWDataItem.find(
-                        (auth: any) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(websiteQueried || '')
+                (item) =>
+                    item.root.KWAuthentifiant.KWDataItem.find(
+                        (auth) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(websiteQueried || '')
                     )?.$t
             )
-            .filter((name) => name)
+            .filter(notEmpty)
             .sort();
 
         if (queryResults.length === 0) {
             throw new Error('No password found');
-        }
-
-        if (queryResults.length > 1) {
+        } else {
             inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
             websiteQueried = (
                 await inquirer.prompt([
@@ -126,13 +131,13 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         }
     }
 
-    const wantedPwd: any = passwordsDecrypted.filter((item: any) =>
-        item.root.KWAuthentifiant?.KWDataItem.find(
-            (auth: any) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried)
+    const wantedPwd = passwordsDecrypted.filter((item) =>
+        item.root.KWAuthentifiant.KWDataItem.find(
+            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t.includes(websiteQueried)
         )
     )[0].root.KWAuthentifiant.KWDataItem;
 
-    clipboard.default.writeSync(wantedPwd.find((auth: any) => auth.key === 'Password').$t);
+    clipboard.default.writeSync(wantedPwd.find((auth) => auth.key === 'Password')!.$t);
 
-    console.log(`Password for "${wantedPwd.find((auth: any) => auth.key === 'Title').$t}" copied to clipboard!`);
+    console.log(`Password for "${wantedPwd.find((auth) => auth.key === 'Title')!.$t}" copied to clipboard!`);
 };

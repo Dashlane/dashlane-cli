@@ -48,7 +48,7 @@ export interface GetLatestContentOutput {
      */
     syncAllowed: boolean;
     /**
-     * Is the client allowed to upload non basic data
+     * Is the client allowed to upload non-basic data
      */
     uploadEnabled: boolean;
     summary: {

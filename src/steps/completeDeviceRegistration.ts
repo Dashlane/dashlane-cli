@@ -11,7 +11,7 @@ export interface CompleteDeviceRegistrationOutput {
      */
     deviceAccessKey: string;
     /**
-     * The registered device secret key. Must be stored securely and never transmited over the network
+     * The registered device secret key. Must be stored securely and never transmitted over the network
      */
     deviceSecretKey: string;
     /**
