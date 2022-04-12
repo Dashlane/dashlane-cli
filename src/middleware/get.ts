@@ -27,7 +27,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     console.log('Retrieving:', commandsParameters[0]);
     const transactions = (await promisify(db.all).bind(db)(
-        "SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'"
+        'SELECT * FROM transactions WHERE action = \'BACKUP_EDIT\''
     )) as BackupEditTransaction[];
 
     const settingsTransac = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId');
