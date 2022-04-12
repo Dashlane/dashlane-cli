@@ -10,7 +10,7 @@ import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
 import { AuthentifiantTransactionContent, BackupEditTransaction } from '../types';
 
 interface GetPassword {
-    commandsParameters: string[];
+    titleFilter: string | null;
     db: sqlite3.Database;
 }
 
@@ -19,13 +19,13 @@ const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => 
 };
 
 export const getPassword = async (params: GetPassword): Promise<void> => {
-    const { commandsParameters, db } = params;
+    const { titleFilter, db } = params;
 
     if (!process.env.MP) {
         throw new Error('Please set the MP env variable with your master password');
     }
 
-    console.log('Retrieving:', commandsParameters[0]);
+    console.log('Retrieving:', titleFilter || '');
     const transactions = (await promisify(db.all).bind(db)(
         'SELECT * FROM transactions WHERE action = \'BACKUP_EDIT\''
     )) as BackupEditTransaction[];
@@ -77,7 +77,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         console.log('Encountered decryption errors:', errorNum);
     }
 
-    let websiteQueried = commandsParameters[0]?.toLowerCase();
+    let websiteQueried = titleFilter?.toLowerCase();
     if (!websiteQueried) {
         inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
         websiteQueried = (
@@ -133,7 +133,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     const wantedPwd = passwordsDecrypted.filter((item) =>
         item.root.KWAuthentifiant.KWDataItem.find(
-            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t.includes(websiteQueried)
+            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t.includes(websiteQueried || '')
         )
     )[0].root.KWAuthentifiant.KWDataItem;
 

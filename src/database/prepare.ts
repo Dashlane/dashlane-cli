@@ -1,6 +1,6 @@
-import * as sqlite3 from 'sqlite3';
+import sqlite3 from 'sqlite3';
+import { DeviceKeysWithLogin } from '../types';
 import { promisify } from 'util';
-import type { DeviceKeysWithLogin } from '../types.js';
 
 interface PrepareDB {
     db: sqlite3.Database;
