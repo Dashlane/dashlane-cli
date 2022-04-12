@@ -1,6 +1,6 @@
 import * as sqlite3 from 'sqlite3';
 import { promisify } from 'util';
-import { getLatestContent } from '../steps/index.js';
+import { getLatestContent } from '../steps';
 import type { DeviceKeysWithLogin } from '../types.js';
 
 interface Sync {

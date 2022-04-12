@@ -28,7 +28,7 @@ export interface RequestDeviceRegistrationOutput {
         | {
               type: 'sso';
               /**
-               * DEPRECATED: Please use the "serviceProviderUrl" attribute in the the ssoInfo object
+               * DEPRECATED: Please use the "serviceProviderUrl" attribute in the ssoInfo object
                */
               ssoServiceProviderUrl: string;
           }

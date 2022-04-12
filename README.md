@@ -13,7 +13,7 @@ node dist/index.js sync
 You can list all your passwords:
 
 ```
-node dist/index.js password toto.com
+node dist/index.js password
 ```
 
 In order to get a specific password:

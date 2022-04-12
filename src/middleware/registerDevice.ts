@@ -6,7 +6,7 @@ import {
     completeDeviceRegistration,
     performTotpVerification,
     performEmailTokenVerification
-} from '../steps/index.js';
+} from '../steps';
 import type { DeviceKeysWithLogin } from '../types.js';
 import inquirer from 'inquirer';
 
