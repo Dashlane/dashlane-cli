@@ -33,6 +33,7 @@
     "dependencies": {
         "argon2": "^0.28.3",
         "clipboardy": "^3.0.0",
+        "commander": "^9.1.0",
         "got": "^12.0.0",
         "inquirer": "^8.2.0",
         "inquirer-autocomplete-prompt": "^1.4.0",
