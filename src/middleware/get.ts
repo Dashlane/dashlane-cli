@@ -10,9 +10,11 @@ import { authenticator } from 'otplib';
 
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
 import { AuthentifiantTransactionContent, BackupEditTransaction, VaultCredential } from '../types';
+import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
 
 interface GetPassword {
     titleFilter: string | null;
+    login: string;
     db: sqlite3.Database;
 }
 
@@ -20,24 +22,11 @@ const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => 
     return value !== null && value !== undefined;
 };
 
-export const getPassword = async (params: GetPassword): Promise<void> => {
-    const { titleFilter, db } = params;
-
-    if (!process.env.MP) {
-        throw new Error('Please set the MP env variable with your master password');
-    }
-
-    console.log('Retrieving:', titleFilter || '');
-    const transactions = (await promisify(db.all).bind(db)(
-        'SELECT * FROM transactions WHERE action = \'BACKUP_EDIT\''
-    )) as BackupEditTransaction[];
-
-    const settingsTransac = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId');
-
-    const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransac[0].content);
+const getDerivate = async (masterPassword: string, settingsTransaction: BackupEditTransaction): Promise<Buffer> => {
+    const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransaction.content);
     const { salt } = cypheredContent;
 
-    const deriv = await argon2.hash(process.env.MP, {
+    return await argon2.hash(masterPassword, {
         type: argon2.argon2d,
         saltLength: keyDerivation.saltLength,
         timeCost: keyDerivation.tCost,
@@ -48,35 +37,69 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         hashLength: 32,
         raw: true
     });
-    let errorNum = 0;
+};
 
-    const passwordsDecrypted = transactions
-        .filter((transaction) => transaction.type === 'AUTHENTIFIANT')
-        .map((password) => {
-            let cypheredContent;
-            try {
-                cypheredContent = getCipheringMethod(password.content).cypheredContent;
-            } catch (error: any) {
-                errorNum += 1;
-                console.error(password.type, error.message);
-                return null;
-            }
-            const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
+const decryptTransaction = (transaction: BackupEditTransaction, derivate: Buffer): AuthentifiantTransactionContent | null => {
+    let cypheredContent;
 
-            try {
-                const content = argonDecrypt(encD, deriv, iv, sign);
-                const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
-                return JSON.parse(xml2json.toJson(xmlContent)) as AuthentifiantTransactionContent;
-            } catch (error: any) {
-                errorNum += 1;
-                console.error(password.identifier, error.message);
-                return null;
-            }
-        })
+    try {
+        cypheredContent = getCipheringMethod(transaction.content).cypheredContent;
+    } catch (error: any) {
+        console.error(transaction.type, error.message);
+        return null;
+    }
+    const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
+
+    try {
+        const content = argonDecrypt(encD, derivate, iv, sign);
+        const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
+        return JSON.parse(xml2json.toJson(xmlContent))as AuthentifiantTransactionContent;
+    } catch (error: any) {
+        console.error(transaction.identifier, error.message);
+        return null;
+    }
+};
+
+const decryptTransactions = async (
+    transactions: BackupEditTransaction[],
+    masterPassword: string,
+    login: string
+): Promise<AuthentifiantTransactionContent[] | null> => {
+    const settingsTransaction = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId')[0];
+    const derivate = await getDerivate(masterPassword, settingsTransaction);
+
+    if (!decryptTransaction(settingsTransaction, derivate)) {
+        if (!(await askReplaceMasterPassword())) {
+            return null;
+        }
+        const masterPassword = await setMasterPassword(login);
+        return await decryptTransactions(transactions, masterPassword, login);
+    }
+
+    const passwordsDecrypted = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT')
+        .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
         .filter(notEmpty);
 
-    if (errorNum > 0) {
-        console.log('Encountered decryption errors:', errorNum);
+    console.log('Encountered decryption errors:', transactions.length - passwordsDecrypted.length);
+    return passwordsDecrypted;
+};
+
+export const getPassword = async (params: GetPassword): Promise<void> => {
+    const { login, titleFilter, db } = params;
+
+    const masterPassword = await getMasterPassword(login);
+    if (!masterPassword) {
+        throw new Error("Couldn't retrieve master pasword in OS keychain.");
+    }
+
+    console.log('Retrieving:', titleFilter || '');
+    const transactions = (await promisify(db.all).bind(db)(
+        'SELECT * FROM transactions WHERE action = \'BACKUP_EDIT\''
+    )) as BackupEditTransaction[];
+
+    const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
+    if (!passwordsDecrypted) {
+        return;
     }
 
     let websiteQueried = titleFilter?.toLowerCase();

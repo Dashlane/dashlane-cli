@@ -19,8 +19,8 @@ program.command('password')
         'Please provide the master password in the environment variable `MP`.')
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter) => {
-        const { db } = await connectAndPrepare();
-        return getPassword({ titleFilter: filter, db });
+        const { db, deviceKeys } = await connectAndPrepare();
+        return getPassword({ titleFilter: filter, login: deviceKeys.login, db });
     });
 
 program.parseAsync().catch((err) => console.error(err));
