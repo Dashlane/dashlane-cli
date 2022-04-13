@@ -1,10 +1,9 @@
-import * as sqlite3 from 'sqlite3';
-import { promisify } from 'util';
+import Database from 'better-sqlite3';
 import { getLatestContent } from '../steps/index.js';
 import type { DeviceKeysWithLogin } from '../types.js';
 
 interface Sync {
-    db: sqlite3.Database;
+    db: Database.Database;
     deviceKeys: DeviceKeysWithLogin;
 }
 
@@ -12,12 +11,7 @@ export const sync = async (params: Sync) => {
     const { db, deviceKeys } = params;
     console.log('Start syncing...');
 
-    const formerSyncTimestamp =
-        ((
-            (await promisify<string, any>(db.get.bind(db))(
-                'SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1'
-            )) as { timestamp?: number }
-        )?.timestamp as number) || 0;
+    const formerSyncTimestamp = (db.prepare('SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1').get() as { timestamp?: number })?.timestamp || 0;
 
     const latestContent = await getLatestContent({
         login: deviceKeys.login,
@@ -38,15 +32,14 @@ export const sync = async (params: Sync) => {
     const statement = db.prepare(`REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)`);
 
     // execute all transactions
-    await Promise.all(
-        values.map((value) => promisify<any, void>(statement.run.bind(statement)).bind(statement)(value))
-    );
-    await promisify(statement.finalize.bind(statement))();
+    const replaceTransactions = db.transaction((transactions) => {
+        for (const transaction of transactions) statement.run(transaction)
+    });
+
+    replaceTransactions(values);
 
     // save the new transaction timestamp in the db
-    await promisify<string, any, void>(db.run.bind(db))('REPLACE INTO syncUpdates(timestamp) VALUES(?)', [
-        Number(latestContent.timestamp),
-    ]);
+    db.prepare('REPLACE INTO syncUpdates(timestamp) VALUES(?)').bind(Number(latestContent.timestamp)).run();
 
     console.log('Requested timestamp ', formerSyncTimestamp, ', new timestamp', latestContent.timestamp);
 
