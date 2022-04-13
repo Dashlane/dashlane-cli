@@ -24,28 +24,36 @@ const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => 
 
 const getDerivate = async (masterPassword: string, settingsTransaction: BackupEditTransaction): Promise<Buffer> => {
     const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransaction.content);
+
     const { salt } = cypheredContent;
 
-    return await argon2.hash(masterPassword, {
+    return argon2.hash(masterPassword, {
         type: argon2.argon2d,
         saltLength: keyDerivation.saltLength,
         timeCost: keyDerivation.tCost,
         memoryCost: keyDerivation.mCost,
         parallelism: keyDerivation.parallelism,
-        salt: salt,
+        salt,
         version: 19,
         hashLength: 32,
-        raw: true
+        raw: true,
     });
 };
 
-const decryptTransaction = (transaction: BackupEditTransaction, derivate: Buffer): AuthentifiantTransactionContent | null => {
+const decryptTransaction = (
+    transaction: BackupEditTransaction,
+    derivate: Buffer
+): AuthentifiantTransactionContent | null => {
     let cypheredContent;
 
     try {
         cypheredContent = getCipheringMethod(transaction.content).cypheredContent;
-    } catch (error: any) {
-        console.error(transaction.type, error.message);
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(transaction.type, error.message);
+        } else {
+            console.error(transaction.type, error);
+        }
         return null;
     }
     const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
@@ -53,9 +61,13 @@ const decryptTransaction = (transaction: BackupEditTransaction, derivate: Buffer
     try {
         const content = argonDecrypt(encD, derivate, iv, sign);
         const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
-        return JSON.parse(xml2json.toJson(xmlContent))as AuthentifiantTransactionContent;
+        return JSON.parse(xml2json.toJson(xmlContent)) as AuthentifiantTransactionContent;
     } catch (error: any) {
-        console.error(transaction.identifier, error.message);
+        if (error instanceof Error) {
+            console.error(transaction.type, error.message);
+        } else {
+            console.error(transaction.type, error);
+        }
         return null;
     }
 };
@@ -65,7 +77,7 @@ const decryptTransactions = async (
     masterPassword: string,
     login: string
 ): Promise<AuthentifiantTransactionContent[] | null> => {
-    const settingsTransaction = transactions.filter((item: any) => item.identifier === 'SETTINGS_userId')[0];
+    const settingsTransaction = transactions.filter((item) => item.identifier === 'SETTINGS_userId')[0];
     const derivate = await getDerivate(masterPassword, settingsTransaction);
 
     if (!decryptTransaction(settingsTransaction, derivate)) {
@@ -73,10 +85,11 @@ const decryptTransactions = async (
             return null;
         }
         const masterPassword = await setMasterPassword(login);
-        return await decryptTransactions(transactions, masterPassword, login);
+        return decryptTransactions(transactions, masterPassword, login);
     }
 
-    const passwordsDecrypted = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT')
+    const passwordsDecrypted = transactions
+        .filter((transaction) => transaction.type === 'AUTHENTIFIANT')
         .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
         .filter(notEmpty);
 
@@ -93,8 +106,8 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     }
 
     console.log('Retrieving:', titleFilter || '');
-    const transactions = (await promisify(db.all).bind(db)(
-        'SELECT * FROM transactions WHERE action = \'BACKUP_EDIT\''
+    const transactions = (await promisify(db.all.bind(db))(
+        "SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'"
     )) as BackupEditTransaction[];
 
     const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
@@ -106,7 +119,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     if (!websiteQueried) {
         inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
         websiteQueried = (
-            await inquirer.prompt([
+            await inquirer.prompt<{ website: string }>([
                 {
                     type: 'autocomplete',
                     name: 'website',
@@ -116,13 +129,12 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
                             .map(
                                 (item) =>
                                     item.root.KWAuthentifiant.KWDataItem.find(
-                                        (auth) =>
-                                            auth.key === 'Title' && auth.$t?.toLowerCase().includes(input || '')
+                                        (auth) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(input || '')
                                     )?.$t
                             )
                             .filter(notEmpty)
-                            .sort()
-                }
+                            .sort(),
+                },
             ])
         ).website;
     } else {
@@ -141,7 +153,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         } else {
             inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
             websiteQueried = (
-                await inquirer.prompt([
+                await inquirer.prompt<{ website: string }>([
                     {
                         type: 'autocomplete',
                         name: 'website',
@@ -149,8 +161,8 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
                         pageSize: 10,
                         message: 'There are multiple results for your query, pick one:',
                         source: (_answersSoFar: string[], input: string) =>
-                            queryResults.filter((name) => name.toLowerCase().includes(input || '')).sort()
-                    }
+                            queryResults.filter((name) => name.toLowerCase().includes(input || '')).sort(),
+                    },
                 ])
             ).website;
         }

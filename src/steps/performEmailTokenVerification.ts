@@ -12,10 +12,9 @@ export interface PerformEmailTokenVerificationOutput {
     authTicket: string;
 }
 
-export const performEmailTokenVerification =
-    (params: PerformEmailTokenVerification): Promise<PerformEmailTokenVerificationOutput> =>
-        requestApi({
-            path: 'authentication/PerformEmailTokenVerification',
-            login: params.login,
-            payload: { login: params.login, token: params.token },
-        });
+export const performEmailTokenVerification = (params: PerformEmailTokenVerification) =>
+    requestApi<PerformEmailTokenVerificationOutput>({
+        path: 'authentication/PerformEmailTokenVerification',
+        login: params.login,
+        payload: { login: params.login, token: params.token },
+    });

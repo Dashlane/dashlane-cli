@@ -6,8 +6,8 @@ import sqlite3 from 'sqlite3';
 const USER_DATA_PATH =
     process.env.APPDATA ||
     (process.platform === 'darwin'
-        ? process.env.HOME + '/Library/Application Support'
-        : process.env.HOME + '/.local/share');
+        ? (process.env.HOME as string) + '/Library/Application Support'
+        : (process.env.HOME as string) + '/.local/share');
 const DB_PATH = USER_DATA_PATH + '/dashlane-cli';
 
 export const connect = async () => {

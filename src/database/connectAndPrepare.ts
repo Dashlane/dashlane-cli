@@ -5,9 +5,12 @@ import { registerDevice } from '../middleware/registerDevice.js';
 import { prepareDB } from './prepare.js';
 import { connect } from './connect.js';
 
-export const connectAndPrepare = async (): Promise<{ db: sqlite3.Database; deviceKeys: DeviceKeysWithLogin }> => {
+export const connectAndPrepare = async (): Promise<{
+    db: sqlite3.Database;
+    deviceKeys: DeviceKeysWithLogin;
+}> => {
     const db = await connect();
-    await promisify(db.serialize).bind(db)();
+    await promisify(db.serialize.bind(db))();
 
     // Create the tables and load the deviceKeys if it exists
     let deviceKeys = await prepareDB({ db });
@@ -18,6 +21,6 @@ export const connectAndPrepare = async (): Promise<{ db: sqlite3.Database; devic
 
     return {
         db,
-        deviceKeys
+        deviceKeys,
     };
 };

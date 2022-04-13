@@ -13,7 +13,7 @@ export const getMasterPassword = async (login: string): Promise<string> => {
     const masterPassword = await keytar.getPassword(SERVICE, login);
 
     if (!masterPassword) {
-        return await setMasterPassword(login);
+        return setMasterPassword(login);
     }
 
     return masterPassword;
@@ -21,27 +21,27 @@ export const getMasterPassword = async (login: string): Promise<string> => {
 
 export const promptMasterPassword = async (): Promise<string> => {
     return (
-        await inquirer.prompt([
+        await inquirer.prompt<{ masterPassword: string }>([
             {
                 type: 'password',
                 name: 'masterPassword',
-                message: 'Please enter your master password:'
-            }
+                message: 'Please enter your master password:',
+            },
         ])
-    )?.masterPassword as string;
+    ).masterPassword;
 };
 
 export const askReplaceMasterPassword = async () => {
     const promptedReplaceMasterPassword: string = (
-        await inquirer.prompt([
+        await inquirer.prompt<{ replaceMasterPassword: string }>([
             {
                 type: 'list',
                 name: 'replaceMasterPassword',
                 message: "Couldn't decrypt any password, would you like to retry?",
-                choices: ['Yes', 'No']
-            }
+                choices: ['Yes', 'No'],
+            },
         ])
-    )?.replaceMasterPassword as string;
+    ).replaceMasterPassword;
 
     return promptedReplaceMasterPassword === 'Yes';
 };

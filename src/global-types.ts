@@ -18,7 +18,7 @@ declare global {
     };
 
     type PartialOrFunctions<T> = {
-        [P in keyof T]?: T[P] | ((P: T[P]) => Boolean);
+        [P in keyof T]?: T[P] | ((P: T[P]) => boolean);
     };
 
     type ConstructorOf<T> = {

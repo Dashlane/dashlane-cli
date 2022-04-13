@@ -11,11 +11,9 @@ export interface PerformDashlaneAuthenticatorVerificationOutput {
     authTicket: string;
 }
 
-export const performDashlaneAuthenticatorVerification = (
-    params: PerformDashlaneAuthenticatorVerification
-): Promise<PerformDashlaneAuthenticatorVerificationOutput> =>
-    requestApi({
+export const performDashlaneAuthenticatorVerification = (params: PerformDashlaneAuthenticatorVerification) =>
+    requestApi<PerformDashlaneAuthenticatorVerificationOutput>({
         path: 'authentication/PerformDashlaneAuthenticatorVerification',
         login: params.login,
-        payload: { login: params.login }
+        payload: { login: params.login },
     });

@@ -1,7 +1,7 @@
 import { signRequest } from './signRequest.js';
 import { PostRequestAPIParams } from './types';
 
-export const postRequestAPI = <T>(params: PostRequestAPIParams<T>): Promise<T> => {
+export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
     const { path, authentication, payload, query, method, userAgent, requestFunction } = params;
 
     const apiHost = `https://api.dashlane.com/`;
@@ -9,7 +9,7 @@ export const postRequestAPI = <T>(params: PostRequestAPIParams<T>): Promise<T> =
     const forgedHeaders = {
         'content-type': 'application/json',
         'user-agent': userAgent || 'CI',
-        'host': 'api.dashlane.com'
+        host: 'api.dashlane.com',
     };
 
     let authorizationHeader = null;
@@ -21,21 +21,19 @@ export const postRequestAPI = <T>(params: PostRequestAPIParams<T>): Promise<T> =
             body: payload,
             uri: '/' + path,
             headers: forgedHeaders,
-            query: query!
+            query,
         });
     }
 
-    return requestFunction(
-        {
-            method: method || 'POST',
-            url: apiHost + path,
-            json: payload,
-            query: query || {},
-            headers: {
-                ...forgedHeaders,
-                host: 'api.dashlane.com',
-                ...(authorizationHeader ? { Authorization: authorizationHeader } : {})
-            },
-        }
-    );
+    return requestFunction({
+        method: method || 'POST',
+        url: apiHost + path,
+        json: payload,
+        query: query || {},
+        headers: {
+            ...forgedHeaders,
+            host: 'api.dashlane.com',
+            ...(authorizationHeader ? { Authorization: authorizationHeader } : {}),
+        },
+    });
 };

@@ -63,8 +63,8 @@ export interface AuthentifiantTransactionContent {
             KWDataItem: {
                 key: string;
                 $t?: string;
-            }[]
-        }
+            }[];
+        };
     };
 }
 

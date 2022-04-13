@@ -9,7 +9,7 @@ interface PrepareDB {
 export const prepareDB = async (params: PrepareDB): Promise<DeviceKeysWithLogin | null> => {
     const { db } = params;
 
-    const run = promisify(db.run).bind(db);
+    const run = promisify(db.run.bind(db));
 
     await Promise.all([
         run(`CREATE TABLE IF NOT EXISTS syncUpdates (timestamp INT PRIMARY KEY);`),
@@ -23,9 +23,9 @@ export const prepareDB = async (params: PrepareDB): Promise<DeviceKeysWithLogin 
             login VARCHAR(255) PRIMARY KEY,
             accessKey VARCHAR(255) NOT NULL,
             secretKey VARCHAR(255) NOT NULL
-        );`)
+        );`),
     ]);
 
-    const result = await promisify<string, DeviceKeysWithLogin | null>(db.get).bind(db)('SELECT * FROM device LIMIT 1');
+    const result = await promisify<string, DeviceKeysWithLogin | null>(db.get.bind(db))('SELECT * FROM device LIMIT 1');
     return result || null;
 };

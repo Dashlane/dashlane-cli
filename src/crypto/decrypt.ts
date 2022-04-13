@@ -30,12 +30,7 @@ export interface CipheringMethod {
     cypheredContent: CypheredContent;
 }
 
-export const argonDecrypt = (
-    dataBuffer: Buffer,
-    originalKey: Buffer,
-    iv: Buffer,
-    signature: Buffer
-): Buffer => {
+export const argonDecrypt = (dataBuffer: Buffer, originalKey: Buffer, iv: Buffer, signature: Buffer): Buffer => {
     const combinedKey = sha512(originalKey);
     const cipheringKey = combinedKey.slice(0, 32);
     const macKey = combinedKey.slice(32);
@@ -80,7 +75,7 @@ const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod =>
     const cypherConfig: CipherConfig = {
         encryption,
         cipherMode,
-        ivLength: parseInt(ivLength, 10)
+        ivLength: parseInt(ivLength, 10),
     };
 
     const keyDerivation: Argon2d = {
@@ -88,7 +83,7 @@ const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod =>
         saltLength: parseInt(saltLength, 10),
         tCost: parseInt(tCost, 10),
         mCost: parseInt(mCost, 10),
-        parallelism: parseInt(parallelism, 10)
+        parallelism: parseInt(parallelism, 10),
     };
 
     let pos = payloadArray.join('$').length + 1;
@@ -105,8 +100,14 @@ const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod =>
         salt,
         iv,
         hmac,
-        encryptedData
+        encryptedData,
     };
 
-    return { method: 'Argon2d', version, cypherConfig, keyDerivation, cypheredContent };
+    return {
+        method: 'Argon2d',
+        version,
+        cypherConfig,
+        keyDerivation,
+        cypheredContent,
+    };
 };
