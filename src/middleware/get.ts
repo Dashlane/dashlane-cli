@@ -6,8 +6,10 @@ import * as xml2json from 'xml2json';
 import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { promisify } from 'util';
+import { authenticator } from 'otplib';
+
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
-import { AuthentifiantTransactionContent, BackupEditTransaction } from '../types';
+import { AuthentifiantTransactionContent, BackupEditTransaction, VaultCredential } from '../types';
 
 interface GetPassword {
     titleFilter: string | null;
@@ -131,13 +133,27 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         }
     }
 
-    const wantedPwd = passwordsDecrypted.filter((item) =>
+    const wantedPasswordEntries = passwordsDecrypted.filter((item) =>
         item.root.KWAuthentifiant.KWDataItem.find(
-            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t.includes(websiteQueried || '')
+            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried || '')
         )
     )[0].root.KWAuthentifiant.KWDataItem;
 
-    clipboard.default.writeSync(wantedPwd.find((auth) => auth.key === 'Password')!.$t);
+    // transform entries [{key: xx, $t: ww}] into an easier-to-use object
+    const wantedPassword = Object.fromEntries(
+        wantedPasswordEntries.map((entry) => [
+            entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
+            entry.$t,
+        ])
+    ) as unknown as VaultCredential;
 
-    console.log(`Password for "${wantedPwd.find((auth) => auth.key === 'Title')!.$t}" copied to clipboard!`);
+    clipboard.default.writeSync(wantedPassword.password);
+
+    console.log(`🔓 Password for "${wantedPassword.title}" copied to clipboard!`);
+
+    if (wantedPassword.otpSecret) {
+        const token = authenticator.generate(wantedPassword.otpSecret);
+        const timeRemaining = authenticator.timeRemaining();
+        console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+    }
 };
