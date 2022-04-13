@@ -11,7 +11,12 @@ export const sync = async (params: Sync) => {
     const { db, deviceKeys } = params;
     console.log('Start syncing...');
 
-    const formerSyncTimestamp = (db.prepare('SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1').get() as { timestamp?: number })?.timestamp || 0;
+    const formerSyncTimestamp =
+        (
+            db.prepare('SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1').get() as {
+                timestamp?: number;
+            }
+        )?.timestamp || 0;
 
     const latestContent = await getLatestContent({
         login: deviceKeys.login,
@@ -33,7 +38,7 @@ export const sync = async (params: Sync) => {
 
     // execute all transactions
     const replaceTransactions = db.transaction((transactions) => {
-        for (const transaction of transactions) statement.run(transaction)
+        for (const transaction of transactions) statement.run(transaction);
     });
 
     replaceTransactions(values);

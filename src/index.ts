@@ -12,7 +12,7 @@ program
     .action(async () => {
         const { db, deviceKeys } = await connectAndPrepare();
         await sync({ db, deviceKeys });
-        db.close()
+        db.close();
     });
 
 program
