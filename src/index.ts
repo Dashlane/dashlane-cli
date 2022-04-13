@@ -10,7 +10,9 @@ program
     .command('sync')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        return sync(await connectAndPrepare());
+        const { db, deviceKeys } = await connectAndPrepare();
+        await sync({ db, deviceKeys });
+        db.close()
     });
 
 program
@@ -22,11 +24,12 @@ program
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null) => {
         const { db, deviceKeys } = await connectAndPrepare();
-        return getPassword({
+        await getPassword({
             titleFilter: filter,
             login: deviceKeys.login,
             db,
         });
+        db.close();
     });
 
 program.parseAsync().catch((err) => console.error(err));

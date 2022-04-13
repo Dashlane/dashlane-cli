@@ -51,7 +51,6 @@ export const requestApi = async <T>(params: RequestApi): Promise<T> => {
             payload,
             userAgent: 'TURBOBOT', // the user agent is mandatory when using "fetch" module
         });
-        console.log(response);
     } catch (error: unknown) {
         // Generate a DashlaneApiError if appropriate
         if (error instanceof HTTPError && typeof error.response?.body === 'string') {

@@ -1,6 +1,5 @@
 import inquirer from 'inquirer';
-import * as sqlite3 from 'sqlite3';
-import { promisify } from 'util';
+import Database from 'better-sqlite3';
 import {
     completeDeviceRegistration,
     performDuoPushVerification,
@@ -12,7 +11,7 @@ import { performDashlaneAuthenticatorVerification } from '../steps/performDashla
 import type { DeviceKeysWithLogin } from '../types.js';
 
 interface RegisterDevice {
-    db: sqlite3.Database;
+    db: Database.Database;
 }
 
 export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeysWithLogin> => {
@@ -69,10 +68,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
 
     // Complete the device registration and save the result
     const { deviceAccessKey, deviceSecretKey } = await completeDeviceRegistration({ login, authTicket });
-    await promisify<string, any[], void>(db.run.bind(db))('REPLACE INTO device VALUES (?, ?, ?)', [
-        login,
-        deviceAccessKey,
-        deviceSecretKey,
-    ]);
+
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?)').bind(login, deviceAccessKey, deviceSecretKey).run();
     return { login, accessKey: deviceAccessKey, secretKey: deviceSecretKey };
 };

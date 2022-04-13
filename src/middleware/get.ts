@@ -1,11 +1,10 @@
 import * as clipboard from 'clipboardy';
-import * as sqlite3 from 'sqlite3';
 import * as argon2 from 'argon2';
 import * as zlib from 'zlib';
 import * as xml2json from 'xml2json';
+import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
-import { promisify } from 'util';
 import { authenticator } from 'otplib';
 
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
@@ -15,7 +14,7 @@ import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '
 interface GetPassword {
     titleFilter: string | null;
     login: string;
-    db: sqlite3.Database;
+    db: Database.Database;
 }
 
 const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => {
@@ -106,9 +105,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     }
 
     console.log('Retrieving:', titleFilter || '');
-    const transactions = (await promisify(db.all.bind(db))(
-        "SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'"
-    )) as BackupEditTransaction[];
+    const transactions = db.prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`).all() as BackupEditTransaction[];
 
     const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
     if (!passwordsDecrypted) {
