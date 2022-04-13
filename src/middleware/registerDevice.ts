@@ -1,14 +1,15 @@
+import inquirer from 'inquirer';
 import * as sqlite3 from 'sqlite3';
 import { promisify } from 'util';
 import {
-    requestDeviceRegistration,
-    performDuoPushVerification,
     completeDeviceRegistration,
+    performDuoPushVerification,
+    performEmailTokenVerification,
     performTotpVerification,
-    performEmailTokenVerification
+    requestDeviceRegistration
 } from '../steps/index.js';
+import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification.js';
 import type { DeviceKeysWithLogin } from '../types.js';
-import inquirer from 'inquirer';
 
 interface RegisterDevice {
     db: sqlite3.Database;
@@ -32,6 +33,8 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
     let authTicket;
     if (verification.find((method) => method.type === 'duo_push')) {
         authTicket = (await performDuoPushVerification({ login })).authTicket;
+    } else if (verification.find((method) => method.type === 'dashlane_authenticator')) {
+        authTicket = (await performDashlaneAuthenticatorVerification({ login })).authTicket;
     } else if (verification.find((method) => method.type === 'totp')) {
         const { otp } = await inquirer.prompt([
             {

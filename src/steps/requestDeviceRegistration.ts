@@ -14,7 +14,7 @@ export interface RequestDeviceRegistrationOutput {
      */
     verification: (
         | {
-              type: 'email_token' | 'totp' | 'duo_push';
+              type: 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';
           }
         | {
               type: 'u2f';
@@ -35,10 +35,11 @@ export interface RequestDeviceRegistrationOutput {
     )[];
 }
 
-export const requestDeviceRegistration =
-    (params: RequestDeviceRegistration): Promise<RequestDeviceRegistrationOutput> =>
-        requestApi({
-            path: 'authentication/RequestDeviceRegistration',
-            login: params.login,
-            payload: { login: params.login }
-        });
+export const requestDeviceRegistration = (
+    params: RequestDeviceRegistration
+): Promise<RequestDeviceRegistrationOutput> =>
+    requestApi({
+        path: 'authentication/RequestDeviceRegistration',
+        login: params.login,
+        payload: { login: params.login, hasDashlaneAuthenticatorSupport: true }
+    });
