@@ -17,7 +17,7 @@ export const connect = () => {
     }
 
     const db = new Database(DB_PATH + '/userdata.db');
-    winston.debug('Connected to database.')
+    winston.debug('Connected to database.');
 
     return db;
 };

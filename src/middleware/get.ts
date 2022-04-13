@@ -88,8 +88,7 @@ const decryptTransactions = async (
         return decryptTransactions(transactions, masterPassword, login);
     }
 
-    const authentifiantTransactions = transactions
-        .filter((transaction) => transaction.type === 'AUTHENTIFIANT');
+    const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
 
     const passwordsDecrypted = authentifiantTransactions
         .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
