@@ -91,6 +91,6 @@ export const assertNever = (x: never): never => {
     if (isTestEnvironment) {
         throw new Error('Should have never been here');
     }
-    console.log('Should have never been here', x);
+    console.error('Should have never been here', x);
     return x;
 };

@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import winston from 'winston';
 import { getLatestContent } from '../steps/index.js';
 import type { DeviceKeysWithLogin } from '../types.js';
 
@@ -9,7 +10,7 @@ interface Sync {
 
 export const sync = async (params: Sync) => {
     const { db, deviceKeys } = params;
-    console.log('Start syncing...');
+    winston.debug('Start syncing...');
 
     const formerSyncTimestamp =
         (
@@ -46,11 +47,11 @@ export const sync = async (params: Sync) => {
     // save the new transaction timestamp in the db
     db.prepare('REPLACE INTO syncUpdates(timestamp) VALUES(?)').bind(Number(latestContent.timestamp)).run();
 
-    console.log('Requested timestamp ', formerSyncTimestamp, ', new timestamp', latestContent.timestamp);
+    winston.debug('Requested timestamp ', formerSyncTimestamp, ', new timestamp', latestContent.timestamp);
 
     const summaryCounted: Record<string, number> = {};
     Object.keys(latestContent.summary).forEach((key) => {
         summaryCounted[key] = Object.keys(latestContent.summary[key]).length;
     });
-    console.log(summaryCounted);
+    winston.debug(summaryCounted);
 };

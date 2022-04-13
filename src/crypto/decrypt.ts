@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import winston from 'winston';
 import { hmacSha256, sha512 } from './hash.js';
 
 export interface Argon2d {
@@ -45,7 +46,7 @@ export const argonDecrypt = (dataBuffer: Buffer, originalKey: Buffer, iv: Buffer
 
 export const getCipheringMethod = (cipheredData: string): CipheringMethod => {
     if (!cipheredData || cipheredData.length === 0) {
-        console.log(cipheredData);
+        winston.debug(cipheredData);
         throw new Error('invalid ciphered data');
     }
     const newMarkerDelimiter = '$';
