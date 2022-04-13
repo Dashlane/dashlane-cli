@@ -13,7 +13,8 @@
         "watch": "tsc --watch",
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
-        "start": "node dist"
+        "start": "node dist",
+        "prepare": "husky install"
     },
     "author": "",
     "license": "ISC",
@@ -28,6 +29,7 @@
         "@typescript-eslint/parser": "^5.19.0",
         "eslint": "^8.13.0",
         "eslint-config-prettier": "^8.5.0",
+        "husky": "^7.0.4",
         "prettier": "^2.6.2",
         "typescript": "^4.6.3"
     },
@@ -39,8 +41,8 @@
         "got": "^12.0.0",
         "inquirer": "^8.2.0",
         "inquirer-autocomplete-prompt": "^2.0.0",
-        "otplib": "^12.0.1",
         "keytar": "^7.9.0",
+        "otplib": "^12.0.1",
         "xml2json": "^0.12.0",
         "zlib": "^1.0.5"
     }

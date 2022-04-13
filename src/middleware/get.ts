@@ -105,7 +105,9 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     }
 
     console.log('Retrieving:', titleFilter || '');
-    const transactions = db.prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`).all() as BackupEditTransaction[];
+    const transactions = db
+        .prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`)
+        .all() as BackupEditTransaction[];
 
     const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
     if (!passwordsDecrypted) {
