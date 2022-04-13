@@ -14,15 +14,15 @@ export const sync = async (params: Sync) => {
 
     const formerSyncTimestamp =
         ((
-            await promisify<string, any>(db.get).bind(db)(
+            (await promisify<string, any>(db.get.bind(db))(
                 'SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1'
-            )
+            )) as { timestamp?: number }
         )?.timestamp as number) || 0;
 
     const latestContent = await getLatestContent({
         login: deviceKeys.login,
         timestamp: formerSyncTimestamp,
-        deviceKeys
+        deviceKeys,
     });
 
     // insert the transactions
@@ -38,12 +38,14 @@ export const sync = async (params: Sync) => {
     const statement = db.prepare(`REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)`);
 
     // execute all transactions
-    await Promise.all(values.map((value) => promisify<any, void>(statement.run).bind(statement)(value)));
-    await promisify(statement.finalize).bind(statement)();
+    await Promise.all(
+        values.map((value) => promisify<any, void>(statement.run.bind(statement)).bind(statement)(value))
+    );
+    await promisify(statement.finalize.bind(statement))();
 
     // save the new transaction timestamp in the db
-    await promisify<string, any, void>(db.run).bind(db)('REPLACE INTO syncUpdates(timestamp) VALUES(?)', [
-        Number(latestContent.timestamp)
+    await promisify<string, any, void>(db.run.bind(db))('REPLACE INTO syncUpdates(timestamp) VALUES(?)', [
+        Number(latestContent.timestamp),
     ]);
 
     console.log('Requested timestamp ', formerSyncTimestamp, ', new timestamp', latestContent.timestamp);

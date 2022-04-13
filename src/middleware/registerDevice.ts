@@ -6,7 +6,7 @@ import {
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
-    requestDeviceRegistration
+    requestDeviceRegistration,
 } from '../steps/index.js';
 import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification.js';
 import type { DeviceKeysWithLogin } from '../types.js';
@@ -19,12 +19,12 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
     const { db } = params;
     console.log('Registering the device...');
 
-    const { login } = await inquirer.prompt([
+    const { login } = await inquirer.prompt<{ login: string }>([
         {
             type: 'input',
             name: 'login',
-            message: 'Please enter your email address:'
-        }
+            message: 'Please enter your email address:',
+        },
     ]);
 
     // Log in via a compatible verification method
@@ -36,33 +36,43 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
     } else if (verification.find((method) => method.type === 'dashlane_authenticator')) {
         authTicket = (await performDashlaneAuthenticatorVerification({ login })).authTicket;
     } else if (verification.find((method) => method.type === 'totp')) {
-        const { otp } = await inquirer.prompt([
+        const { otp } = await inquirer.prompt<{ otp: number }>([
             {
                 type: 'number',
                 name: 'otp',
-                message: 'Please enter your OTP code'
-            }
+                message: 'Please enter your OTP code',
+            },
         ]);
-        authTicket = (await performTotpVerification({ login, otp: String(otp).padStart(5, '0') })).authTicket;
+        authTicket = (
+            await performTotpVerification({
+                login,
+                otp: String(otp).padStart(5, '0'),
+            })
+        ).authTicket;
     } else if (verification.find((method) => method.type === 'email_token')) {
-        const { token } = await inquirer.prompt([
+        const { token } = await inquirer.prompt<{ token: number }>([
             {
                 type: 'number',
                 name: 'token',
-                message: 'Please enter the code you received by email'
-            }
+                message: 'Please enter the code you received by email',
+            },
         ]);
-        authTicket = (await performEmailTokenVerification({ login, token: String(token).padStart(5, '0') })).authTicket;
+        authTicket = (
+            await performEmailTokenVerification({
+                login,
+                token: String(token).padStart(5, '0'),
+            })
+        ).authTicket;
     } else {
         throw new Error('Auth verification method not supported: ' + verification[0].type);
     }
 
     // Complete the device registration and save the result
     const { deviceAccessKey, deviceSecretKey } = await completeDeviceRegistration({ login, authTicket });
-    await promisify<string, any[], void>(db.run).bind(db)('REPLACE INTO device VALUES (?, ?, ?)', [
+    await promisify<string, any[], void>(db.run.bind(db))('REPLACE INTO device VALUES (?, ?, ?)', [
         login,
         deviceAccessKey,
-        deviceSecretKey
+        deviceSecretKey,
     ]);
     return { login, accessKey: deviceAccessKey, secretKey: deviceSecretKey };
 };

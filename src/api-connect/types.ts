@@ -2,7 +2,7 @@ export type RequestFunctionOptions = {
     method: 'POST' | 'GET';
     headers: Dictionary<string>;
     url: string;
-    json: Object;
+    json: Dictionary<unknown>;
     query?: Dictionary<string | string[]>;
 };
 
@@ -46,7 +46,7 @@ export interface PostRequestAPIParams<T> {
     requestFunction: RequestFunction<T>;
     path: string;
     authentication: Authentication;
-    payload: object;
+    payload: Dictionary<unknown>;
     query?: Dictionary<string | string[]>;
     method?: 'POST' | 'GET';
     userAgent?: string;
@@ -60,13 +60,13 @@ export interface SignRequestParams {
     body: object;
     uri: string;
     headers: Dictionary<string>;
-    query: Dictionary<string | string[]>;
+    query?: Dictionary<string | string[]>;
 }
 
 export interface MakeCanonicalRequestParams {
     method: string;
     uri: string;
-    query: Dictionary<string | string[]>;
+    query?: Dictionary<string | string[]>;
     headers: Dictionary<string>;
     headersToSign: string[];
     hashedPayload: string;

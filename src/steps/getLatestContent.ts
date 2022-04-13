@@ -61,11 +61,11 @@ export interface GetLatestContentOutput {
               publicKey: string;
               privateKey: string;
           }
-        | {};
+        | Record<string, never>;
 }
 
-export const getLatestContent = (params: GetLatestContent): Promise<GetLatestContentOutput> =>
-    requestApi({
+export const getLatestContent = (params: GetLatestContent) =>
+    requestApi<GetLatestContentOutput>({
         path: 'sync/GetLatestContent',
         login: params.login,
         deviceKeys: params.deviceKeys,
@@ -73,6 +73,6 @@ export const getLatestContent = (params: GetLatestContent): Promise<GetLatestCon
             timestamp: params.timestamp,
             needsKeys: false,
             teamAdminGroups: false,
-            transactions: []
-        }
+            transactions: [],
+        },
     });

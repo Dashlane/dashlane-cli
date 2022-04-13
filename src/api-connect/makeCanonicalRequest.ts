@@ -18,12 +18,12 @@ export const makeCanonicalRequest = (params: MakeCanonicalRequestParams) => {
         canonicalQueryString,
         canonicalHeaders,
         signedHeaders,
-        params.hashedPayload
+        params.hashedPayload,
     ].join('\n');
 
     return {
         canonicalRequest,
-        signedHeaders
+        signedHeaders,
     };
 };
 

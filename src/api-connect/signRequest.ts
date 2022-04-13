@@ -14,19 +14,19 @@ export const signRequest = (params: SignRequestParams) => {
     const headersToSign = ['content-type', 'user-agent'];
 
     const { canonicalRequest, signedHeaders } = makeCanonicalRequest({
-        method: method,
-        uri: uri,
-        headers: headers,
-        query: query,
+        method,
+        uri,
+        headers,
+        query,
         hashedPayload: bodyHash,
-        headersToSign
+        headersToSign,
     });
 
     const timestamp = Math.round(Date.now() / 1000);
     const stringToSign = [
         signatureAlgorithm,
         timestamp.toString(),
-        crypto.createHash('sha256').update(canonicalRequest).digest('hex')
+        crypto.createHash('sha256').update(canonicalRequest).digest('hex'),
     ].join('\n');
 
     // Generate authorization header
@@ -46,7 +46,7 @@ export const signRequest = (params: SignRequestParams) => {
             ...authenticationHeader,
             'Timestamp=' + timestamp.toString(),
             'SignedHeaders=' + signedHeaders,
-            'Signature=' + signature
+            'Signature=' + signature,
         ].join(',');
 
     return authorizationHeader;
@@ -58,13 +58,13 @@ const generateAuthenticationHeader = (authentication: Authentication): string[] 
             return [
                 `Login=${authentication.login}`,
                 `AppAccessKey=${authentication.appAccessKey}`,
-                `DeviceAccessKey=${authentication.accessKey}`
+                `DeviceAccessKey=${authentication.accessKey}`,
             ];
         case 'teamDevice':
             return [
                 `TeamUuid=${authentication.teamUuid}`,
                 `AppAccessKey=${authentication.appAccessKey}`,
-                `DeviceAccessKey=${authentication.accessKey}`
+                `DeviceAccessKey=${authentication.accessKey}`,
             ];
         case 'app':
             return [`AppAccessKey=${authentication.appAccessKey}`];

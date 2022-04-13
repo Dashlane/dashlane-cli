@@ -35,11 +35,9 @@ export interface RequestDeviceRegistrationOutput {
     )[];
 }
 
-export const requestDeviceRegistration = (
-    params: RequestDeviceRegistration
-): Promise<RequestDeviceRegistrationOutput> =>
-    requestApi({
+export const requestDeviceRegistration = (params: RequestDeviceRegistration) =>
+    requestApi<RequestDeviceRegistrationOutput>({
         path: 'authentication/RequestDeviceRegistration',
         login: params.login,
-        payload: { login: params.login, hasDashlaneAuthenticatorSupport: true }
+        payload: { login: params.login, hasDashlaneAuthenticatorSupport: true },
     });
