@@ -38,6 +38,7 @@
         "inquirer": "^8.2.0",
         "inquirer-autocomplete-prompt": "^1.4.0",
         "otplib": "^12.0.1",
+        "keytar": "^7.9.0",
         "sqlite3": "^5.0.2",
         "xml2json": "^0.12.0",
         "zlib": "^1.0.5"
