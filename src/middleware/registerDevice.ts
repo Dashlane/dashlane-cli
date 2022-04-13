@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import Database from 'better-sqlite3';
+import winston from 'winston';
 import {
     completeDeviceRegistration,
     performDuoPushVerification,
@@ -16,7 +17,7 @@ interface RegisterDevice {
 
 export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeysWithLogin> => {
     const { db } = params;
-    console.log('Registering the device...');
+    winston.debug('Registering the device...');
 
     const { login } = await inquirer.prompt<{ login: string }>([
         {

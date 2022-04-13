@@ -1,5 +1,6 @@
 import fs from 'fs';
 import Database from 'better-sqlite3';
+import winston from 'winston';
 
 // The most appropriate folder to store the user's data, by OS
 const USER_DATA_PATH =
@@ -16,7 +17,7 @@ export const connect = () => {
     }
 
     const db = new Database(DB_PATH + '/userdata.db');
-    console.log('Connected to database.');
+    winston.debug('Connected to database.')
 
     return db;
 };

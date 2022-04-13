@@ -1,10 +1,21 @@
 #!/usr/bin/env node
 import { program } from 'commander';
+import winston from 'winston';
 import { sync } from './middleware/sync.js';
 import { getPassword } from './middleware/get.js';
 import { connectAndPrepare } from './database/index.js';
 
+const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
+
+winston.configure({
+    level: debugLevel,
+    format: winston.format.combine(winston.format.splat(), winston.format.cli()),
+    transports: [new winston.transports.Console()],
+});
+
 program.name('dcli').description('[Non Official] Dashlane CLI').version('0.1.0');
+
+program.option('--debug', 'Print debug messages');
 
 program
     .command('sync')

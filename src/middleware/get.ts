@@ -6,6 +6,7 @@ import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { authenticator } from 'otplib';
+import winston from 'winston';
 
 import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
 import { AuthentifiantTransactionContent, BackupEditTransaction, VaultCredential } from '../types';
@@ -87,12 +88,16 @@ const decryptTransactions = async (
         return decryptTransactions(transactions, masterPassword, login);
     }
 
-    const passwordsDecrypted = transactions
-        .filter((transaction) => transaction.type === 'AUTHENTIFIANT')
+    const authentifiantTransactions = transactions
+        .filter((transaction) => transaction.type === 'AUTHENTIFIANT');
+
+    const passwordsDecrypted = authentifiantTransactions
         .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
         .filter(notEmpty);
 
-    console.log('Encountered decryption errors:', transactions.length - passwordsDecrypted.length);
+    if (authentifiantTransactions.length !== passwordsDecrypted.length) {
+        console.error('Encountered decryption errors:', authentifiantTransactions.length - passwordsDecrypted.length);
+    }
     return passwordsDecrypted;
 };
 
@@ -104,7 +109,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         throw new Error("Couldn't retrieve master pasword in OS keychain.");
     }
 
-    console.log('Retrieving:', titleFilter || '');
+    winston.debug('Retrieving:', titleFilter || '');
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`)
         .all() as BackupEditTransaction[];
