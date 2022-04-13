@@ -135,7 +135,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     const wantedPasswordEntries = passwordsDecrypted.filter((item) =>
         item.root.KWAuthentifiant.KWDataItem.find(
-            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried)
+            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried || '')
         )
     )[0].root.KWAuthentifiant.KWDataItem;
 
