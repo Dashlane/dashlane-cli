@@ -1,6 +1,10 @@
 import * as crypto from 'crypto';
 import winston from 'winston';
 import { hmacSha256, sha512 } from './hash.js';
+import { BackupEditTransaction } from '../types';
+import zlib from 'zlib';
+import * as xml2json from 'xml2json';
+import * as argon2 from 'argon2';
 
 export interface Argon2d {
     algo: string;
@@ -111,4 +115,54 @@ const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod =>
         keyDerivation,
         cypheredContent,
     };
+};
+
+export const decryptTransaction = (transaction: BackupEditTransaction, derivate: Buffer): any => {
+    let cypheredContent;
+
+    try {
+        cypheredContent = getCipheringMethod(transaction.content).cypheredContent;
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(transaction.type, error.message);
+        } else {
+            console.error(transaction.type, error);
+        }
+        return null;
+    }
+    const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
+
+    try {
+        const content = argonDecrypt(encD, derivate, iv, sign);
+        const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
+        return JSON.parse(xml2json.toJson(xmlContent));
+    } catch (error: any) {
+        if (error instanceof Error) {
+            console.error(transaction.type, error.message);
+        } else {
+            console.error(transaction.type, error);
+        }
+        return null;
+    }
+};
+
+export const getDerivate = async (
+    masterPassword: string,
+    settingsTransaction: BackupEditTransaction
+): Promise<Buffer> => {
+    const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransaction.content);
+
+    const { salt } = cypheredContent;
+
+    return argon2.hash(masterPassword, {
+        type: argon2.argon2d,
+        saltLength: keyDerivation.saltLength,
+        timeCost: keyDerivation.tCost,
+        memoryCost: keyDerivation.mCost,
+        parallelism: keyDerivation.parallelism,
+        salt,
+        version: 19,
+        hashLength: 32,
+        raw: true,
+    });
 };
