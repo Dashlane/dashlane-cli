@@ -1,12 +1,12 @@
 import winston from 'winston';
 import Database from 'better-sqlite3';
+import inquirer from 'inquirer';
+import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
 import { BackupEditTransaction, SecureNoteTransactionContent, VaultNote } from '../types.js';
 import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
 import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/index.js';
-import inquirer from 'inquirer';
-import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
-import { notEmpty } from '../utils';
+import { notEmpty } from '../utils.js';
 
 interface GetSecureNote {
     titleFilter: string | null;

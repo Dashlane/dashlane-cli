@@ -3,7 +3,7 @@ import { program } from 'commander';
 import winston from 'winston';
 import { sync } from './middleware/sync.js';
 import { getNote } from './middleware/getSecureNotes.js';
-import { getOtp, getPassword } from './middleware/getPasswords.js';
+import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords.js';
 import { connectAndPrepare } from './database/index.js';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
@@ -31,16 +31,37 @@ program
     .command('password')
     .alias('p')
     .description('Retrieve passwords from local vault and save it in the clipboard.')
-    .option('--print, -p', 'Prints just the password, instead of copying it inside the clipboard')
+    .option(
+        '--output <type>',
+        'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.',
+        'clipboard'
+    )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
-    .action(async (filter: string | null, options: { print: boolean }) => {
+    .action(async (filter: string | null, options: { output: string | null }) => {
         const { db, deviceKeys } = await connectAndPrepare();
-        await getPassword({
-            titleFilter: filter,
-            login: deviceKeys.login,
-            print: options.print,
-            db,
-        });
+
+        console.log(options.output);
+        if (options.output === 'json') {
+            console.log(
+                JSON.stringify(
+                    await selectCredentials({
+                        titleFilter: filter,
+                        login: deviceKeys.login,
+                        output: options.output,
+                        db,
+                    }),
+                    null,
+                    4
+                )
+            );
+        } else {
+            await getPassword({
+                titleFilter: filter,
+                login: deviceKeys.login,
+                output: options.output,
+                db,
+            });
+        }
         db.close();
     });
 
@@ -55,7 +76,7 @@ program
         await getOtp({
             titleFilter: filter,
             login: deviceKeys.login,
-            print: options.print,
+            output: options.print ? 'otp' : 'clipboard',
             db,
         });
         db.close();
