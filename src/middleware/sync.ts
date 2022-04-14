@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
+
 import { getLatestContent } from '../steps/index.js';
 import type { DeviceKeysWithLogin } from '../types.js';
 

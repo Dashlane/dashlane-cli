@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import crypto from 'crypto';
 
 const toBuffer = (data: Buffer | string): Buffer => {
     return Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf-8');

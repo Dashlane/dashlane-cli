@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import Database from 'better-sqlite3';
 import winston from 'winston';
+
 import {
     completeDeviceRegistration,
     performDuoPushVerification,

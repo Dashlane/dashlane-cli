@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import winston from 'winston';
+
 import { sync } from './middleware/sync.js';
 import { getNote } from './middleware/getSecureNotes.js';
 import { getOtp, getPassword } from './middleware/getPasswords.js';

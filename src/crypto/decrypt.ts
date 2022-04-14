@@ -1,10 +1,11 @@
-import * as crypto from 'crypto';
+import crypto from 'crypto';
 import winston from 'winston';
-import { hmacSha256, sha512 } from './hash.js';
-import { BackupEditTransaction } from '../types';
 import zlib from 'zlib';
-import * as xml2json from 'xml2json';
-import * as argon2 from 'argon2';
+import xml2json from 'xml2json';
+import argon2 from 'argon2';
+
+import { hmacSha256, sha512 } from './hash.js';
+import { BackupEditTransaction } from '../types.js';
 
 export interface Argon2d {
     algo: string;

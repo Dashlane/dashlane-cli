@@ -1,7 +1,7 @@
 import * as apiconnect from './api-connect/index.js';
-import { gotImplementation } from './utils/gotImplementation.js';
-import { HTTPError } from 'got';
 import * as got from 'got';
+
+import { gotImplementation } from './utils/gotImplementation.js';
 
 interface RequestApi {
     login: string;
@@ -53,7 +53,7 @@ export const requestApi = async <T>(params: RequestApi): Promise<T> => {
         });
     } catch (error: unknown) {
         // Generate a DashlaneApiError if appropriate
-        if (error instanceof HTTPError && typeof error.response?.body === 'string') {
+        if (error instanceof got.HTTPError && typeof error.response?.body === 'string') {
             let details;
             try {
                 details = (JSON.parse(error.response.body) as DashlaneApiErrorResponse).errors[0];

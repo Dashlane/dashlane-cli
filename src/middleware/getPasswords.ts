@@ -1,4 +1,4 @@
-import * as clipboard from 'clipboardy';
+import clipboard from 'clipboardy';
 import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
@@ -7,8 +7,8 @@ import winston from 'winston';
 
 import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
 import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent } from '../types.js';
-import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
-import { notEmpty } from '../utils';
+import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/index.js';
+import { notEmpty } from '../utils.js';
 
 interface GetCredential {
     titleFilter: string | null;
@@ -146,7 +146,7 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
         return;
     }
 
-    clipboard.default.writeSync(selectedCredential.password);
+    clipboard.writeSync(selectedCredential.password);
     console.log(`🔓 Password for "${selectedCredential.title}" copied to clipboard!`);
 
     if (selectedCredential.otpSecret) {

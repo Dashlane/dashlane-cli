@@ -14,7 +14,9 @@
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
         "start": "node dist",
-        "prepare": "husky install"
+        "prepare": "if [ -d './node_modules/husky' ]; then husky install; fi",
+        "prepack": "cp package*.json dist/ && cd dist/ && npm ci --production && cd ..",
+        "package": "npm run prepack && npx caxa --input dist/ --output dcli -- \"{{caxa}}/node_modules/.bin/node\" \"{{caxa}}/index.js\""
     },
     "author": "",
     "license": "ISC",
@@ -28,6 +30,7 @@
         "@types/xml2json": "^0.11.4",
         "@typescript-eslint/eslint-plugin": "^5.19.0",
         "@typescript-eslint/parser": "^5.19.0",
+        "caxa": "^2.1.0",
         "eslint": "^8.13.0",
         "eslint-config-prettier": "^8.5.0",
         "husky": "^7.0.4",
