@@ -1,15 +1,17 @@
 import * as clipboard from 'clipboardy';
-import * as argon2 from 'argon2';
-import * as zlib from 'zlib';
-import * as xml2json from 'xml2json';
 import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
-import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
-import { AuthentifiantTransactionContent, BackupEditTransaction, VaultCredential } from '../types';
+import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
+import {
+    BackupEditTransaction,
+    notEmpty,
+    VaultCredential,
+    AuthentifiantTransactionContent
+} from '../types.js';
 import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
 
 interface GetCredential {
@@ -19,66 +21,7 @@ interface GetCredential {
     db: Database.Database;
 }
 
-const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => {
-    return value !== null && value !== undefined;
-};
-
-const getDerivate = async (masterPassword: string, settingsTransaction: BackupEditTransaction): Promise<Buffer> => {
-    const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransaction.content);
-
-    const { salt } = cypheredContent;
-
-    return argon2.hash(masterPassword, {
-        type: argon2.argon2d,
-        saltLength: keyDerivation.saltLength,
-        timeCost: keyDerivation.tCost,
-        memoryCost: keyDerivation.mCost,
-        parallelism: keyDerivation.parallelism,
-        salt,
-        version: 19,
-        hashLength: 32,
-        raw: true,
-    });
-};
-
-const decryptTransaction = (
-    transaction: BackupEditTransaction,
-    derivate: Buffer
-): AuthentifiantTransactionContent | null => {
-    let cypheredContent;
-
-    try {
-        cypheredContent = getCipheringMethod(transaction.content).cypheredContent;
-    } catch (error) {
-        if (error instanceof Error) {
-            console.error(transaction.type, error.message);
-        } else {
-            console.error(transaction.type, error);
-        }
-        return null;
-    }
-    const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
-
-    try {
-        const content = argonDecrypt(encD, derivate, iv, sign);
-        const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
-        return JSON.parse(xml2json.toJson(xmlContent)) as AuthentifiantTransactionContent;
-    } catch (error: any) {
-        if (error instanceof Error) {
-            if (error.message === 'mismatching signatures') {
-                // TODO: support pbkdf2 entries
-                winston.debug(transaction.type + ' ' + error.message);
-            } else {
-                console.error(transaction.type, error.message);
-            }
-        } else {
-            console.error(transaction.type, error);
-        }
-        return null;
-    }
-};
-
-const decryptTransactions = async (
+const decryptPasswordTransactions = async (
     transactions: BackupEditTransaction[],
     masterPassword: string,
     login: string
@@ -94,13 +37,13 @@ const decryptTransactions = async (
                 throw new Error('The master password is incorrect.');
             }
             const masterPassword = await setMasterPassword(login);
-            return decryptTransactions(transactions, masterPassword, login);
+            return decryptPasswordTransactions(transactions, masterPassword, login);
         }
 
         const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
 
         const passwordsDecrypted = authentifiantTransactions
-            .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
+            .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate) as (AuthentifiantTransactionContent | null))
             .filter(notEmpty);
 
         if (authentifiantTransactions.length !== passwordsDecrypted.length) {
@@ -118,7 +61,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
 
     const masterPassword = await getMasterPassword(login);
     if (!masterPassword) {
-        throw new Error("Couldn't retrieve master pasword in OS keychain.");
+        throw new Error("Couldn't retrieve master password in OS keychain.");
     }
 
     winston.debug('Retrieving:', titleFilter || '');
@@ -126,7 +69,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         .prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`)
         .all() as BackupEditTransaction[];
 
-    const credentialsDecrypted = await decryptTransactions(transactions, masterPassword, login);
+    const credentialsDecrypted = await decryptPasswordTransactions(transactions, masterPassword, login);
 
     // transform entries [{key: xx, $t: ww}] into an easier-to-use object
     const beautifiedCredentials = credentialsDecrypted.map(
@@ -143,7 +86,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
     if (titleFilter) {
         const canonicalTitleFilter = titleFilter.toLowerCase();
         matchedCredentials = beautifiedCredentials?.filter(
-            (item) => item.url?.includes(canonicalTitleFilter) || item.title?.includes(canonicalTitleFilter)
+            (item) => item.url?.toLowerCase().includes(canonicalTitleFilter) || item.title?.toLowerCase().includes(canonicalTitleFilter)
         );
     }
 

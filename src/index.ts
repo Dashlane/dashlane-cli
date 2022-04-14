@@ -2,6 +2,7 @@
 import { program } from 'commander';
 import winston from 'winston';
 import { sync } from './middleware/sync.js';
+import { getNote } from './middleware/getSecureNotes.js';
 import { getOtp, getPassword } from './middleware/getPasswords.js';
 import { connectAndPrepare } from './database/index.js';
 
@@ -55,6 +56,22 @@ program
             titleFilter: filter,
             login: deviceKeys.login,
             print: options.print,
+            db,
+        });
+        db.close();
+    });
+
+program
+    .command('note')
+    .description(
+        'Retrieve secure notes from local vault and open it.'
+    )
+    .argument('[filter]', 'Filter notes based on their title')
+    .action(async (filter: string | null) => {
+        const { db, deviceKeys } = await connectAndPrepare();
+        await getNote({
+            titleFilter: filter,
+            login: deviceKeys.login,
             db,
         });
         db.close();

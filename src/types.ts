@@ -1,3 +1,7 @@
+export const notEmpty = <TValue>(value: TValue | null | undefined): value is TValue => {
+    return value !== null && value !== undefined;
+};
+
 export interface DeviceKeys {
     accessKey: string;
     secretKey: string;
@@ -68,6 +72,17 @@ export interface AuthentifiantTransactionContent {
     };
 }
 
+export interface SecureNoteTransactionContent {
+    root: {
+        KWSecureNote: {
+            KWDataItem: {
+                key: string;
+                $t?: string;
+            }[];
+        };
+    };
+}
+
 export interface VaultCredential {
     title: string;
     email?: string;
@@ -93,4 +108,22 @@ export interface VaultCredential {
     id: string;
     anonId: string;
     localeFormat: string; // either UNIVERSAL or a country code
+}
+
+export interface VaultNote {
+    anonId: string;
+    category?: string;
+    content: string;
+    creationDate?: string;
+    creationDateTime?: string;
+    id: string;
+    lastBackupTime: string;
+    secured: string; // either true or false
+    spaceId?: string
+    title: string;
+    updateDate?: string;
+    localeFormat: string; // either UNIVERSAL or a country code
+    type: string;
+    sharedObject?: string;
+    userModificationDatetime?: string;
 }
