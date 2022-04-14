@@ -162,7 +162,7 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
             console.log(selectedCredential.password);
             break;
         default:
-            throw new Error("Unable to recognize the output mode.");
+            throw new Error('Unable to recognize the output mode.');
     }
 };
 
@@ -181,6 +181,6 @@ export const getOtp = async (params: GetCredential): Promise<void> => {
             console.log(token);
             break;
         default:
-            throw new Error("Unable to recognize the output mode.");
+            throw new Error('Unable to recognize the output mode.');
     }
 };
