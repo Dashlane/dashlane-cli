@@ -117,10 +117,7 @@ const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod =>
     };
 };
 
-export const decryptTransaction = (
-    transaction: BackupEditTransaction,
-    derivate: Buffer
-): any => {
+export const decryptTransaction = (transaction: BackupEditTransaction, derivate: Buffer): any => {
     let cypheredContent;
 
     try {

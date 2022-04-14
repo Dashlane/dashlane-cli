@@ -6,11 +6,7 @@ import { authenticator } from 'otplib';
 import winston from 'winston';
 
 import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
-import {
-    BackupEditTransaction,
-    VaultCredential,
-    AuthentifiantTransactionContent
-} from '../types.js';
+import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent } from '../types.js';
 import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
 import { notEmpty } from '../utils';
 
