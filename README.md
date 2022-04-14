@@ -25,6 +25,13 @@ sudo chown root:dashlane-cli /usr/local/bin/dcli
 sudo chmod g+s /usr/local/bin/dcli
 ```
 
+and once the database file is created:
+
+```
+sudo chown root ~/.local/share/dashlane-cli/userdata.db
+sudo chmod 660 ~/.local/share/dashlane-cli/userdata.db
+```
+
 ## How to use
 
 In order to get help
