@@ -77,27 +77,31 @@ const decryptTransactions = async (
     masterPassword: string,
     login: string
 ): Promise<AuthentifiantTransactionContent[] | null> => {
-    const settingsTransaction = transactions.filter((item) => item.identifier === 'SETTINGS_userId')[0];
-    const derivate = await getDerivate(masterPassword, settingsTransaction);
+    const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
+    if (!settingsTransaction) {
+        throw new Error('Unable to locate the settings of the vault');
+    } else {
+        const derivate = await getDerivate(masterPassword, settingsTransaction);
 
-    if (!decryptTransaction(settingsTransaction, derivate)) {
-        if (!(await askReplaceMasterPassword())) {
-            return null;
+        if (!decryptTransaction(settingsTransaction, derivate)) {
+            if (!(await askReplaceMasterPassword())) {
+                return null;
+            }
+            const masterPassword = await setMasterPassword(login);
+            return decryptTransactions(transactions, masterPassword, login);
         }
-        const masterPassword = await setMasterPassword(login);
-        return decryptTransactions(transactions, masterPassword, login);
+
+        const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
+
+        const passwordsDecrypted = authentifiantTransactions
+            .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
+            .filter(notEmpty);
+
+        if (authentifiantTransactions.length !== passwordsDecrypted.length) {
+            console.error('Encountered decryption errors:', authentifiantTransactions.length - passwordsDecrypted.length);
+        }
+        return passwordsDecrypted;
     }
-
-    const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
-
-    const passwordsDecrypted = authentifiantTransactions
-        .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate))
-        .filter(notEmpty);
-
-    if (authentifiantTransactions.length !== passwordsDecrypted.length) {
-        console.error('Encountered decryption errors:', authentifiantTransactions.length - passwordsDecrypted.length);
-    }
-    return passwordsDecrypted;
 };
 
 export const getPassword = async (params: GetPassword): Promise<void> => {
@@ -114,83 +118,64 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         .all() as BackupEditTransaction[];
 
     const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
-    if (!passwordsDecrypted) {
-        return;
-    }
 
-    let websiteQueried = titleFilter?.toLowerCase();
-    if (!websiteQueried) {
+    // transform entries [{key: xx, $t: ww}] into an easier-to-use object
+    const beautifiedPasswords = passwordsDecrypted?.map((item) =>
+        Object.fromEntries(
+            item.root.KWAuthentifiant.KWDataItem.map((entry) =>
+            [
+                entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
+                entry.$t,
+            ])
+        ) as unknown as VaultCredential
+    );
+
+    let matchedPasswords = beautifiedPasswords;
+    if (titleFilter) {
+        const canonicalTitleFilter = titleFilter.toLowerCase();
+        matchedPasswords = beautifiedPasswords?.filter((item) => item.url?.includes(canonicalTitleFilter) || item.title?.includes(canonicalTitleFilter));
+    }
+    matchedPasswords = matchedPasswords?.sort();
+
+    let selectedPassword: VaultCredential | null = null;
+
+    if (!matchedPasswords || matchedPasswords.length === 0) {
+        throw new Error('No password found');
+    } else if (matchedPasswords.length === 1) {
+        selectedPassword = matchedPasswords[0];
+    } else {
+        const message = titleFilter ? 'There are multiple results for your query, pick one:' : 'What password would you like to get?';
+
         inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
-        websiteQueried = (
+        const websiteQueried = (
             await inquirer.prompt<{ website: string }>([
                 {
                     type: 'autocomplete',
                     name: 'website',
-                    message: 'What password would you like to get?',
+                    message,
                     source: (_answersSoFar: string[], input: string) =>
-                        passwordsDecrypted
-                            .map(
-                                (item) =>
-                                    item.root.KWAuthentifiant.KWDataItem.find(
-                                        (auth) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(input || '')
-                                    )?.$t
-                            )
-                            .filter(notEmpty)
-                            .sort(),
+                        matchedPasswords
+                            ?.map((item, index) => item.title + ' - ' + (item.email || item.login || item.secondaryLogin || '') + ' - ' + index.toString(10))
+                            .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || ''))
                 },
             ])
         ).website;
-    } else {
-        const queryResults = passwordsDecrypted
-            .map(
-                (item) =>
-                    item.root.KWAuthentifiant.KWDataItem.find(
-                        (auth) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(websiteQueried || '')
-                    )?.$t
-            )
-            .filter(notEmpty)
-            .sort();
+        const websiteQueriedSplit = websiteQueried.split(' - ');
 
-        if (queryResults.length === 0) {
-            throw new Error('No password found');
-        } else {
-            inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
-            websiteQueried = (
-                await inquirer.prompt<{ website: string }>([
-                    {
-                        type: 'autocomplete',
-                        name: 'website',
-                        default: websiteQueried,
-                        pageSize: 10,
-                        message: 'There are multiple results for your query, pick one:',
-                        source: (_answersSoFar: string[], input: string) =>
-                            queryResults.filter((name) => name.toLowerCase().includes(input || '')).sort(),
-                    },
-                ])
-            ).website;
+        const selectedIndex = parseInt(websiteQueriedSplit[websiteQueriedSplit.length - 1], 10);
+        if (selectedIndex < 0 || selectedIndex >= matchedPasswords.length) {
+            throw new Error('Unable to retrieve the corresponding password entry')
         }
+
+        selectedPassword = matchedPasswords[selectedIndex];
     }
 
-    const wantedPasswordEntries = passwordsDecrypted.filter((item) =>
-        item.root.KWAuthentifiant.KWDataItem.find(
-            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried || '')
-        )
-    )[0].root.KWAuthentifiant.KWDataItem;
+    clipboard.default.writeSync(selectedPassword.password);
 
-    // transform entries [{key: xx, $t: ww}] into an easier-to-use object
-    const wantedPassword = Object.fromEntries(
-        wantedPasswordEntries.map((entry) => [
-            entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
-            entry.$t,
-        ])
-    ) as unknown as VaultCredential;
+    console.log(`🔓 Password for "${selectedPassword.title}" copied to clipboard!`);
 
-    clipboard.default.writeSync(wantedPassword.password);
-
-    console.log(`🔓 Password for "${wantedPassword.title}" copied to clipboard!`);
-
-    if (wantedPassword.otpSecret) {
-        const token = authenticator.generate(wantedPassword.otpSecret);
+    if (selectedPassword.otpSecret) {
+        const token = authenticator.generate(selectedPassword.otpSecret);
         const timeRemaining = authenticator.timeRemaining();
         console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
     }

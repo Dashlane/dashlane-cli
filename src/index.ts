@@ -2,7 +2,7 @@
 import { program } from 'commander';
 import winston from 'winston';
 import { sync } from './middleware/sync.js';
-import { getPassword } from './middleware/get.js';
+import { getPassword } from './middleware/getPasswords.js';
 import { connectAndPrepare } from './database/index.js';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
