@@ -12,9 +12,10 @@ import { getCipheringMethod, argonDecrypt } from '../crypto/decrypt.js';
 import { AuthentifiantTransactionContent, BackupEditTransaction, VaultCredential } from '../types';
 import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
 
-interface GetPassword {
+interface GetCredential {
     titleFilter: string | null;
     login: string;
+    print: boolean;
     db: Database.Database;
 }
 
@@ -64,7 +65,12 @@ const decryptTransaction = (
         return JSON.parse(xml2json.toJson(xmlContent)) as AuthentifiantTransactionContent;
     } catch (error: any) {
         if (error instanceof Error) {
-            console.error(transaction.type, error.message);
+            if (error.message === 'mismatching signatures') {
+                // TODO: support pbkdf2 entries
+                winston.debug(transaction.type + ' ' + error.message);
+            } else {
+                console.error(transaction.type, error.message);
+            }
         } else {
             console.error(transaction.type, error);
         }
@@ -76,7 +82,7 @@ const decryptTransactions = async (
     transactions: BackupEditTransaction[],
     masterPassword: string,
     login: string
-): Promise<AuthentifiantTransactionContent[] | null> => {
+): Promise<AuthentifiantTransactionContent[]> => {
     const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
@@ -85,7 +91,7 @@ const decryptTransactions = async (
 
         if (!decryptTransaction(settingsTransaction, derivate)) {
             if (!(await askReplaceMasterPassword())) {
-                return null;
+                throw new Error('The master password is incorrect.');
             }
             const masterPassword = await setMasterPassword(login);
             return decryptTransactions(transactions, masterPassword, login);
@@ -98,13 +104,16 @@ const decryptTransactions = async (
             .filter(notEmpty);
 
         if (authentifiantTransactions.length !== passwordsDecrypted.length) {
-            console.error('Encountered decryption errors:', authentifiantTransactions.length - passwordsDecrypted.length);
+            winston.debug(
+                'Encountered decryption errors:',
+                authentifiantTransactions.length - passwordsDecrypted.length
+            );
         }
         return passwordsDecrypted;
     }
 };
 
-export const getPassword = async (params: GetPassword): Promise<void> => {
+export const selectCredential = async (params: GetCredential, onlyOtpCredentials = false): Promise<VaultCredential> => {
     const { login, titleFilter, db } = params;
 
     const masterPassword = await getMasterPassword(login);
@@ -117,66 +126,103 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         .prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`)
         .all() as BackupEditTransaction[];
 
-    const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
+    const credentialsDecrypted = await decryptTransactions(transactions, masterPassword, login);
 
     // transform entries [{key: xx, $t: ww}] into an easier-to-use object
-    const beautifiedPasswords = passwordsDecrypted?.map((item) =>
-        Object.fromEntries(
-            item.root.KWAuthentifiant.KWDataItem.map((entry) =>
-            [
-                entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
-                entry.$t,
-            ])
-        ) as unknown as VaultCredential
+    const beautifiedCredentials = credentialsDecrypted.map(
+        (item) =>
+            Object.fromEntries(
+                item.root.KWAuthentifiant.KWDataItem.map((entry) => [
+                    entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
+                    entry.$t,
+                ])
+            ) as unknown as VaultCredential
     );
 
-    let matchedPasswords = beautifiedPasswords;
+    let matchedCredentials = beautifiedCredentials;
     if (titleFilter) {
         const canonicalTitleFilter = titleFilter.toLowerCase();
-        matchedPasswords = beautifiedPasswords?.filter((item) => item.url?.includes(canonicalTitleFilter) || item.title?.includes(canonicalTitleFilter));
-    }
-    matchedPasswords = matchedPasswords?.sort();
-
-    let selectedPassword: VaultCredential | null = null;
-
-    if (!matchedPasswords || matchedPasswords.length === 0) {
-        throw new Error('No password found');
-    } else if (matchedPasswords.length === 1) {
-        selectedPassword = matchedPasswords[0];
-    } else {
-        const message = titleFilter ? 'There are multiple results for your query, pick one:' : 'What password would you like to get?';
-
-        inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
-        const websiteQueried = (
-            await inquirer.prompt<{ website: string }>([
-                {
-                    type: 'autocomplete',
-                    name: 'website',
-                    message,
-                    source: (_answersSoFar: string[], input: string) =>
-                        matchedPasswords
-                            ?.map((item, index) => item.title + ' - ' + (item.email || item.login || item.secondaryLogin || '') + ' - ' + index.toString(10))
-                            .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || ''))
-                },
-            ])
-        ).website;
-        const websiteQueriedSplit = websiteQueried.split(' - ');
-
-        const selectedIndex = parseInt(websiteQueriedSplit[websiteQueriedSplit.length - 1], 10);
-        if (selectedIndex < 0 || selectedIndex >= matchedPasswords.length) {
-            throw new Error('Unable to retrieve the corresponding password entry')
-        }
-
-        selectedPassword = matchedPasswords[selectedIndex];
+        matchedCredentials = beautifiedCredentials?.filter(
+            (item) => item.url?.includes(canonicalTitleFilter) || item.title?.includes(canonicalTitleFilter)
+        );
     }
 
-    clipboard.default.writeSync(selectedPassword.password);
+    if (onlyOtpCredentials) {
+        matchedCredentials = matchedCredentials.filter((credential) => credential.otpSecret);
+    }
 
-    console.log(`🔓 Password for "${selectedPassword.title}" copied to clipboard!`);
+    if (!matchedCredentials || matchedCredentials.length === 0) {
+        throw new Error('No credential with this name found');
+    } else if (matchedCredentials.length === 1) {
+        return matchedCredentials[0];
+    }
 
-    if (selectedPassword.otpSecret) {
-        const token = authenticator.generate(selectedPassword.otpSecret);
+    const message = titleFilter
+        ? 'There are multiple results for your query, pick one:'
+        : 'What password would you like to get?';
+
+    inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
+
+    const websiteQueried = (
+        await inquirer.prompt<{ website: string }>([
+            {
+                type: 'autocomplete',
+                name: 'website',
+                message,
+                source: (_answersSoFar: string[], input: string) =>
+                    matchedCredentials
+                        .sort()
+                        .map(
+                            (item, index) =>
+                                item.title +
+                                ' - ' +
+                                (item.email || item.login || item.secondaryLogin || '') +
+                                ' - ' +
+                                index.toString(10)
+                        )
+                        .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || '')),
+            },
+        ])
+    ).website;
+    const websiteQueriedSplit = websiteQueried.split(' - ');
+
+    const selectedIndex = parseInt(websiteQueriedSplit[websiteQueriedSplit.length - 1], 10);
+    if (selectedIndex < 0 || selectedIndex >= matchedCredentials.length) {
+        throw new Error('Unable to retrieve the corresponding password entry');
+    }
+
+    return matchedCredentials[selectedIndex];
+};
+
+export const getPassword = async (params: GetCredential): Promise<void> => {
+    const selectedCredential = await selectCredential(params);
+
+    if (params.print) {
+        console.log(selectedCredential.password);
+        return;
+    }
+
+    clipboard.default.writeSync(selectedCredential.password);
+    console.log(`🔓 Password for "${selectedCredential.title}" copied to clipboard!`);
+
+    if (selectedCredential.otpSecret) {
+        const token = authenticator.generate(selectedCredential.otpSecret);
         const timeRemaining = authenticator.timeRemaining();
         console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
     }
+};
+
+export const getOtp = async (params: GetCredential): Promise<void> => {
+    const selectedCredential = await selectCredential(params, true);
+
+    // otpSecret can't be null because onlyOtpCredentials is set to true above
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const token = authenticator.generate(selectedCredential.otpSecret!);
+    if (params.print) {
+        console.log(token);
+        return;
+    }
+
+    const timeRemaining = authenticator.timeRemaining();
+    console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
 };
