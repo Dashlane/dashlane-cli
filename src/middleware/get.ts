@@ -1,4 +1,4 @@
-import * as clipboard from 'clipboardy';
+import clipboard from 'clipboardy';
 import * as argon2 from 'argon2';
 import * as zlib from 'zlib';
 import * as xml2json from 'xml2json';
@@ -105,7 +105,9 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
     }
 
     console.log('Retrieving:', titleFilter || '');
-    const transactions = db.prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`).all() as BackupEditTransaction[];
+    const transactions = db
+        .prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`)
+        .all() as BackupEditTransaction[];
 
     const passwordsDecrypted = await decryptTransactions(transactions, masterPassword, login);
     if (!passwordsDecrypted) {
@@ -136,11 +138,17 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         ).website;
     } else {
         const queryResults = passwordsDecrypted
-            .map(
+            .filter(
                 (item) =>
                     item.root.KWAuthentifiant.KWDataItem.find(
                         (auth) => auth.key === 'Title' && auth.$t?.toLowerCase().includes(websiteQueried || '')
                     )?.$t
+            )
+            .map(
+                (item) =>
+                    item.root.KWAuthentifiant.KWDataItem.find((auth) => auth.key === 'Title')?.$t +
+                    ' - ' +
+                    item.root.KWAuthentifiant.KWDataItem.find((auth) => auth.key === 'Email')?.$t
             )
             .filter(notEmpty)
             .sort();
@@ -167,7 +175,8 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
 
     const wantedPasswordEntries = passwordsDecrypted.filter((item) =>
         item.root.KWAuthentifiant.KWDataItem.find(
-            (auth) => (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried || '')
+            (auth) =>
+                (auth.key === 'Url' || auth.key === 'Title') && auth.$t?.includes(websiteQueried?.split(' - ')[0] || '')
         )
     )[0].root.KWAuthentifiant.KWDataItem;
 
@@ -179,7 +188,7 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
         ])
     ) as unknown as VaultCredential;
 
-    clipboard.default.writeSync(wantedPassword.password);
+    clipboard.writeSync(wantedPassword.password);
 
     console.log(`🔓 Password for "${wantedPassword.title}" copied to clipboard!`);
 

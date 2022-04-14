@@ -4,7 +4,7 @@
     "description": "Manage your Dashlane vault through a CLI tool",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "type": "module",
+    "type": "commonjs",
     "bin": {
         "dcli": "dist/index.js"
     },
@@ -34,13 +34,15 @@
     "dependencies": {
         "argon2": "^0.28.3",
         "better-sqlite3": "^7.5.1",
-        "clipboardy": "^3.0.0",
+        "clipboardy": "^2.3.0",
         "commander": "^9.1.0",
-        "got": "^12.0.0",
+        "got": "^11.0.0",
         "inquirer": "^8.2.0",
         "inquirer-autocomplete-prompt": "^2.0.0",
-        "otplib": "^12.0.1",
         "keytar": "^7.9.0",
+        "macos-touchid": "^1.0.3",
+        "otplib": "^12.0.1",
+        "secure-enclave": "^0.4.1",
         "xml2json": "^0.12.0",
         "zlib": "^1.0.5"
     }
