@@ -53,5 +53,5 @@ export const sync = async (params: Sync) => {
     Object.keys(latestContent.summary).forEach((key) => {
         summaryCounted[key] = Object.keys(latestContent.summary[key]).length;
     });
-    winston.debug(summaryCounted);
+    winston.debug(JSON.stringify(summaryCounted, null, 4));
 };
