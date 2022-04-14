@@ -119,7 +119,7 @@ export interface VaultNote {
     id: string;
     lastBackupTime: string;
     secured: string; // either true or false
-    spaceId?: string
+    spaceId?: string;
     title: string;
     updateDate?: string;
     localeFormat: string; // either UNIVERSAL or a country code

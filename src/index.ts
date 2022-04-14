@@ -63,9 +63,7 @@ program
 
 program
     .command('note')
-    .description(
-        'Retrieve secure notes from local vault and open it.'
-    )
+    .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
         const { db, deviceKeys } = await connectAndPrepare();

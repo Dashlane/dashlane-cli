@@ -35,11 +35,17 @@ const decryptSecureNotesTransactions = async (
         const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
 
         const secureNotesDecrypted = secureNotesTransactions
-            .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate) as (SecureNoteTransactionContent | null))
+            .map(
+                (transaction: BackupEditTransaction) =>
+                    decryptTransaction(transaction, derivate) as SecureNoteTransactionContent | null
+            )
             .filter(notEmpty);
 
         if (secureNotesTransactions.length !== secureNotesDecrypted.length) {
-            console.error('Encountered decryption errors:', secureNotesTransactions.length - secureNotesDecrypted.length);
+            console.error(
+                'Encountered decryption errors:',
+                secureNotesTransactions.length - secureNotesDecrypted.length
+            );
         }
         return secureNotesDecrypted;
     }
@@ -55,22 +61,24 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
 
     winston.debug('Retrieving:', titleFilter || '');
     const transactions = db
-        .prepare(`SELECT *
+        .prepare(
+            `SELECT *
                   FROM transactions
-                  WHERE action = 'BACKUP_EDIT'`)
+                  WHERE action = 'BACKUP_EDIT'`
+        )
         .all() as BackupEditTransaction[];
 
     const notesDecrypted = await decryptSecureNotesTransactions(transactions, masterPassword, login);
 
     // transform entries [{key: xx, $t: ww}] into an easier-to-use object
-    const beautifiedNotes = notesDecrypted?.map((item) =>
-        Object.fromEntries(
-            item.root.KWSecureNote.KWDataItem.map((entry) =>
-                [
+    const beautifiedNotes = notesDecrypted?.map(
+        (item) =>
+            Object.fromEntries(
+                item.root.KWSecureNote.KWDataItem.map((entry) => [
                     entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
                     entry.$t,
                 ])
-        ) as unknown as VaultNote
+            ) as unknown as VaultNote
     );
 
     let matchedNotes = beautifiedNotes;
@@ -87,7 +95,9 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
     } else if (matchedNotes.length === 1) {
         selectedNote = matchedNotes[0];
     } else {
-        const message = titleFilter ? 'There are multiple results for your query, pick one:' : 'What note would you like to get?';
+        const message = titleFilter
+            ? 'There are multiple results for your query, pick one:'
+            : 'What note would you like to get?';
 
         inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
         const noteQueried = (
@@ -99,7 +109,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
                     source: (_answersSoFar: string[], input: string) =>
                         matchedNotes
                             ?.map((item, index) => item.title + ' - ' + index.toString(10))
-                            .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || ''))
+                            .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || '')),
                 },
             ])
         ).note;
@@ -107,11 +117,11 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
 
         const selectedIndex = parseInt(noteQueriedSplit[noteQueriedSplit.length - 1], 10);
         if (selectedIndex < 0 || selectedIndex >= matchedNotes.length) {
-            throw new Error('Unable to retrieve the corresponding note entry')
+            throw new Error('Unable to retrieve the corresponding note entry');
         }
 
         selectedNote = matchedNotes[selectedIndex];
     }
 
     console.log(selectedNote.content);
-}
+};

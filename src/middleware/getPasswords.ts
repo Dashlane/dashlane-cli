@@ -43,7 +43,10 @@ const decryptPasswordTransactions = async (
         const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
 
         const passwordsDecrypted = authentifiantTransactions
-            .map((transaction: BackupEditTransaction) => decryptTransaction(transaction, derivate) as (AuthentifiantTransactionContent | null))
+            .map(
+                (transaction: BackupEditTransaction) =>
+                    decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null
+            )
             .filter(notEmpty);
 
         if (authentifiantTransactions.length !== passwordsDecrypted.length) {
@@ -86,7 +89,9 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
     if (titleFilter) {
         const canonicalTitleFilter = titleFilter.toLowerCase();
         matchedCredentials = beautifiedCredentials?.filter(
-            (item) => item.url?.toLowerCase().includes(canonicalTitleFilter) || item.title?.toLowerCase().includes(canonicalTitleFilter)
+            (item) =>
+                item.url?.toLowerCase().includes(canonicalTitleFilter) ||
+                item.title?.toLowerCase().includes(canonicalTitleFilter)
         );
     }
 

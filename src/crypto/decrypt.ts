@@ -149,7 +149,10 @@ export const decryptTransaction = (
     }
 };
 
-export const getDerivate = async (masterPassword: string, settingsTransaction: BackupEditTransaction): Promise<Buffer> => {
+export const getDerivate = async (
+    masterPassword: string,
+    settingsTransaction: BackupEditTransaction
+): Promise<Buffer> => {
     const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransaction.content);
 
     const { salt } = cypheredContent;
