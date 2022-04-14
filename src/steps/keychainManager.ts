@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import keytar from 'keytar';
+import touchId from 'macos-touchid';
 
 const SERVICE = 'dashlane-cli';
 
@@ -10,6 +11,19 @@ export const setMasterPassword = async (login: string): Promise<string> => {
 };
 
 export const getMasterPassword = async (login: string): Promise<string> => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    if (touchId.canAuthenticate()) {
+        await new Promise<void>((resolve, reject) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+            touchId.authenticate('Read your Dashlane vault', (err: any, didAuthenticate: any) => {
+                if (err || !didAuthenticate) {
+                    return reject(err || new Error('You must authenticate to continue'));
+                }
+                resolve();
+            })
+        );
+    }
+
     const masterPassword = await keytar.getPassword(SERVICE, login);
 
     if (!masterPassword) {
