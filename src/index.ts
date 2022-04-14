@@ -63,6 +63,7 @@ program
 
 program
     .command('note')
+    .alias('n')
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
