@@ -8,11 +8,11 @@ import winston from 'winston';
 import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
 import {
     BackupEditTransaction,
-    notEmpty,
     VaultCredential,
     AuthentifiantTransactionContent
 } from '../types.js';
 import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
+import { notEmpty } from '../utils';
 
 interface GetCredential {
     titleFilter: string | null;
