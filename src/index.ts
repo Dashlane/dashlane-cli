@@ -40,7 +40,6 @@ program
     .action(async (filter: string | null, options: { output: string | null }) => {
         const { db, deviceKeys } = await connectAndPrepare();
 
-        console.log(options.output);
         if (options.output === 'json') {
             console.log(
                 JSON.stringify(
