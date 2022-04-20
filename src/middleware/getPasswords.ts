@@ -8,12 +8,12 @@ import winston from 'winston';
 import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
 import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent } from '../types.js';
 import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
-import { notEmpty } from '../utils';
+import { notEmpty } from '../utils.js';
 
 interface GetCredential {
     titleFilter: string | null;
     login: string;
-    print: boolean;
+    output: string | null;
     db: Database.Database;
 }
 
@@ -55,7 +55,7 @@ const decryptPasswordTransactions = async (
     }
 };
 
-export const selectCredential = async (params: GetCredential, onlyOtpCredentials = false): Promise<VaultCredential> => {
+export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
     const { login, titleFilter, db } = params;
 
     const masterPassword = await getMasterPassword(login);
@@ -91,6 +91,12 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         );
     }
 
+    return matchedCredentials;
+};
+
+export const selectCredential = async (params: GetCredential, onlyOtpCredentials = false): Promise<VaultCredential> => {
+    let matchedCredentials = await selectCredentials(params);
+
     if (onlyOtpCredentials) {
         matchedCredentials = matchedCredentials.filter((credential) => credential.otpSecret);
     }
@@ -101,7 +107,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         return matchedCredentials[0];
     }
 
-    const message = titleFilter
+    const message = params.titleFilter
         ? 'There are multiple results for your query, pick one:'
         : 'What password would you like to get?';
 
@@ -141,18 +147,22 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
 export const getPassword = async (params: GetCredential): Promise<void> => {
     const selectedCredential = await selectCredential(params);
 
-    if (params.print) {
-        console.log(selectedCredential.password);
-        return;
-    }
+    switch (params.output || 'clipboard') {
+        case 'clipboard':
+            clipboard.default.writeSync(selectedCredential.password);
+            console.log(`🔓 Password for "${selectedCredential.title}" copied to clipboard!`);
 
-    clipboard.default.writeSync(selectedCredential.password);
-    console.log(`🔓 Password for "${selectedCredential.title}" copied to clipboard!`);
-
-    if (selectedCredential.otpSecret) {
-        const token = authenticator.generate(selectedCredential.otpSecret);
-        const timeRemaining = authenticator.timeRemaining();
-        console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+            if (selectedCredential.otpSecret) {
+                const token = authenticator.generate(selectedCredential.otpSecret);
+                const timeRemaining = authenticator.timeRemaining();
+                console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+            }
+            break;
+        case 'password':
+            console.log(selectedCredential.password);
+            break;
+        default:
+            throw new Error('Unable to recognize the output mode.');
     }
 };
 
@@ -162,11 +172,15 @@ export const getOtp = async (params: GetCredential): Promise<void> => {
     // otpSecret can't be null because onlyOtpCredentials is set to true above
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const token = authenticator.generate(selectedCredential.otpSecret!);
-    if (params.print) {
-        console.log(token);
-        return;
-    }
-
     const timeRemaining = authenticator.timeRemaining();
-    console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+    switch (params.output || 'clipboard') {
+        case 'clipboard':
+            console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+            break;
+        case 'otp':
+            console.log(token);
+            break;
+        default:
+            throw new Error('Unable to recognize the output mode.');
+    }
 };
