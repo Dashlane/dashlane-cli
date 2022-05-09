@@ -9,7 +9,7 @@ import {
     CipheredContent,
     CipheringMethod,
     DerivationConfig,
-    Pbkdf2Derivation
+    Pbkdf2Derivation,
 } from './types.js';
 import { hmacSha256, sha512 } from './hash.js';
 import { BackupEditTransaction } from '../types';
@@ -30,18 +30,22 @@ const decryptCipheredContext = (payload: CipheredContent, originalKey: Buffer): 
     return Buffer.concat([decipher.update(encryptedData), decipher.final()]);
 };
 
-const extractNextPayloadComponent = (payload: string): {
+const extractNextPayloadComponent = (
+    payload: string
+): {
     component: string;
     cursorAfter: number;
 } => {
     const cursorBefore = payload.indexOf('$');
     return {
         component: payload.substring(0, cursorBefore),
-        cursorAfter: cursorBefore + 1
+        cursorAfter: cursorBefore + 1,
     };
-}
+};
 
-const getArgon2DerivationConfig = (decodedBase64: string): {
+const getArgon2DerivationConfig = (
+    decodedBase64: string
+): {
     derivationConfig: Argon2Derivation;
     cursorAfter: number;
 } => {
@@ -63,13 +67,15 @@ const getArgon2DerivationConfig = (decodedBase64: string): {
             saltLength: Number(saltLength.component),
             tCost: Number(tCost.component),
             mCost: Number(mCost.component),
-            parallelism: Number(parallelism.component)
+            parallelism: Number(parallelism.component),
         },
-        cursorAfter: cursor
-    }
-}
+        cursorAfter: cursor,
+    };
+};
 
-const getPbkdf2DerivationConfig = (decodedBase64: string): {
+const getPbkdf2DerivationConfig = (
+    decodedBase64: string
+): {
     derivationConfig: Pbkdf2Derivation;
     cursorAfter: number;
 } => {
@@ -87,13 +93,15 @@ const getPbkdf2DerivationConfig = (decodedBase64: string): {
             algo: 'pbkdf2',
             saltLength: Number(saltLength.component),
             iterations: Number(iterations.component),
-            hashMethod: hashMethod.component
+            hashMethod: hashMethod.component,
         },
-        cursorAfter: cursor
-    }
-}
+        cursorAfter: cursor,
+    };
+};
 
-const getDerivationConfig = (decodedBase64: string): {
+const getDerivationConfig = (
+    decodedBase64: string
+): {
     derivationConfig: DerivationConfig;
     cursorAfter: number;
 } => {
@@ -103,28 +111,30 @@ const getDerivationConfig = (decodedBase64: string): {
         const argonConfig = getArgon2DerivationConfig(decodedBase64.substring(algoComponent.cursorAfter));
         return {
             derivationConfig: argonConfig.derivationConfig,
-            cursorAfter: algoComponent.cursorAfter + argonConfig.cursorAfter
+            cursorAfter: algoComponent.cursorAfter + argonConfig.cursorAfter,
         };
     } else if (algoComponent.component === 'pbkdf2') {
         const pbkdfConfig = getPbkdf2DerivationConfig(decodedBase64.substring(algoComponent.cursorAfter));
         return {
             derivationConfig: pbkdfConfig.derivationConfig,
-            cursorAfter: algoComponent.cursorAfter + pbkdfConfig.cursorAfter
-        }
+            cursorAfter: algoComponent.cursorAfter + pbkdfConfig.cursorAfter,
+        };
     } else if (algoComponent.component === 'noderivation') {
         return {
             derivationConfig: {
-                algo: 'noderivation'
+                algo: 'noderivation',
             },
-            cursorAfter: algoComponent.cursorAfter
+            cursorAfter: algoComponent.cursorAfter,
         };
     } else {
-        throw new Error(`Unrecognized derivation algorithm: ${algoComponent.component}`)
+        throw new Error(`Unrecognized derivation algorithm: ${algoComponent.component}`);
     }
-}
+};
 
-const getCipherConfig = (decodedBase64: string): {
-    cipherConfig: CipherConfig,
+const getCipherConfig = (
+    decodedBase64: string
+): {
+    cipherConfig: CipherConfig;
     cursorAfter: number;
 } => {
     const encryption = extractNextPayloadComponent(decodedBase64);
@@ -146,18 +156,18 @@ const getCipherConfig = (decodedBase64: string): {
         cipherConfig: {
             encryption: encryption.component,
             cipherMode: mode.component,
-            ivLength: Number(ivLength.component)
+            ivLength: Number(ivLength.component),
         },
-        cursorAfter: cursor
+        cursorAfter: cursor,
     };
-}
+};
 
 export const parsePayload = (decodedBase64: string, buffer: Buffer): CipheringMethod => {
     let cursor = 0;
 
     const initialComponent = extractNextPayloadComponent(decodedBase64);
     if (initialComponent.component !== '') {
-        throw new Error('invalid payload: no initial marker')
+        throw new Error('invalid payload: no initial marker');
     }
     cursor += initialComponent.cursorAfter;
 
@@ -168,14 +178,14 @@ export const parsePayload = (decodedBase64: string, buffer: Buffer): CipheringMe
     }
     cursor += versionComponent.cursorAfter;
 
-
     const derivationConfig = getDerivationConfig(decodedBase64.substring(cursor));
     cursor += derivationConfig.cursorAfter;
 
     const cipherConfig = getCipherConfig(decodedBase64.substring(cursor));
     cursor += cipherConfig.cursorAfter;
 
-    const saltLength = derivationConfig.derivationConfig.algo === 'noderivation' ? 0 : derivationConfig.derivationConfig.saltLength;
+    const saltLength =
+        derivationConfig.derivationConfig.algo === 'noderivation' ? 0 : derivationConfig.derivationConfig.saltLength;
     const ivLength = cipherConfig.cipherConfig.ivLength;
     const hashLength = 32;
 
@@ -199,10 +209,10 @@ export const parsePayload = (decodedBase64: string, buffer: Buffer): CipheringMe
             salt,
             iv,
             hash,
-            encryptedData
-        }
+            encryptedData,
+        },
     };
-}
+};
 
 export const decrypt = (encrypted: string, symmetricKey: Buffer): Buffer => {
     const buffer = Buffer.from(encrypted, 'base64');
@@ -224,7 +234,7 @@ export const decryptTransaction = (encryptedTransaction: BackupEditTransaction, 
         }
         return null;
     }
-}
+};
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
 
@@ -256,7 +266,7 @@ export const getDerivateWithCipheringMethod = async (
         case 'noderivation':
             throw new Error('Impossible to compute derivate when no derivation method is provided');
     }
-}
+};
 
 export const getDerivateWithTransaction = async (
     masterPassword: string,

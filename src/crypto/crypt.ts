@@ -20,19 +20,19 @@ export const crypt = (originalKey: Buffer, content: Buffer): string => {
 
     const cipheringMethod: CipheringMethod = {
         keyDerivation: {
-            algo: 'noderivation'
+            algo: 'noderivation',
         },
         cipherConfig: {
             encryption: 'aes256',
             cipherMode: 'cbchmac',
-            ivLength: 16
+            ivLength: 16,
         },
         cipheredContent: {
             salt: Buffer.from(''),
             iv,
             hash: signature,
-            encryptedData: encrypted
-        }
+            encryptedData: encrypted,
+        },
     };
 
     return serializePayload(cipheringMethod);
@@ -42,13 +42,13 @@ const serializeArgon2DerivationConfig = (config: Argon2Derivation): Buffer => {
     const { saltLength, tCost, mCost, parallelism } = config;
 
     return Buffer.from(`${saltLength}$${tCost}$${mCost}$${parallelism}$`, 'ascii');
-}
+};
 
 const serializePbkdf2DerivationConfig = (config: Pbkdf2Derivation): Buffer => {
     const { saltLength, iterations, hashMethod } = config;
 
     return Buffer.from(`${saltLength}$${iterations}$${hashMethod}$`);
-}
+};
 
 const serializeDerivationConfig = (config: DerivationConfig): Buffer => {
     let result = Buffer.from(`${config.algo}$`, 'ascii');
@@ -64,13 +64,13 @@ const serializeDerivationConfig = (config: DerivationConfig): Buffer => {
             break;
     }
     return result;
-}
+};
 
 const serializeCipherConfig = (config: CipherConfig): Buffer => {
     const { encryption, cipherMode, ivLength } = config;
 
-    return Buffer.from(`${encryption}$${cipherMode}$${ivLength}$`, 'ascii')
-}
+    return Buffer.from(`${encryption}$${cipherMode}$${ivLength}$`, 'ascii');
+};
 
 const serializePayload = (payload: CipheringMethod): string => {
     const version = Buffer.from('$1$', 'ascii');

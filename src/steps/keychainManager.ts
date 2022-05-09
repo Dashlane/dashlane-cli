@@ -24,18 +24,24 @@ export const setLocalKey = async (login: string, localKey?: Buffer): Promise<Buf
     return localKey;
 };
 
-export const getSecrets = async (db: Database, deviceKeys: DeviceKeysWithLogin | null, masterPassword?: string): Promise<Secrets> => {
+export const getSecrets = async (
+    db: Database,
+    deviceKeys: DeviceKeysWithLogin | null,
+    masterPassword?: string
+): Promise<Secrets> => {
     let login: string;
     if (deviceKeys) {
         login = deviceKeys.login;
     } else {
-        login = (await inquirer.prompt<{ login: string }>([
-            {
-                type: 'input',
-                name: 'login',
-                message: 'Please enter your email address:'
-            }
-        ])).login;
+        login = (
+            await inquirer.prompt<{ login: string }>([
+                {
+                    type: 'input',
+                    name: 'login',
+                    message: 'Please enter your email address:',
+                },
+            ])
+        ).login;
     }
 
     const fakeTransaction: CipheringMethod = {
@@ -44,19 +50,19 @@ export const getSecrets = async (db: Database, deviceKeys: DeviceKeysWithLogin |
             saltLength: 16,
             tCost: 3,
             mCost: 32768,
-            parallelism: 2
+            parallelism: 2,
         },
         cipherConfig: {
             encryption: 'aes256', // Unused parameter
             cipherMode: 'cbchmac', // Unused parameter
-            ivLength: 0 // Unused parameter
+            ivLength: 0, // Unused parameter
         },
         cipheredContent: {
             salt: sha512(login).slice(0, 16),
             iv: Buffer.from(''), // Unused parameter
             hash: Buffer.from(''), // Unused parameter
-            encryptedData: Buffer.from('') // Unused parameter
-        }
+            encryptedData: Buffer.from(''), // Unused parameter
+        },
     };
 
     const localKeyEncoded = await keytar.getPassword(SERVICE, login);
@@ -81,13 +87,15 @@ export const getSecrets = async (db: Database, deviceKeys: DeviceKeysWithLogin |
         const masterPasswordEncrypted = crypt(localKey, Buffer.from(masterPassword, 'utf-8'));
         const localKeyEncrypted = crypt(derivate, localKey);
 
-        db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?)').bind(login, deviceAccessKey, deviceSecretKeyEncrypted, masterPasswordEncrypted, localKeyEncrypted).run();
+        db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?)')
+            .bind(login, deviceAccessKey, deviceSecretKeyEncrypted, masterPasswordEncrypted, localKeyEncrypted)
+            .run();
 
         return {
             login,
             masterPassword,
             accessKey: deviceAccessKey,
-            secretKey: deviceSecretKey
+            secretKey: deviceSecretKey,
         };
     } else if (!localKeyEncoded) {
         if (!masterPassword) {
@@ -105,7 +113,7 @@ export const getSecrets = async (db: Database, deviceKeys: DeviceKeysWithLogin |
             login,
             masterPassword,
             accessKey: deviceKeys.accessKey,
-            secretKey
+            secretKey,
         };
     } else {
         const localKey = Buffer.from(localKeyEncoded, 'base64');
@@ -119,7 +127,7 @@ export const getSecrets = async (db: Database, deviceKeys: DeviceKeysWithLogin |
             login,
             masterPassword,
             accessKey: deviceKeys.accessKey,
-            secretKey
+            secretKey,
         };
     }
 };

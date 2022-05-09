@@ -17,7 +17,7 @@ interface GetSecureNote {
 const decryptSecureNotesTransactions = async (
     db: Database.Database,
     transactions: BackupEditTransaction[],
-    secrets: Secrets,
+    secrets: Secrets
 ): Promise<SecureNoteTransactionContent[] | null> => {
     const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
     if (!settingsTransaction) {
@@ -29,7 +29,7 @@ const decryptSecureNotesTransactions = async (
             if (!(await askReplaceMasterPassword())) {
                 return null;
             }
-            return decryptSecureNotesTransactions(db, transactions, await getSecrets(db, null, undefined));
+            return decryptSecureNotesTransactions(db, transactions, await getSecrets(db, null));
         }
 
         const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');

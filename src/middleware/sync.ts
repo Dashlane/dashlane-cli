@@ -23,7 +23,7 @@ export const sync = async (params: Sync) => {
     const latestContent = await getLatestContent({
         login: secrets.login,
         timestamp: formerSyncTimestamp,
-        secrets
+        secrets,
     });
 
     // insert the transactions

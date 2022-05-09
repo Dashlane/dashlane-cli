@@ -1,7 +1,4 @@
-export type DerivationConfig =
-    | Argon2Derivation
-    | Pbkdf2Derivation
-    | NoDerivation;
+export type DerivationConfig = Argon2Derivation | Pbkdf2Derivation | NoDerivation;
 
 export interface Argon2Derivation {
     algo: 'argon2d';

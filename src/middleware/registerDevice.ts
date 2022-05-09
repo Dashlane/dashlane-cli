@@ -1,11 +1,12 @@
 import inquirer from 'inquirer';
 import winston from 'winston';
 import {
-    completeDeviceRegistration, CompleteDeviceRegistrationOutput,
+    completeDeviceRegistration,
+    CompleteDeviceRegistrationOutput,
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
-    requestDeviceRegistration
+    requestDeviceRegistration,
 } from '../steps/index.js';
 import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification.js';
 

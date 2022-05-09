@@ -70,7 +70,7 @@ export const getLatestContent = (params: GetLatestContent) =>
         login: params.login,
         deviceKeys: {
             accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey
+            secretKey: params.secrets.secretKey,
         },
         payload: {
             timestamp: params.timestamp,

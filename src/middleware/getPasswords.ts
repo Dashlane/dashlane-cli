@@ -32,16 +32,13 @@ const decryptPasswordTransactions = async (
             if (!(await askReplaceMasterPassword())) {
                 throw new Error('The master password is incorrect.');
             }
-            return decryptPasswordTransactions(db, transactions, await getSecrets(db, null, undefined));
+            return decryptPasswordTransactions(db, transactions, await getSecrets(db, null));
         }
 
         const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
 
         const passwordsDecrypted = authentifiantTransactions
-            .map(
-                (transaction) =>
-                    decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null
-            )
+            .map((transaction) => decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null)
             .filter(notEmpty);
 
         if (authentifiantTransactions.length !== passwordsDecrypted.length) {

@@ -5,8 +5,8 @@ import { crypt } from './crypt.js';
 import { decrypt, parsePayload } from './decrypt.js';
 
 describe('Crypt and decrypt using random symmetric key', () => {
-    it ('ciphering params parsed after encryption are correct', () => {
-        const input = "The input string I want to crypt";
+    it('ciphering params parsed after encryption are correct', () => {
+        const input = 'The input string I want to crypt';
         const key = crypto.randomBytes(32);
         const encryptedInput = crypt(key, Buffer.from(input, 'utf-8'));
 
@@ -21,10 +21,10 @@ describe('Crypt and decrypt using random symmetric key', () => {
         expect(payload.cipheredContent.salt).length(0, 'Invalid salt length');
         expect(payload.cipheredContent.iv).length(16, 'Invalid IV');
         expect(payload.cipheredContent.hash).length(32, 'Invalid hash length');
-    })
+    });
 
     it('decryption of encryption should successfully return the input', () => {
-        const input = "The input string I want to crypt";
+        const input = 'The input string I want to crypt';
         const key = crypto.randomBytes(32);
         const encryptedInput = crypt(key, Buffer.from(input, 'utf-8'));
         const decryptedInput = decrypt(encryptedInput, key);
