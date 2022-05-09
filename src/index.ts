@@ -22,8 +22,8 @@ program
     .command('sync')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        const { db, deviceKeys } = await connectAndPrepare();
-        await sync({ db, deviceKeys });
+        const { db, secrets } = await connectAndPrepare();
+        await sync({ db, secrets });
         db.close();
     });
 
@@ -38,14 +38,14 @@ program
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null, options: { output: string | null }) => {
-        const { db, deviceKeys } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare();
 
         if (options.output === 'json') {
             console.log(
                 JSON.stringify(
                     await selectCredentials({
                         titleFilter: filter,
-                        login: deviceKeys.login,
+                        secrets,
                         output: options.output,
                         db,
                     }),
@@ -56,7 +56,7 @@ program
         } else {
             await getPassword({
                 titleFilter: filter,
-                login: deviceKeys.login,
+                secrets,
                 output: options.output,
                 db,
             });
@@ -71,10 +71,10 @@ program
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
-        const { db, deviceKeys } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare();
         await getOtp({
             titleFilter: filter,
-            login: deviceKeys.login,
+            secrets,
             output: options.print ? 'otp' : 'clipboard',
             db,
         });
@@ -87,10 +87,10 @@ program
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
-        const { db, deviceKeys } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare();
         await getNote({
             titleFilter: filter,
-            login: deviceKeys.login,
+            secrets,
             db,
         });
         db.close();

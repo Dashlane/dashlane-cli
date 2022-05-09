@@ -5,42 +5,41 @@ import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
-import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
-import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent } from '../types.js';
-import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/keychainManager.js';
+import { decryptTransaction, getDerivateWithTransaction } from '../crypto/decrypt.js';
+import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent, Secrets } from '../types.js';
+import { askReplaceMasterPassword, getSecrets } from '../steps/keychainManager.js';
 import { notEmpty } from '../utils.js';
 
 interface GetCredential {
     titleFilter: string | null;
-    login: string;
+    secrets: Secrets;
     output: string | null;
     db: Database.Database;
 }
 
 const decryptPasswordTransactions = async (
+    db: Database.Database,
     transactions: BackupEditTransaction[],
-    masterPassword: string,
-    login: string
+    secrets: Secrets
 ): Promise<AuthentifiantTransactionContent[]> => {
     const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
     } else {
-        const derivate = await getDerivate(masterPassword, settingsTransaction);
+        const derivate = await getDerivateWithTransaction(secrets.masterPassword, settingsTransaction);
 
         if (!decryptTransaction(settingsTransaction, derivate)) {
             if (!(await askReplaceMasterPassword())) {
                 throw new Error('The master password is incorrect.');
             }
-            const masterPassword = await setMasterPassword(login);
-            return decryptPasswordTransactions(transactions, masterPassword, login);
+            return decryptPasswordTransactions(db, transactions, await getSecrets(db, null, undefined));
         }
 
         const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
 
         const passwordsDecrypted = authentifiantTransactions
             .map(
-                (transaction: BackupEditTransaction) =>
+                (transaction) =>
                     decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null
             )
             .filter(notEmpty);
@@ -56,19 +55,14 @@ const decryptPasswordTransactions = async (
 };
 
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
-    const { login, titleFilter, db } = params;
-
-    const masterPassword = await getMasterPassword(login);
-    if (!masterPassword) {
-        throw new Error("Couldn't retrieve master password in OS keychain.");
-    }
+    const { secrets, titleFilter, db } = params;
 
     winston.debug('Retrieving:', titleFilter || '');
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE action = 'BACKUP_EDIT'`)
         .all() as BackupEditTransaction[];
 
-    const credentialsDecrypted = await decryptPasswordTransactions(transactions, masterPassword, login);
+    const credentialsDecrypted = await decryptPasswordTransactions(db, transactions, secrets);
 
     // transform entries [{key: xx, $t: ww}] into an easier-to-use object
     const beautifiedCredentials = credentialsDecrypted.map(

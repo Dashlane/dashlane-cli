@@ -1,31 +1,21 @@
 import inquirer from 'inquirer';
-import Database from 'better-sqlite3';
 import winston from 'winston';
 import {
-    completeDeviceRegistration,
+    completeDeviceRegistration, CompleteDeviceRegistrationOutput,
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
-    requestDeviceRegistration,
+    requestDeviceRegistration
 } from '../steps/index.js';
 import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification.js';
-import type { DeviceKeysWithLogin } from '../types.js';
 
 interface RegisterDevice {
-    db: Database.Database;
+    login: string;
 }
 
-export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeysWithLogin> => {
-    const { db } = params;
+export const registerDevice = async (params: RegisterDevice): Promise<CompleteDeviceRegistrationOutput> => {
+    const { login } = params;
     winston.debug('Registering the device...');
-
-    const { login } = await inquirer.prompt<{ login: string }>([
-        {
-            type: 'input',
-            name: 'login',
-            message: 'Please enter your email address:',
-        },
-    ]);
 
     // Log in via a compatible verification method
     const { verification } = await requestDeviceRegistration({ login });
@@ -68,8 +58,5 @@ export const registerDevice = async (params: RegisterDevice): Promise<DeviceKeys
     }
 
     // Complete the device registration and save the result
-    const { deviceAccessKey, deviceSecretKey } = await completeDeviceRegistration({ login, authTicket });
-
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?)').bind(login, deviceAccessKey, deviceSecretKey).run();
-    return { login, accessKey: deviceAccessKey, secretKey: deviceSecretKey };
+    return completeDeviceRegistration({ login, authTicket });
 };

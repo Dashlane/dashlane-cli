@@ -1,15 +1,16 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
+
 import { getLatestContent } from '../steps/index.js';
-import type { DeviceKeysWithLogin } from '../types.js';
+import type { Secrets } from '../types.js';
 
 interface Sync {
     db: Database.Database;
-    deviceKeys: DeviceKeysWithLogin;
+    secrets: Secrets;
 }
 
 export const sync = async (params: Sync) => {
-    const { db, deviceKeys } = params;
+    const { db, secrets } = params;
     winston.debug('Start syncing...');
 
     const formerSyncTimestamp =
@@ -20,9 +21,9 @@ export const sync = async (params: Sync) => {
         )?.timestamp || 0;
 
     const latestContent = await getLatestContent({
-        login: deviceKeys.login,
+        login: secrets.login,
         timestamp: formerSyncTimestamp,
-        deviceKeys,
+        secrets
     });
 
     // insert the transactions

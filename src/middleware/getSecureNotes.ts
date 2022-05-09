@@ -3,34 +3,33 @@ import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
-import { BackupEditTransaction, SecureNoteTransactionContent, VaultNote } from '../types.js';
-import { decryptTransaction, getDerivate } from '../crypto/decrypt.js';
-import { askReplaceMasterPassword, getMasterPassword, setMasterPassword } from '../steps/index.js';
+import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types.js';
+import { decryptTransaction, getDerivateWithTransaction } from '../crypto/decrypt.js';
+import { askReplaceMasterPassword, getSecrets } from '../steps/index.js';
 import { notEmpty } from '../utils.js';
 
 interface GetSecureNote {
     titleFilter: string | null;
-    login: string;
+    secrets: Secrets;
     db: Database.Database;
 }
 
 const decryptSecureNotesTransactions = async (
+    db: Database.Database,
     transactions: BackupEditTransaction[],
-    masterPassword: string,
-    login: string
+    secrets: Secrets,
 ): Promise<SecureNoteTransactionContent[] | null> => {
     const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
     } else {
-        const derivate = await getDerivate(masterPassword, settingsTransaction);
+        const derivate = await getDerivateWithTransaction(secrets.masterPassword, settingsTransaction);
 
         if (!decryptTransaction(settingsTransaction, derivate)) {
             if (!(await askReplaceMasterPassword())) {
                 return null;
             }
-            const masterPassword = await setMasterPassword(login);
-            return decryptSecureNotesTransactions(transactions, masterPassword, login);
+            return decryptSecureNotesTransactions(db, transactions, await getSecrets(db, null, undefined));
         }
 
         const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
@@ -53,12 +52,7 @@ const decryptSecureNotesTransactions = async (
 };
 
 export const getNote = async (params: GetSecureNote): Promise<void> => {
-    const { login, titleFilter, db } = params;
-
-    const masterPassword = await getMasterPassword(login);
-    if (!masterPassword) {
-        throw new Error("Couldn't retrieve master password in OS keychain.");
-    }
+    const { secrets, titleFilter, db } = params;
 
     winston.debug('Retrieving:', titleFilter || '');
     const transactions = db
@@ -69,7 +63,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
         )
         .all() as BackupEditTransaction[];
 
-    const notesDecrypted = await decryptSecureNotesTransactions(transactions, masterPassword, login);
+    const notesDecrypted = await decryptSecureNotesTransactions(db, transactions, secrets);
 
     // transform entries [{key: xx, $t: ww}] into an easier-to-use object
     const beautifiedNotes = notesDecrypted?.map(

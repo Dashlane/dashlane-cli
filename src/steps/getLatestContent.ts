@@ -1,10 +1,10 @@
 import { requestApi } from '../requestApi.js';
-import type { BackupEditTransaction, BackupRemoveTransaction, DeviceKeys } from '../types';
+import type { BackupEditTransaction, BackupRemoveTransaction, Secrets } from '../types';
 
 interface GetLatestContent {
     login: string;
     timestamp: number;
-    deviceKeys: DeviceKeys;
+    secrets: Secrets;
 }
 
 export interface GetLatestContentOutput {
@@ -68,7 +68,10 @@ export const getLatestContent = (params: GetLatestContent) =>
     requestApi<GetLatestContentOutput>({
         path: 'sync/GetLatestContent',
         login: params.login,
-        deviceKeys: params.deviceKeys,
+        deviceKeys: {
+            accessKey: params.secrets.accessKey,
+            secretKey: params.secrets.secretKey
+        },
         payload: {
             timestamp: params.timestamp,
             needsKeys: false,
