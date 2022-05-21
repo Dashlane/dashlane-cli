@@ -1,6 +1,12 @@
-export type DerivationConfig = Argon2Derivation | Pbkdf2Derivation | NoDerivation;
+/**
+ * Parameters of the chosen derivation method
+ */
+export type DerivationConfig = Argon2DerivationConfig | Pbkdf2DerivationConfig | NoDerivationConfig;
 
-export interface Argon2Derivation {
+/**
+ * Parameters of Argon2d derivation method
+ */
+export interface Argon2DerivationConfig {
     algo: 'argon2d';
     saltLength: number;
     tCost: number;
@@ -8,32 +14,53 @@ export interface Argon2Derivation {
     parallelism: number;
 }
 
-export interface Pbkdf2Derivation {
+/**
+ * Parameters of PBKDF2 derivation method
+ *
+ * An array of supported `hashMethod` functions can be retrieved using {@link crypto.getHashes}.
+ */
+export interface Pbkdf2DerivationConfig {
     algo: 'pbkdf2';
     saltLength: number;
     iterations: number;
     hashMethod: string;
 }
 
-export interface NoDerivation {
+/**
+ * Derivation configuration to provide when the symmetric key is not derived from a master password
+ */
+export interface NoDerivationConfig {
     algo: 'noderivation';
 }
 
-export interface CipherConfig {
+/**
+ * Parameters of the symmetric cipher used to encrypt the data, especially the mode of operation
+ */
+export interface SymmetricCipherConfig {
     encryption: 'aes256';
     cipherMode: 'cbchmac' | 'cbchmac64';
     ivLength: number;
 }
 
-export interface CipheredContent {
+/**
+ * Cipher data that are not cipher parameters
+ *
+ * @param salt Salt to use with the derivation method. When no derivation method is provided it can be empty
+ * @param iv Initialization Vector used in the symmetric cipher mode of operation described in {@link SymmetricCipherConfig.cipherMode}
+ * @param hash Authenticated hash of the concatenation of the `iv` and the `encryptedData` using {@link SymmetricCipherConfig.cipherMode} algorithm
+ */
+export interface CipherData {
     salt: Buffer;
     iv: Buffer;
     hash: Buffer;
-    encryptedData: Buffer;
+    encryptedPayload: Buffer;
 }
 
-export interface CipheringMethod {
+/**
+ * Encrypted data containing all the data and parameters to decrypt, authenticate and verify integrity of the message
+ */
+export interface EncryptedData {
     keyDerivation: DerivationConfig;
-    cipherConfig: CipherConfig;
-    cipheredContent: CipheredContent;
+    cipherConfig: SymmetricCipherConfig;
+    cipherData: CipherData;
 }

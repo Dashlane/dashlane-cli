@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 
 const toBuffer = (data: Buffer | string): Buffer => {
-    return Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf-8');
+    return Buffer.isBuffer(data) ? data : Buffer.from(data);
 };
 
 export const hmacSha256 = (key: Buffer | string, data: Buffer | string): Buffer => {

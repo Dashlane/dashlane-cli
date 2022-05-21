@@ -14,6 +14,8 @@ winston.configure({
     transports: [new winston.transports.Console()],
 });
 
+const masterPassword: string | undefined = process.env.MP;
+
 program.name('dcli').description('[Non Official] Dashlane CLI').version('0.1.0');
 
 program.option('--debug', 'Print debug messages');
@@ -22,7 +24,7 @@ program
     .command('sync')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare(masterPassword);
         await sync({ db, secrets });
         db.close();
     });
@@ -38,7 +40,7 @@ program
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null, options: { output: string | null }) => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare(masterPassword);
 
         if (options.output === 'json') {
             console.log(
@@ -71,7 +73,7 @@ program
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare(masterPassword);
         await getOtp({
             titleFilter: filter,
             secrets,
@@ -87,7 +89,7 @@ program
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare(masterPassword);
         await getNote({
             titleFilter: filter,
             secrets,

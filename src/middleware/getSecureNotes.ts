@@ -4,8 +4,12 @@ import inquirer from 'inquirer';
 import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
 import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types.js';
-import { decryptTransaction, getDerivateWithTransaction } from '../crypto/decrypt.js';
-import { askReplaceMasterPassword, getSecrets } from '../steps/index.js';
+import {
+    askReplaceMasterPassword,
+    decryptTransaction,
+    getDerivateUsingParametersFromTransaction,
+    getSecrets,
+} from '../crypto/index.js';
 import { notEmpty } from '../utils.js';
 
 interface GetSecureNote {
@@ -23,7 +27,7 @@ const decryptSecureNotesTransactions = async (
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
     } else {
-        const derivate = await getDerivateWithTransaction(secrets.masterPassword, settingsTransaction);
+        const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
 
         if (!decryptTransaction(settingsTransaction, derivate)) {
             if (!(await askReplaceMasterPassword())) {

@@ -1,33 +1,34 @@
 import * as crypto from 'crypto';
 import { expect } from 'chai';
 
-import { crypt } from './crypt.js';
-import { decrypt, parsePayload } from './decrypt.js';
+import { encryptAES } from './encrypt.js';
+import { decrypt } from './decrypt.js';
+import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
 
-describe('Crypt and decrypt using random symmetric key', () => {
+describe('Encrypt and decrypt using random symmetric key', () => {
     it('ciphering params parsed after encryption are correct', () => {
-        const input = 'The input string I want to crypt';
+        const input = 'The input string I want to encrypt';
         const key = crypto.randomBytes(32);
-        const encryptedInput = crypt(key, Buffer.from(input, 'utf-8'));
+        const encryptedInput = encryptAES(key, Buffer.from(input));
 
         const buffer = Buffer.from(encryptedInput, 'base64');
         const decodedBase64 = buffer.toString('ascii');
-        const payload = parsePayload(decodedBase64, buffer);
+        const encryptedData = deserializeEncryptedData(decodedBase64, buffer);
 
-        expect(payload.keyDerivation.algo).to.equal('noderivation', 'Invalid key derivation algorithm');
-        expect(payload.cipherConfig.encryption).to.equal('aes256', 'Invalid encryption algorithm');
-        expect(payload.cipherConfig.cipherMode).to.equal('cbchmac', 'Invalid encryption mode');
-        expect(payload.cipherConfig.ivLength).to.equal(16, 'Invalid IV length');
-        expect(payload.cipheredContent.salt).length(0, 'Invalid salt length');
-        expect(payload.cipheredContent.iv).length(16, 'Invalid IV');
-        expect(payload.cipheredContent.hash).length(32, 'Invalid hash length');
+        expect(encryptedData.keyDerivation.algo).to.equal('noderivation', 'Invalid key derivation algorithm');
+        expect(encryptedData.cipherConfig.encryption).to.equal('aes256', 'Invalid encryption algorithm');
+        expect(encryptedData.cipherConfig.cipherMode).to.equal('cbchmac', 'Invalid encryption mode');
+        expect(encryptedData.cipherConfig.ivLength).to.equal(16, 'Invalid IV length');
+        expect(encryptedData.cipherData.salt).length(0, 'Invalid salt length');
+        expect(encryptedData.cipherData.iv).length(16, 'Invalid IV');
+        expect(encryptedData.cipherData.hash).length(32, 'Invalid hash length');
     });
 
     it('decryption of encryption should successfully return the input', () => {
-        const input = 'The input string I want to crypt';
+        const input = 'The input string I want to encrypt';
         const key = crypto.randomBytes(32);
-        const encryptedInput = crypt(key, Buffer.from(input, 'utf-8'));
+        const encryptedInput = encryptAES(key, Buffer.from(input));
         const decryptedInput = decrypt(encryptedInput, key);
-        expect(input).to.equal(decryptedInput.toString('utf-8'));
+        expect(input).to.equal(decryptedInput.toString());
     });
 });

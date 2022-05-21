@@ -5,9 +5,13 @@ import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
-import { decryptTransaction, getDerivateWithTransaction } from '../crypto/decrypt.js';
+import {
+    askReplaceMasterPassword,
+    decryptTransaction,
+    getDerivateUsingParametersFromTransaction,
+    getSecrets,
+} from '../crypto/index.js';
 import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent, Secrets } from '../types.js';
-import { askReplaceMasterPassword, getSecrets } from '../steps/keychainManager.js';
 import { notEmpty } from '../utils.js';
 
 interface GetCredential {
@@ -26,7 +30,7 @@ const decryptPasswordTransactions = async (
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
     } else {
-        const derivate = await getDerivateWithTransaction(secrets.masterPassword, settingsTransaction);
+        const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
 
         if (!decryptTransaction(settingsTransaction, derivate)) {
             if (!(await askReplaceMasterPassword())) {

@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import winston from 'winston';
+
 import {
     completeDeviceRegistration,
     CompleteDeviceRegistrationOutput,
