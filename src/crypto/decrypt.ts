@@ -9,7 +9,7 @@ import { hmacSha256, sha512 } from './hash.js';
 import { BackupEditTransaction } from '../types';
 import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
 
-const decryptCipheredContext = (cipherData: CipherData, originalKey: Buffer): Buffer => {
+const decryptCipheredData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
     const combinedKey = sha512(originalKey);
     const cipheringKey = combinedKey.slice(0, 32);
     const macKey = combinedKey.slice(32);
@@ -30,7 +30,7 @@ export const decrypt = (encryptedAsBase64: string, symmetricKey: Buffer): Buffer
     const decodedBase64 = buffer.toString('ascii');
     const encryptedData = deserializeEncryptedData(decodedBase64, buffer);
 
-    return decryptCipheredContext(encryptedData.cipherData, symmetricKey);
+    return decryptCipheredData(encryptedData.cipherData, symmetricKey);
 };
 
 export const decryptTransaction = (encryptedTransaction: BackupEditTransaction, derivate: Buffer): any => {
