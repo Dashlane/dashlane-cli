@@ -83,27 +83,34 @@ const deserializeDerivationConfig = (
 } => {
     const algoComponent = extractNextEncryptedDataStringComponent(encryptedDataString);
 
-    if (algoComponent.component === 'argon2d') {
-        const argonConfig = deserializeArgon2DerivationConfig(encryptedDataString.substring(algoComponent.cursorAfter));
-        return {
-            derivationConfig: argonConfig.derivationConfig,
-            cursorAfter: algoComponent.cursorAfter + argonConfig.cursorAfter,
-        };
-    } else if (algoComponent.component === 'pbkdf2') {
-        const pbkdfConfig = deserializePbkdf2DerivationConfig(encryptedDataString.substring(algoComponent.cursorAfter));
-        return {
-            derivationConfig: pbkdfConfig.derivationConfig,
-            cursorAfter: algoComponent.cursorAfter + pbkdfConfig.cursorAfter,
-        };
-    } else if (algoComponent.component === 'noderivation') {
-        return {
-            derivationConfig: {
-                algo: 'noderivation',
-            },
-            cursorAfter: algoComponent.cursorAfter,
-        };
-    } else {
-        throw new Error(`Unrecognized derivation algorithm: ${algoComponent.component}`);
+    switch (algoComponent.component) {
+        case 'argon2d': {
+            const argonConfig = deserializeArgon2DerivationConfig(
+                encryptedDataString.substring(algoComponent.cursorAfter)
+            );
+            return {
+                derivationConfig: argonConfig.derivationConfig,
+                cursorAfter: algoComponent.cursorAfter + argonConfig.cursorAfter,
+            };
+        }
+        case 'noderivation':
+            return {
+                derivationConfig: {
+                    algo: 'noderivation',
+                },
+                cursorAfter: algoComponent.cursorAfter,
+            };
+        case 'pbkdf2': {
+            const pbkdfConfig = deserializePbkdf2DerivationConfig(
+                encryptedDataString.substring(algoComponent.cursorAfter)
+            );
+            return {
+                derivationConfig: pbkdfConfig.derivationConfig,
+                cursorAfter: algoComponent.cursorAfter + pbkdfConfig.cursorAfter,
+            };
+        }
+        default:
+            throw new Error(`Unrecognized derivation algorithm: ${algoComponent.component}`);
     }
 };
 

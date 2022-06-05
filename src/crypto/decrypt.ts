@@ -3,6 +3,7 @@ import zlib from 'zlib';
 import * as xml2json from 'xml2json';
 import * as argon2 from 'argon2';
 import { promisify } from 'util';
+import winston from 'winston';
 
 import { CipherData, EncryptedData } from './types.js';
 import { hmacSha256, sha512 } from './hash.js';
@@ -39,9 +40,9 @@ export const decryptTransaction = (encryptedTransaction: BackupEditTransaction, 
         return JSON.parse(xml2json.toJson(xmlContent));
     } catch (error) {
         if (error instanceof Error) {
-            console.error(encryptedTransaction.type, error.message);
+            winston.error(encryptedTransaction.type, error.message);
         } else {
-            console.error(encryptedTransaction.type, error);
+            winston.error(encryptedTransaction.type, error);
         }
         return null;
     }
