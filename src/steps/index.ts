@@ -4,4 +4,3 @@ export * from './performTotpVerification.js';
 export * from './performEmailTokenVerification.js';
 export * from './completeDeviceRegistration.js';
 export * from './getLatestContent.js';
-export * from './keychainManager.js';

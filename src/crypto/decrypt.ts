@@ -1,168 +1,95 @@
 import * as crypto from 'crypto';
-import winston from 'winston';
-import { hmacSha256, sha512 } from './hash.js';
-import { BackupEditTransaction } from '../types';
 import zlib from 'zlib';
 import * as xml2json from 'xml2json';
 import * as argon2 from 'argon2';
+import { promisify } from 'util';
+import winston from 'winston';
 
-export interface Argon2d {
-    algo: string;
-    saltLength: number;
-    tCost: number;
-    mCost: number;
-    parallelism: number;
-}
+import { CipherData, EncryptedData } from './types.js';
+import { hmacSha256, sha512 } from './hash.js';
+import { BackupEditTransaction } from '../types';
+import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
 
-interface CipherConfig {
-    encryption: string;
-    cipherMode: string;
-    ivLength: number;
-}
-
-interface CypheredContent {
-    salt: Buffer;
-    iv: Buffer;
-    hmac: Buffer;
-    encryptedData: Buffer;
-}
-
-export interface CipheringMethod {
-    method: 'Argon2d' | 'PBKDF2 10204' | 'PBKDF2 200000' | 'No Derivation';
-    version: string;
-    cypherConfig: CipherConfig;
-    keyDerivation: Argon2d;
-    cypheredContent: CypheredContent;
-}
-
-export const argonDecrypt = (dataBuffer: Buffer, originalKey: Buffer, iv: Buffer, signature: Buffer): Buffer => {
+const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
     const combinedKey = sha512(originalKey);
     const cipheringKey = combinedKey.slice(0, 32);
     const macKey = combinedKey.slice(32);
 
-    const testSignature = hmacSha256(macKey, Buffer.concat([iv, dataBuffer]));
-    if (testSignature.toString('base64') !== signature.toString('base64')) {
+    const { iv, hash, encryptedPayload } = cipherData;
+
+    const testSignature = hmacSha256(macKey, Buffer.concat([iv, encryptedPayload]));
+    if (testSignature.toString('base64') !== hash.toString('base64')) {
         throw new Error('mismatching signatures');
     }
+
     const decipher = crypto.createDecipheriv('aes-256-cbc', cipheringKey, iv);
-    return Buffer.concat([decipher.update(dataBuffer), decipher.final()]);
+    return Buffer.concat([decipher.update(encryptedPayload), decipher.final()]);
 };
 
-export const getCipheringMethod = (cipheredData: string): CipheringMethod => {
-    if (!cipheredData || cipheredData.length === 0) {
-        winston.debug(cipheredData);
-        throw new Error('invalid ciphered data');
-    }
-    const newMarkerDelimiter = '$';
-    const buffer = Buffer.from(cipheredData, 'base64');
+export const decrypt = (encryptedAsBase64: string, symmetricKey: Buffer): Buffer => {
+    const buffer = Buffer.from(encryptedAsBase64, 'base64');
     const decodedBase64 = buffer.toString('ascii');
+    const encryptedData = deserializeEncryptedData(decodedBase64, buffer);
 
-    if (decodedBase64[0] === newMarkerDelimiter) {
-        const payloadHeader = decodedBase64.split(newMarkerDelimiter, 3);
-        if (payloadHeader.length === 3) {
-            const marker = payloadHeader[2] ? payloadHeader[2].toLowerCase() : null;
-            if (marker !== 'argon2d') {
-                throw new Error('unknown algo in marker');
-            }
-            return parseArgon2d(decodedBase64, buffer);
-        }
-    }
-    throw new Error('unknown ciphering method');
+    return decryptCipherData(encryptedData.cipherData, symmetricKey);
 };
 
-const parseArgon2d = (decodedBase64: string, buffer: Buffer): CipheringMethod => {
-    const payloadArray = decodedBase64.split('$', 10);
-    if (payloadArray.length !== 10) {
-        throw new Error('invalid payload for Argon2d');
-    }
-
-    const [, version, algo, saltLength, tCost, mCost, parallelism, encryption, cipherMode, ivLength] = payloadArray;
-    const cypherConfig: CipherConfig = {
-        encryption,
-        cipherMode,
-        ivLength: parseInt(ivLength, 10),
-    };
-
-    const keyDerivation: Argon2d = {
-        algo,
-        saltLength: parseInt(saltLength, 10),
-        tCost: parseInt(tCost, 10),
-        mCost: parseInt(mCost, 10),
-        parallelism: parseInt(parallelism, 10),
-    };
-
-    let pos = payloadArray.join('$').length + 1;
-
-    const salt = buffer.slice(pos, pos + keyDerivation.saltLength);
-    pos = pos + keyDerivation.saltLength;
-    const iv = buffer.slice(pos, pos + cypherConfig.ivLength);
-    pos = pos + cypherConfig.ivLength;
-    const hmac = buffer.slice(pos, pos + 32);
-    pos = pos + 32;
-    const encryptedData = buffer.slice(pos);
-
-    const cypheredContent = {
-        salt,
-        iv,
-        hmac,
-        encryptedData,
-    };
-
-    return {
-        method: 'Argon2d',
-        version,
-        cypherConfig,
-        keyDerivation,
-        cypheredContent,
-    };
-};
-
-export const decryptTransaction = (transaction: BackupEditTransaction, derivate: Buffer): any => {
-    let cypheredContent;
-
+export const decryptTransaction = (encryptedTransaction: BackupEditTransaction, derivate: Buffer): any => {
     try {
-        cypheredContent = getCipheringMethod(transaction.content).cypheredContent;
+        const xmlContent = zlib.inflateRawSync(decrypt(encryptedTransaction.content, derivate).slice(6)).toString();
+        return JSON.parse(xml2json.toJson(xmlContent));
     } catch (error) {
         if (error instanceof Error) {
-            console.error(transaction.type, error.message);
+            winston.error(encryptedTransaction.type, error.message);
         } else {
-            console.error(transaction.type, error);
-        }
-        return null;
-    }
-    const { encryptedData: encD, hmac: sign, iv } = cypheredContent;
-
-    try {
-        const content = argonDecrypt(encD, derivate, iv, sign);
-        const xmlContent = zlib.inflateRawSync(content.slice(6)).toString();
-        return JSON.parse(xml2json.toJson(xmlContent));
-    } catch (error: any) {
-        if (error instanceof Error) {
-            console.error(transaction.type, error.message);
-        } else {
-            console.error(transaction.type, error);
+            winston.error(encryptedTransaction.type, error);
         }
         return null;
     }
 };
 
-export const getDerivate = async (
+const pbkdf2Async = promisify(crypto.pbkdf2);
+
+export const getDerivateUsingParametersFromEncryptedData = async (
+    masterPassword: string,
+    cipheringMethod: EncryptedData
+): Promise<Buffer> => {
+    switch (cipheringMethod.keyDerivation.algo) {
+        case 'argon2d':
+            return argon2.hash(masterPassword, {
+                type: argon2.argon2d,
+                saltLength: cipheringMethod.keyDerivation.saltLength,
+                timeCost: cipheringMethod.keyDerivation.tCost,
+                memoryCost: cipheringMethod.keyDerivation.mCost,
+                parallelism: cipheringMethod.keyDerivation.parallelism,
+                salt: cipheringMethod.cipherData.salt,
+                version: 19,
+                hashLength: 32,
+                raw: true,
+            });
+        case 'pbkdf2':
+            return pbkdf2Async(
+                masterPassword,
+                cipheringMethod.cipherData.salt,
+                cipheringMethod.keyDerivation.iterations,
+                32,
+                cipheringMethod.keyDerivation.hashMethod
+            );
+        default:
+            throw new Error(
+                `Impossible to compute derivate with derivation method '${cipheringMethod.keyDerivation.algo}'`
+            );
+    }
+};
+
+export const getDerivateUsingParametersFromTransaction = async (
     masterPassword: string,
     settingsTransaction: BackupEditTransaction
 ): Promise<Buffer> => {
-    const { keyDerivation, cypheredContent } = getCipheringMethod(settingsTransaction.content);
+    const buffer = Buffer.from(settingsTransaction.content, 'base64');
+    const decodedBase64 = buffer.toString('ascii');
 
-    const { salt } = cypheredContent;
+    const encryptedData = deserializeEncryptedData(decodedBase64, buffer);
 
-    return argon2.hash(masterPassword, {
-        type: argon2.argon2d,
-        saltLength: keyDerivation.saltLength,
-        timeCost: keyDerivation.tCost,
-        memoryCost: keyDerivation.mCost,
-        parallelism: keyDerivation.parallelism,
-        salt,
-        version: 19,
-        hashLength: 32,
-        raw: true,
-    });
+    return getDerivateUsingParametersFromEncryptedData(masterPassword, encryptedData);
 };

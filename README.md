@@ -2,25 +2,55 @@
 
 **Note**: This project is **not** endorsed by Dashlane in any way.
 
+## How to install
+
+In order to build:
+
+```
+npm run build
+```
+
+In order to link:
+
+```
+npm link
+```
+
 ## How to use
+
+In order to get help:
+
+```
+dcli help
+```
 
 In order to sync your vault:
 
 ```
-node dist/index.js sync
+dcli sync
 ```
 
-You can list all your passwords:
+In order to get a password:
 
 ```
-node dist/index.js password
+dcli password [titleFilter]
 ```
 
-In order to get a specific password:
+In order to generate an OTP:
 
 ```
-node dist/index.js password toto.com
+dcli otp [titleFilter]
 ```
+
+In order to get a secured note:
+
+```
+dcli note [titleFilter]
+```
+
+## How private data is stored on the computer
+
+See [src/crypto/README.md](src/crypto/README.md).
 
 ## Contributing
 

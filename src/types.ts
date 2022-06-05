@@ -1,6 +1,15 @@
-export interface DeviceKeys {
+export interface Secrets {
+    login: string;
+    masterPassword: string;
     accessKey: string;
     secretKey: string;
+}
+
+export interface DeviceKeys {
+    accessKey: string;
+    secretKeyEncrypted: string;
+    masterPasswordEncrypted: string;
+    localKeyEncrypted: string;
 }
 
 export interface DeviceKeysWithLogin extends DeviceKeys {
