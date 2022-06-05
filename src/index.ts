@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 import { program } from 'commander';
+import inquirer from 'inquirer';
+import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
+
 import { sync } from './middleware/sync.js';
 import { getNote } from './middleware/getSecureNotes.js';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords.js';
 import { connectAndPrepare } from './database/index.js';
+import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
@@ -14,6 +18,8 @@ winston.configure({
     transports: [new winston.transports.Console()],
 });
 
+inquirer.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
+
 const masterPassword: string | undefined = process.env.MP;
 
 program.name('dcli').description('[Non Official] Dashlane CLI').version('0.1.0');
@@ -22,6 +28,7 @@ program.option('--debug', 'Print debug messages');
 
 program
     .command('sync')
+    .alias('s')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
         const { db, secrets } = await connectAndPrepare(masterPassword);

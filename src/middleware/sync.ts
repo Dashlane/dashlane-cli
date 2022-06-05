@@ -34,7 +34,7 @@ export const sync = async (params: Sync) => {
         return [transac.identifier, transac.type, transac.action, ''];
     });
 
-    console.log('Number of new updates:', values.length);
+    winston.debug('Number of new updates:', values.length);
 
     const statement = db.prepare(`REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)`);
 

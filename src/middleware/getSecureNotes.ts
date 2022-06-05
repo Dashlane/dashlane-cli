@@ -1,9 +1,14 @@
 import winston from 'winston';
 import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
-import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
-import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types.js';
+import {
+    BackupEditTransaction,
+    PrintableVaultNote,
+    Secrets,
+    SecureNoteTransactionContent,
+    VaultNote,
+} from '../types.js';
 import {
     askReplaceMasterPassword,
     decryptTransaction,
@@ -26,33 +31,30 @@ const decryptSecureNotesTransactions = async (
     const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
-    } else {
-        const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
-
-        if (!decryptTransaction(settingsTransaction, derivate)) {
-            if (!(await askReplaceMasterPassword())) {
-                return null;
-            }
-            return decryptSecureNotesTransactions(db, transactions, await getSecrets(db, null));
-        }
-
-        const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
-
-        const secureNotesDecrypted = secureNotesTransactions
-            .map(
-                (transaction: BackupEditTransaction) =>
-                    decryptTransaction(transaction, derivate) as SecureNoteTransactionContent | null
-            )
-            .filter(notEmpty);
-
-        if (secureNotesTransactions.length !== secureNotesDecrypted.length) {
-            console.error(
-                'Encountered decryption errors:',
-                secureNotesTransactions.length - secureNotesDecrypted.length
-            );
-        }
-        return secureNotesDecrypted;
     }
+
+    const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
+
+    if (!decryptTransaction(settingsTransaction, derivate)) {
+        if (!(await askReplaceMasterPassword())) {
+            return null;
+        }
+        return decryptSecureNotesTransactions(db, transactions, await getSecrets(db, null));
+    }
+
+    const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
+
+    const secureNotesDecrypted = secureNotesTransactions
+        .map(
+            (transaction: BackupEditTransaction) =>
+                decryptTransaction(transaction, derivate) as SecureNoteTransactionContent | null
+        )
+        .filter(notEmpty);
+
+    if (secureNotesTransactions.length !== secureNotesDecrypted.length) {
+        console.error('Encountered decryption errors:', secureNotesTransactions.length - secureNotesDecrypted.length);
+    }
+    return secureNotesDecrypted;
 };
 
 export const getNote = async (params: GetSecureNote): Promise<void> => {
@@ -98,28 +100,19 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
             ? 'There are multiple results for your query, pick one:'
             : 'What note would you like to get?';
 
-        inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
-        const noteQueried = (
-            await inquirer.prompt<{ note: string }>([
+        selectedNote = (
+            await inquirer.prompt<{ note: PrintableVaultNote }>([
                 {
-                    type: 'autocomplete',
+                    type: 'search-list',
                     name: 'note',
                     message,
-                    source: (_answersSoFar: string[], input: string) =>
-                        matchedNotes
-                            ?.map((item, index) => item.title + ' - ' + index.toString(10))
-                            .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || '')),
+                    choices: matchedNotes.map((item) => {
+                        const printableItem = new PrintableVaultNote(item);
+                        return { name: printableItem.toString(), value: printableItem };
+                    }),
                 },
             ])
-        ).note;
-        const noteQueriedSplit = noteQueried.split(' - ');
-
-        const selectedIndex = parseInt(noteQueriedSplit[noteQueriedSplit.length - 1], 10);
-        if (selectedIndex < 0 || selectedIndex >= matchedNotes.length) {
-            throw new Error('Unable to retrieve the corresponding note entry');
-        }
-
-        selectedNote = matchedNotes[selectedIndex];
+        ).note.vaultNote;
     }
 
     console.log(selectedNote.content);
