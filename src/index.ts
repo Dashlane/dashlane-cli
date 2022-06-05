@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import inquirer from 'inquirer';
+import PromptConstructor = inquirer.prompts.PromptConstructor;
 import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
 
@@ -8,7 +9,6 @@ import { sync } from './middleware/sync.js';
 import { getNote } from './middleware/getSecureNotes.js';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords.js';
 import { connectAndPrepare } from './database/index.js';
-import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 

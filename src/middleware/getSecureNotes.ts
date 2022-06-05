@@ -52,7 +52,7 @@ const decryptSecureNotesTransactions = async (
         .filter(notEmpty);
 
     if (secureNotesTransactions.length !== secureNotesDecrypted.length) {
-        console.error('Encountered decryption errors:', secureNotesTransactions.length - secureNotesDecrypted.length);
+        winston.error('Encountered decryption errors:', secureNotesTransactions.length - secureNotesDecrypted.length);
     }
     return secureNotesDecrypted;
 };
