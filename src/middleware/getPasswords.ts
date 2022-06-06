@@ -111,7 +111,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
     const { printableCredential } = await inquirer.prompt<{ printableCredential: PrintableVaultCredential }>([
         {
             type: 'search-list',
-            name: 'website',
+            name: 'printableCredential',
             message,
             choices: matchedCredentials.map((item) => {
                 const printableItem = new PrintableVaultCredential(item);

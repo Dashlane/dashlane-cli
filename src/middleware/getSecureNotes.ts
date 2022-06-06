@@ -103,7 +103,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
         const { printableNote } = await inquirer.prompt<{ printableNote: PrintableVaultNote }>([
             {
                 type: 'search-list',
-                name: 'note',
+                name: 'printableNote',
                 message,
                 choices: matchedNotes.map((item) => {
                     const printableItem = new PrintableVaultNote(item);
