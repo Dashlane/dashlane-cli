@@ -108,21 +108,19 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         ? 'There are multiple results for your query, pick one:'
         : 'What password would you like to get?';
 
-    const credentials = (
-        await inquirer.prompt<{ website: PrintableVaultCredential }>([
-            {
-                type: 'search-list',
-                name: 'website',
-                message,
-                choices: matchedCredentials.map((item) => {
-                    const printableItem = new PrintableVaultCredential(item);
-                    return { name: printableItem.toString(), value: printableItem };
-                }),
-            },
-        ])
-    ).website.vaultCredential;
+    const { printableCredential } = await inquirer.prompt<{ printableCredential: PrintableVaultCredential }>([
+        {
+            type: 'search-list',
+            name: 'website',
+            message,
+            choices: matchedCredentials.map((item) => {
+                const printableItem = new PrintableVaultCredential(item);
+                return { name: printableItem.toString(), value: printableItem };
+            }),
+        },
+    ]);
 
-    return credentials;
+    return printableCredential.vaultCredential;
 };
 
 export const getPassword = async (params: GetCredential): Promise<void> => {

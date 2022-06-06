@@ -24,9 +24,9 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
 
     let authTicket;
     if (verification.find((method) => method.type === 'duo_push')) {
-        authTicket = (await performDuoPushVerification({ login })).authTicket;
+        ({ authTicket } = await performDuoPushVerification({ login }));
     } else if (verification.find((method) => method.type === 'dashlane_authenticator')) {
-        authTicket = (await performDashlaneAuthenticatorVerification({ login })).authTicket;
+        ({ authTicket } = await performDashlaneAuthenticatorVerification({ login }));
     } else if (verification.find((method) => method.type === 'totp')) {
         const { otp } = await inquirer.prompt<{ otp: number }>([
             {
@@ -35,12 +35,10 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
                 message: 'Please enter your OTP code',
             },
         ]);
-        authTicket = (
-            await performTotpVerification({
-                login,
-                otp: String(otp).padStart(5, '0'),
-            })
-        ).authTicket;
+        ({ authTicket } = await performTotpVerification({
+            login,
+            otp: String(otp).padStart(5, '0'),
+        }));
     } else if (verification.find((method) => method.type === 'email_token')) {
         const { token } = await inquirer.prompt<{ token: number }>([
             {
@@ -49,12 +47,10 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
                 message: 'Please enter the code you received by email',
             },
         ]);
-        authTicket = (
-            await performEmailTokenVerification({
-                login,
-                token: String(token).padStart(5, '0'),
-            })
-        ).authTicket;
+        ({ authTicket } = await performEmailTokenVerification({
+            login,
+            token: String(token).padStart(5, '0'),
+        }));
     } else {
         throw new Error('Auth verification method not supported: ' + verification[0].type);
     }

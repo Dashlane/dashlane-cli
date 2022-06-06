@@ -100,19 +100,19 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
             ? 'There are multiple results for your query, pick one:'
             : 'What note would you like to get?';
 
-        selectedNote = (
-            await inquirer.prompt<{ note: PrintableVaultNote }>([
-                {
-                    type: 'search-list',
-                    name: 'note',
-                    message,
-                    choices: matchedNotes.map((item) => {
-                        const printableItem = new PrintableVaultNote(item);
-                        return { name: printableItem.toString(), value: printableItem };
-                    }),
-                },
-            ])
-        ).note.vaultNote;
+        const { printableNote } = await inquirer.prompt<{ printableNote: PrintableVaultNote }>([
+            {
+                type: 'search-list',
+                name: 'note',
+                message,
+                choices: matchedNotes.map((item) => {
+                    const printableItem = new PrintableVaultNote(item);
+                    return { name: printableItem.toString(), value: printableItem };
+                }),
+            },
+        ]);
+
+        selectedNote = printableNote.vaultNote;
     }
 
     console.log(selectedNote.content);
