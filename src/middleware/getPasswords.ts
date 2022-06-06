@@ -1,7 +1,6 @@
 import * as clipboard from 'clipboardy';
 import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
-import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
@@ -11,7 +10,13 @@ import {
     getDerivateUsingParametersFromTransaction,
     getSecrets,
 } from '../crypto/index.js';
-import { BackupEditTransaction, VaultCredential, AuthentifiantTransactionContent, Secrets } from '../types.js';
+import {
+    BackupEditTransaction,
+    VaultCredential,
+    AuthentifiantTransactionContent,
+    Secrets,
+    PrintableVaultCredential,
+} from '../types.js';
 import { notEmpty } from '../utils.js';
 
 interface GetCredential {
@@ -29,30 +34,27 @@ const decryptPasswordTransactions = async (
     const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
     if (!settingsTransaction) {
         throw new Error('Unable to locate the settings of the vault');
-    } else {
-        const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
-
-        if (!decryptTransaction(settingsTransaction, derivate)) {
-            if (!(await askReplaceMasterPassword())) {
-                throw new Error('The master password is incorrect.');
-            }
-            return decryptPasswordTransactions(db, transactions, await getSecrets(db, null));
-        }
-
-        const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
-
-        const passwordsDecrypted = authentifiantTransactions
-            .map((transaction) => decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null)
-            .filter(notEmpty);
-
-        if (authentifiantTransactions.length !== passwordsDecrypted.length) {
-            winston.debug(
-                'Encountered decryption errors:',
-                authentifiantTransactions.length - passwordsDecrypted.length
-            );
-        }
-        return passwordsDecrypted;
     }
+
+    const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
+
+    if (!decryptTransaction(settingsTransaction, derivate)) {
+        if (!(await askReplaceMasterPassword())) {
+            throw new Error('The master password is incorrect.');
+        }
+        return decryptPasswordTransactions(db, transactions, await getSecrets(db, null));
+    }
+
+    const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
+
+    const passwordsDecrypted = authentifiantTransactions
+        .map((transaction) => decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null)
+        .filter(notEmpty);
+
+    if (authentifiantTransactions.length !== passwordsDecrypted.length) {
+        winston.debug('Encountered decryption errors:', authentifiantTransactions.length - passwordsDecrypted.length);
+    }
+    return passwordsDecrypted;
 };
 
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
@@ -106,37 +108,19 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         ? 'There are multiple results for your query, pick one:'
         : 'What password would you like to get?';
 
-    inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
+    const { printableCredential } = await inquirer.prompt<{ printableCredential: PrintableVaultCredential }>([
+        {
+            type: 'search-list',
+            name: 'printableCredential',
+            message,
+            choices: matchedCredentials.map((item) => {
+                const printableItem = new PrintableVaultCredential(item);
+                return { name: printableItem.toString(), value: printableItem };
+            }),
+        },
+    ]);
 
-    const websiteQueried = (
-        await inquirer.prompt<{ website: string }>([
-            {
-                type: 'autocomplete',
-                name: 'website',
-                message,
-                source: (_answersSoFar: string[], input: string) =>
-                    matchedCredentials
-                        .sort()
-                        .map(
-                            (item, index) =>
-                                item.title +
-                                ' - ' +
-                                (item.email || item.login || item.secondaryLogin || '') +
-                                ' - ' +
-                                index.toString(10)
-                        )
-                        .filter((title) => title && title.toLowerCase().includes(input?.toLowerCase() || '')),
-            },
-        ])
-    ).website;
-    const websiteQueriedSplit = websiteQueried.split(' - ');
-
-    const selectedIndex = parseInt(websiteQueriedSplit[websiteQueriedSplit.length - 1], 10);
-    if (selectedIndex < 0 || selectedIndex >= matchedCredentials.length) {
-        throw new Error('Unable to retrieve the corresponding password entry');
-    }
-
-    return matchedCredentials[selectedIndex];
+    return printableCredential.vaultCredential;
 };
 
 export const getPassword = async (params: GetCredential): Promise<void> => {

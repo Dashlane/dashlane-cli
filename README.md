@@ -59,6 +59,6 @@ Don't include work that is not open source or not from you.
 
 ## Authors
 
-| [![twitter/mikescops](https://avatars0.githubusercontent.com/u/4266283?s=100&v=4)](http://twitter.com/mikescops 'Follow @mikescops on Twitter') | [![twitter/plhery](https://avatars.githubusercontent.com/u/4018426?s=100&v=4)](http://twitter.com/plhery 'Follow @plhery on Twitter') |
-| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| [Corentin Mors](https://pixelswap.fr/)                                                                                                          | [Paul-Louis HERY](http://twitter.com/plhery)                                                                                          |
+| [![twitter/mikescops](https://avatars.githubusercontent.com/u/4266283?s=100&v=4)](http://twitter.com/mikescops 'Follow @mikescops on Twitter') | [![twitter/plhery](https://avatars.githubusercontent.com/u/4018426?s=100&v=4)](http://twitter.com/plhery 'Follow @plhery on Twitter') | ![](https://avatars.githubusercontent.com/u/52931370?v=4&s=100) |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |-----------------------------------------------------------------|
+| [Corentin Mors](https://pixelswap.fr/)                                                                                                         | [Paul-Louis HERY](http://twitter.com/plhery)                                                                                          | [Jérôme Boillot](https://jerome-boillot.com/)                   |

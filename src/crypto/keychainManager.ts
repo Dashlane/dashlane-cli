@@ -133,15 +133,13 @@ export const getSecrets = async (
     if (deviceKeys) {
         login = deviceKeys.login;
     } else {
-        login = (
-            await inquirer.prompt<{ login: string }>([
-                {
-                    type: 'input',
-                    name: 'login',
-                    message: 'Please enter your email address:',
-                },
-            ])
-        ).login;
+        ({ login } = await inquirer.prompt<{ login: string }>([
+            {
+                type: 'input',
+                name: 'login',
+                message: 'Please enter your email address:',
+            },
+        ]));
     }
 
     const localKey = await getLocalKey(login);
@@ -171,28 +169,25 @@ export const getSecrets = async (
 };
 
 export const promptMasterPassword = async (): Promise<string> => {
-    return (
-        await inquirer.prompt<{ masterPassword: string }>([
-            {
-                type: 'password',
-                name: 'masterPassword',
-                message: 'Please enter your master password:',
-            },
-        ])
-    ).masterPassword;
+    const { masterPassword } = await inquirer.prompt<{ masterPassword: string }>([
+        {
+            type: 'password',
+            name: 'masterPassword',
+            message: 'Please enter your master password:',
+        },
+    ]);
+    return masterPassword;
 };
 
 export const askReplaceMasterPassword = async () => {
-    const promptedReplaceMasterPassword: string = (
-        await inquirer.prompt<{ replaceMasterPassword: string }>([
-            {
-                type: 'list',
-                name: 'replaceMasterPassword',
-                message: "Couldn't decrypt any password, would you like to retry?",
-                choices: ['Yes', 'No'],
-            },
-        ])
-    ).replaceMasterPassword;
+    const { replaceMasterPassword } = await inquirer.prompt<{ replaceMasterPassword: string }>([
+        {
+            type: 'list',
+            name: 'replaceMasterPassword',
+            message: "Couldn't decrypt any password, would you like to retry?",
+            choices: ['Yes', 'No'],
+        },
+    ]);
 
-    return promptedReplaceMasterPassword === 'Yes';
+    return replaceMasterPassword === 'Yes';
 };

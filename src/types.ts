@@ -115,6 +115,22 @@ export interface VaultCredential {
     localeFormat: string; // either UNIVERSAL or a country code
 }
 
+export class PrintableVaultCredential {
+    vaultCredential: VaultCredential;
+
+    constructor(vaultCredential: VaultCredential) {
+        this.vaultCredential = vaultCredential;
+    }
+
+    toString(): string {
+        return (
+            this.vaultCredential.title +
+            ' - ' +
+            (this.vaultCredential.email || this.vaultCredential.login || this.vaultCredential.secondaryLogin || '')
+        );
+    }
+}
+
 export interface VaultNote {
     anonId: string;
     category?: string;
@@ -131,4 +147,16 @@ export interface VaultNote {
     type: string;
     sharedObject?: string;
     userModificationDatetime?: string;
+}
+
+export class PrintableVaultNote {
+    vaultNote: VaultNote;
+
+    constructor(vaultNote: VaultNote) {
+        this.vaultNote = vaultNote;
+    }
+
+    toString(): string {
+        return this.vaultNote.title;
+    }
 }
