@@ -1,5 +1,5 @@
-import * as apiconnect from './api-connect/index.js';
-import { gotImplementation } from './utils/gotImplementation.js';
+import * as apiconnect from './api-connect';
+import { gotImplementation } from './utils/';
 import { HTTPError } from 'got';
 import * as got from 'got';
 

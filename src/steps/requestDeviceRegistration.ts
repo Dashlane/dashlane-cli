@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi.js';
+import { requestApi } from '../requestApi';
 
 interface RequestDeviceRegistration {
     login: string;

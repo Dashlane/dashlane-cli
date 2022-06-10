@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import { makeCanonicalRequest } from './makeCanonicalRequest.js';
+import { makeCanonicalRequest } from './makeCanonicalRequest';
 import { Authentication, SignRequestParams } from './types';
 
 export const signRequest = (params: SignRequestParams) => {

@@ -8,10 +8,10 @@ import {
     Secrets,
     SecureNoteTransactionContent,
     VaultNote,
-} from '../types.js';
+} from '../types';
 import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto/index.js';
-import { notEmpty } from '../utils.js';
-import { askReplaceMasterPassword } from '../utils/dialogs.js';
+import { notEmpty } from '../utils';
+import { askReplaceMasterPassword } from '../utils/dialogs';
 
 interface GetSecureNote {
     titleFilter: string | null;

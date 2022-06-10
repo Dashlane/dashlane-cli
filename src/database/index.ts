@@ -1,2 +1,2 @@
-export * from './connectAndPrepare.js';
-export * from './reset.js';
+export * from './connectAndPrepare';
+export * from './reset';

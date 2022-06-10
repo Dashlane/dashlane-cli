@@ -1,4 +1,4 @@
-import { signRequest } from './signRequest.js';
+import { signRequest } from './signRequest';
 import { PostRequestAPIParams } from './types';
 
 export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {

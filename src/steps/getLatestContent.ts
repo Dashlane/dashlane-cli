@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi.js';
+import { requestApi } from '../requestApi';
 import type { BackupEditTransaction, BackupRemoveTransaction, Secrets } from '../types';
 
 interface GetLatestContent {

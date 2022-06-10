@@ -2,13 +2,13 @@ import crypto from 'crypto';
 import keytar from 'keytar';
 import { Database } from 'better-sqlite3';
 
-import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types.js';
-import { registerDevice } from '../middleware/registerDevice.js';
-import { encryptAES } from './encrypt.js';
-import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt.js';
-import { askEmailAddress, askMasterPassword } from '../utils/dialogs.js';
+import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types';
+import { registerDevice } from '../middleware/registerDevice';
+import { encryptAES } from './encrypt';
+import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
+import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
 import { EncryptedData } from './types';
-import { sha512 } from './hash.js';
+import { sha512 } from './hash';
 
 const SERVICE = 'dashlane-cli';
 
