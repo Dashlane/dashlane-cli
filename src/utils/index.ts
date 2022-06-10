@@ -1,1 +1,1 @@
-export * from './gotImplementation.js';
+export * from './gotImplementation';

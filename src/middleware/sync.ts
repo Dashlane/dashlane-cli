@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
 
-import { getLatestContent } from '../steps/index.js';
-import type { Secrets } from '../types.js';
+import { getLatestContent } from '../steps';
+import type { Secrets } from '../types';
 
 interface Sync {
     db: Database.Database;

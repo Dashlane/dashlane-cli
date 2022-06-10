@@ -4,16 +4,16 @@ import inquirer from 'inquirer';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
-import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto/index.js';
+import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto';
 import {
     BackupEditTransaction,
     VaultCredential,
     AuthentifiantTransactionContent,
     Secrets,
     PrintableVaultCredential,
-} from '../types.js';
-import { notEmpty } from '../utils.js';
-import { askReplaceMasterPassword } from '../utils/dialogs.js';
+} from '../types';
+import { notEmpty } from '../utils';
+import { askReplaceMasterPassword } from '../utils/dialogs';
 
 interface GetCredential {
     titleFilter: string | null;
@@ -124,7 +124,7 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
 
     switch (params.output || 'clipboard') {
         case 'clipboard':
-            clipboard.default.writeSync(selectedCredential.password);
+            clipboard.writeSync(selectedCredential.password);
             console.log(`🔓 Password for "${selectedCredential.title}" copied to clipboard!`);
 
             if (selectedCredential.otpSecret) {

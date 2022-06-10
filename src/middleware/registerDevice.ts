@@ -8,8 +8,8 @@ import {
     performEmailTokenVerification,
     performTotpVerification,
     requestDeviceRegistration,
-} from '../steps/index.js';
-import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification.js';
+} from '../steps';
+import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification';
 
 interface RegisterDevice {
     login: string;

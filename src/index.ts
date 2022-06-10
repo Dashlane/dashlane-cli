@@ -5,12 +5,12 @@ import PromptConstructor = inquirer.prompts.PromptConstructor;
 import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
 
-import { sync } from './middleware/sync.js';
-import { getNote } from './middleware/getSecureNotes.js';
-import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords.js';
-import { connectAndPrepare, resetDB } from './database/index.js';
-import { askConfirmReset } from './utils/dialogs.js';
-import { deleteLocalKey } from './crypto/keychainManager.js';
+import { sync } from './middleware/sync';
+import { getNote } from './middleware/getSecureNotes';
+import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
+import { connectAndPrepare, resetDB } from './database/index';
+import { askConfirmReset } from './utils/dialogs';
+import { deleteLocalKey } from './crypto/keychainManager';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 

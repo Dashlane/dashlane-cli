@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
 
-import { Secrets } from '../types.js';
-import { prepareDB } from './prepare.js';
-import { connect } from './connect.js';
-import { getSecrets } from '../crypto/index.js';
+import { Secrets } from '../types';
+import { prepareDB } from './prepare';
+import { connect } from './connect';
+import { getSecrets } from '../crypto';
 
 export const connectAndPrepare = async (
     masterPassword?: string

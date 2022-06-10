@@ -1,9 +1,9 @@
 import * as crypto from 'crypto';
 import { expect } from 'chai';
 
-import { encryptAES } from './encrypt.js';
-import { decrypt } from './decrypt.js';
-import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
+import { encryptAES } from './encrypt';
+import { decrypt } from './decrypt';
+import { deserializeEncryptedData } from './encryptedDataDeserialization';
 
 describe('Encrypt and decrypt using random symmetric key', () => {
     it('ciphering params parsed after encryption are correct', () => {

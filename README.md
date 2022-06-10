@@ -16,6 +16,14 @@ In order to link:
 npm link
 ```
 
+In order to bundle for Linux-x64, macOS-x64 and Windows-x64:
+
+```
+npm run pkg
+```
+
+It outputs in `bundle` directory. Be aware you must use the same Node version as the target.
+
 ## How to use
 
 In order to get help:
