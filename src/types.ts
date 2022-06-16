@@ -73,7 +73,7 @@ export interface AuthentifiantTransactionContent {
                 _attributes: {
                     key: string;
                 };
-                _cdata: string;
+                _cdata?: string;
             }[];
         };
     };
@@ -86,7 +86,7 @@ export interface SecureNoteTransactionContent {
                 _attributes: {
                     key: string;
                 };
-                _cdata: string;
+                _cdata?: string;
             }[];
         };
     };
