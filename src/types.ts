@@ -70,8 +70,10 @@ export interface AuthentifiantTransactionContent {
     root: {
         KWAuthentifiant: {
             KWDataItem: {
-                key: string;
-                $t?: string;
+                _attributes: {
+                    key: string;
+                };
+                _cdata: string;
             }[];
         };
     };
@@ -81,8 +83,10 @@ export interface SecureNoteTransactionContent {
     root: {
         KWSecureNote: {
             KWDataItem: {
-                key: string;
-                $t?: string;
+                _attributes: {
+                    key: string;
+                };
+                _cdata: string;
             }[];
         };
     };
