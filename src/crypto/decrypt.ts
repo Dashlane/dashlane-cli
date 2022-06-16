@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 import zlib from 'zlib';
-import * as xml2json from 'xml2json';
+import * as xmlJs from 'xml-js';
 import * as argon2 from 'argon2';
 import { promisify } from 'util';
 import winston from 'winston';
@@ -37,7 +37,7 @@ export const decrypt = (encryptedAsBase64: string, symmetricKey: Buffer): Buffer
 export const decryptTransaction = (encryptedTransaction: BackupEditTransaction, derivate: Buffer): any => {
     try {
         const xmlContent = zlib.inflateRawSync(decrypt(encryptedTransaction.content, derivate).slice(6)).toString();
-        return JSON.parse(xml2json.toJson(xmlContent));
+        return JSON.parse(xmlJs.xml2json(xmlContent, { compact: true }));
     } catch (error) {
         if (error instanceof Error) {
             winston.error(encryptedTransaction.type, error.message);

@@ -2,14 +2,8 @@ import winston from 'winston';
 import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 
-import {
-    BackupEditTransaction,
-    PrintableVaultNote,
-    Secrets,
-    SecureNoteTransactionContent,
-    VaultNote,
-} from '../types';
-import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto/index.js';
+import { BackupEditTransaction, PrintableVaultNote, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
+import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto';
 import { notEmpty } from '../utils';
 import { askReplaceMasterPassword } from '../utils/dialogs';
 
@@ -67,13 +61,13 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
 
     const notesDecrypted = await decryptSecureNotesTransactions(db, transactions, secrets);
 
-    // transform entries [{key: xx, $t: ww}] into an easier-to-use object
+    // transform entries [{_attributes: {key: xx}, _cdata: ww}] into an easier-to-use object
     const beautifiedNotes = notesDecrypted?.map(
         (item) =>
             Object.fromEntries(
                 item.root.KWSecureNote.KWDataItem.map((entry) => [
-                    entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
-                    entry.$t,
+                    entry._attributes.key[0].toLowerCase() + entry._attributes.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
+                    entry._cdata,
                 ])
             ) as unknown as VaultNote
     );

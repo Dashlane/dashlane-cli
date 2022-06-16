@@ -63,13 +63,13 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
 
     const credentialsDecrypted = await decryptPasswordTransactions(db, transactions, secrets);
 
-    // transform entries [{key: xx, $t: ww}] into an easier-to-use object
+    // transform entries [{_attributes: {key:xx}, _cdata: ww}] into an easier-to-use object
     const beautifiedCredentials = credentialsDecrypted.map(
         (item) =>
             Object.fromEntries(
                 item.root.KWAuthentifiant.KWDataItem.map((entry) => [
-                    entry.key[0].toLowerCase() + entry.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
-                    entry.$t,
+                    entry._attributes.key[0].toLowerCase() + entry._attributes.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
+                    entry._cdata,
                 ])
             ) as unknown as VaultCredential
     );
