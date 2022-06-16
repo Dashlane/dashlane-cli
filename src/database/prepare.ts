@@ -8,12 +8,17 @@ interface PrepareDB {
 export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
     const { db } = params;
 
-    db.prepare(`CREATE TABLE IF NOT EXISTS syncUpdates (timestamp INT PRIMARY KEY);`).run();
+    db.prepare(
+        `CREATE TABLE IF NOT EXISTS syncUpdates (
+            lastServerSyncTimestamp INT PRIMARY KEY,
+            lastClientSyncTimestamp INT
+        );`
+    ).run();
     db.prepare(
         `CREATE TABLE IF NOT EXISTS transactions (
             identifier VARCHAR(255) PRIMARY KEY,
             type VARCHAR(255) NOT NULL,
-            action VARCHAT(255) NOT NULL,
+            action VARCHAR(255) NOT NULL,
             content BLOB
         );`
     ).run();
