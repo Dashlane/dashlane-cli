@@ -9,13 +9,9 @@ import {
     SecureNoteTransactionContent,
     VaultNote,
 } from '../types.js';
-import {
-    askReplaceMasterPassword,
-    decryptTransaction,
-    getDerivateUsingParametersFromTransaction,
-    getSecrets,
-} from '../crypto/index.js';
+import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto/index.js';
 import { notEmpty } from '../utils.js';
+import { askReplaceMasterPassword } from '../utils/dialogs.js';
 
 interface GetSecureNote {
     titleFilter: string | null;

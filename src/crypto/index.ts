@@ -1,2 +1,2 @@
 export { decryptTransaction, getDerivateUsingParametersFromTransaction } from './decrypt.js';
-export { askReplaceMasterPassword, getSecrets } from './keychainManager.js';
+export { getSecrets } from './keychainManager.js';

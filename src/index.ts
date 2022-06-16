@@ -8,7 +8,9 @@ import winston from 'winston';
 import { sync } from './middleware/sync.js';
 import { getNote } from './middleware/getSecureNotes.js';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords.js';
-import { connectAndPrepare } from './database/index.js';
+import { connectAndPrepare, resetDB } from './database/index.js';
+import { askConfirmReset } from './utils/dialogs.js';
+import { deleteLocalKey } from './crypto/keychainManager.js';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
@@ -103,6 +105,19 @@ program
             db,
         });
         db.close();
+    });
+
+program
+    .command('reset')
+    .description('Reset and clean your local database and keystore')
+    .action(async () => {
+        const resetConfirmation = await askConfirmReset();
+        if (resetConfirmation) {
+            const { db, secrets } = await connectAndPrepare(masterPassword);
+            await deleteLocalKey(secrets.login);
+            resetDB({ db });
+            db.close();
+        }
     });
 
 program.parseAsync().catch((err) => console.error(err));
