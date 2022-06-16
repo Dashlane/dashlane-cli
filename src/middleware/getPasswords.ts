@@ -4,12 +4,7 @@ import inquirer from 'inquirer';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
-import {
-    askReplaceMasterPassword,
-    decryptTransaction,
-    getDerivateUsingParametersFromTransaction,
-    getSecrets,
-} from '../crypto/index.js';
+import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto/index.js';
 import {
     BackupEditTransaction,
     VaultCredential,
@@ -18,6 +13,7 @@ import {
     PrintableVaultCredential,
 } from '../types.js';
 import { notEmpty } from '../utils.js';
+import { askReplaceMasterPassword } from '../utils/dialogs.js';
 
 interface GetCredential {
     titleFilter: string | null;

@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import inquirer from 'inquirer';
 import keytar from 'keytar';
 import { Database } from 'better-sqlite3';
 
@@ -7,6 +6,7 @@ import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types.js';
 import { registerDevice } from '../middleware/registerDevice.js';
 import { encryptAES } from './encrypt.js';
 import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt.js';
+import { askEmailAddress, askMasterPassword } from '../utils/dialogs.js';
 import { EncryptedData } from './types';
 import { sha512 } from './hash.js';
 
@@ -32,6 +32,10 @@ const getLocalKey = async (login: string): Promise<Buffer | undefined> => {
     } else {
         return undefined;
     }
+};
+
+export const deleteLocalKey = (login: string): Promise<boolean> => {
+    return keytar.deletePassword(SERVICE, login);
 };
 
 /**
@@ -67,7 +71,7 @@ const getSecretsWithoutDB = async (
     localKey?: Buffer
 ): Promise<Secrets> => {
     if (!masterPassword) {
-        masterPassword = await promptMasterPassword();
+        masterPassword = await askMasterPassword();
     }
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
@@ -103,7 +107,7 @@ const getSecretsWithoutKeychain = async (
     masterPassword?: string
 ): Promise<Secrets> => {
     if (!masterPassword) {
-        masterPassword = await promptMasterPassword();
+        masterPassword = await askMasterPassword();
     }
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
@@ -133,13 +137,7 @@ export const getSecrets = async (
     if (deviceKeys) {
         login = deviceKeys.login;
     } else {
-        ({ login } = await inquirer.prompt<{ login: string }>([
-            {
-                type: 'input',
-                name: 'login',
-                message: 'Please enter your email address:',
-            },
-        ]));
+        login = await askEmailAddress();
     }
 
     const localKey = await getLocalKey(login);
@@ -166,28 +164,4 @@ export const getSecrets = async (
         accessKey: deviceKeys.accessKey,
         secretKey,
     };
-};
-
-export const promptMasterPassword = async (): Promise<string> => {
-    const { masterPassword } = await inquirer.prompt<{ masterPassword: string }>([
-        {
-            type: 'password',
-            name: 'masterPassword',
-            message: 'Please enter your master password:',
-        },
-    ]);
-    return masterPassword;
-};
-
-export const askReplaceMasterPassword = async () => {
-    const { replaceMasterPassword } = await inquirer.prompt<{ replaceMasterPassword: string }>([
-        {
-            type: 'list',
-            name: 'replaceMasterPassword',
-            message: "Couldn't decrypt any password, would you like to retry?",
-            choices: ['Yes', 'No'],
-        },
-    ]);
-
-    return replaceMasterPassword === 'Yes';
 };
