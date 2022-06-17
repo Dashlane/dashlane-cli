@@ -2,7 +2,7 @@
 
 **Note**: This project is **not** endorsed by Dashlane in any way.
 
-![GitHub](https://img.shields.io/github/license/Mikescops/dashlane-cli) ![GitHub package.json version](https://img.shields.io/github/package-json/v/Mikescops/dashlane-cli)
+![GitHub](https://img.shields.io/github/license/Dashlane/dashlane-cli) ![GitHub package.json version](https://img.shields.io/github/package-json/v/Dashlane/dashlane-cli)
 
 ## How to install
 
