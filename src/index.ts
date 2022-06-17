@@ -13,6 +13,7 @@ import { askConfirmReset } from './utils/dialogs';
 import { deleteLocalKey } from './crypto/keychainManager';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
+const autoSync = process.argv.indexOf('--disable-auto-sync') === -1;
 
 winston.configure({
     level: debugLevel,
@@ -27,13 +28,14 @@ const masterPassword: string | undefined = process.env.MP;
 program.name('dcli').description('[Non Official] Dashlane CLI').version('0.1.0');
 
 program.option('--debug', 'Print debug messages');
+program.option('--disable-auto-sync', 'Disable automatic synchronization which is done once per hour');
 
 program
     .command('sync')
     .alias('s')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        const { db, secrets } = await connectAndPrepare(masterPassword);
+        const { db, secrets } = await connectAndPrepare(false, masterPassword);
         await sync({ db, secrets });
         db.close();
     });
@@ -49,7 +51,7 @@ program
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null, options: { output: string | null }) => {
-        const { db, secrets } = await connectAndPrepare(masterPassword);
+        const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
 
         if (options.output === 'json') {
             console.log(
@@ -82,7 +84,7 @@ program
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
-        const { db, secrets } = await connectAndPrepare(masterPassword);
+        const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
         await getOtp({
             titleFilter: filter,
             secrets,
@@ -98,7 +100,7 @@ program
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
-        const { db, secrets } = await connectAndPrepare(masterPassword);
+        const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
         await getNote({
             titleFilter: filter,
             secrets,
@@ -113,7 +115,7 @@ program
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {
-            const { db, secrets } = await connectAndPrepare(masterPassword);
+            const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
             await deleteLocalKey(secrets.login);
             resetDB({ db });
             db.close();

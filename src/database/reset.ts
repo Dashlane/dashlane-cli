@@ -8,11 +8,9 @@ interface ResetDB {
 export const resetDB = (params: ResetDB) => {
     const { db } = params;
 
-    db.prepare(`DROP TABLE IF EXISTS syncUpdates;`).run();
-    db.prepare(`DROP TABLE IF EXISTS transactions;`).run();
-    db.prepare(`DROP TABLE IF EXISTS device;`).run();
+    db.prepare('DROP TABLE IF EXISTS syncUpdates;').run();
+    db.prepare('DROP TABLE IF EXISTS transactions;').run();
+    db.prepare('DROP TABLE IF EXISTS device;').run();
 
-    winston.debug('Database reseted.');
-
-    return;
+    winston.debug('Database reset');
 };

@@ -13,16 +13,20 @@ export const sync = async (params: Sync) => {
     const { db, secrets } = params;
     winston.debug('Start syncing...');
 
-    const formerSyncTimestamp =
+    const lastServerSyncTimestamp =
         (
-            db.prepare('SELECT timestamp FROM syncUpdates ORDER BY timestamp DESC LIMIT 1').get() as {
-                timestamp?: number;
+            db
+                .prepare(
+                    'SELECT lastServerSyncTimestamp FROM syncUpdates ORDER BY lastServerSyncTimestamp DESC LIMIT 1'
+                )
+                .get() as {
+                lastServerSyncTimestamp?: number;
             }
-        )?.timestamp || 0;
+        )?.lastServerSyncTimestamp || 0;
 
     const latestContent = await getLatestContent({
         login: secrets.login,
-        timestamp: formerSyncTimestamp,
+        timestamp: lastServerSyncTimestamp,
         secrets,
     });
 
@@ -46,9 +50,11 @@ export const sync = async (params: Sync) => {
     replaceTransactions(values);
 
     // save the new transaction timestamp in the db
-    db.prepare('REPLACE INTO syncUpdates(timestamp) VALUES(?)').bind(Number(latestContent.timestamp)).run();
+    db.prepare('REPLACE INTO syncUpdates (lastServerSyncTimestamp, lastClientSyncTimestamp) VALUES(?, ?)')
+        .bind(Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
+        .run();
 
-    winston.debug('Requested timestamp ', formerSyncTimestamp, ', new timestamp', latestContent.timestamp);
+    winston.debug(`Requested timestamp ${lastServerSyncTimestamp}, new timestamp ${latestContent.timestamp}`);
 
     const summaryCounted: Record<string, number> = {};
     Object.keys(latestContent.summary).forEach((key) => {
