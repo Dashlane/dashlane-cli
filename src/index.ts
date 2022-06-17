@@ -28,7 +28,7 @@ const masterPassword: string | undefined = process.env.MP;
 program.name('dcli').description('[Non Official] Dashlane CLI').version('0.1.0');
 
 program.option('--debug', 'Print debug messages');
-program.option('--disable-auto-sync', 'Disable automatic synchronization which is done once a day');
+program.option('--disable-auto-sync', 'Disable automatic synchronization which is done once per hour');
 
 program
     .command('sync')

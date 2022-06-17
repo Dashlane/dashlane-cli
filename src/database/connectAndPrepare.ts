@@ -32,8 +32,8 @@ export const connectAndPrepare = async (
                 }
             )?.lastClientSyncTimestamp || 0;
 
-        // If there were no updates during last day, synchronize the vault
-        if (Date.now() / 1000 - lastClientSyncTimestamp > 3600 * 24) {
+        // If there were no updates during last hour, synchronize the vault
+        if (Date.now() / 1000 - lastClientSyncTimestamp > 3600) {
             await sync({ db, secrets });
         }
     }
