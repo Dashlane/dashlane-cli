@@ -1,6 +1,7 @@
 export interface Secrets {
     login: string;
     masterPassword: string;
+    localKey: Buffer;
     accessKey: string;
     secretKey: string;
 }
@@ -8,7 +9,8 @@ export interface Secrets {
 export interface DeviceKeys {
     accessKey: string;
     secretKeyEncrypted: string;
-    masterPasswordEncrypted: string;
+    masterPasswordEncrypted: string | null;
+    shouldNotSaveMasterPassword: boolean;
     localKeyEncrypted: string;
 }
 

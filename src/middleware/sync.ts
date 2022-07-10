@@ -40,7 +40,7 @@ export const sync = async (params: Sync) => {
 
     winston.debug('Number of new updates:', values.length);
 
-    const statement = db.prepare(`REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)`);
+    const statement = db.prepare('REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)');
 
     // execute all transactions
     const replaceTransactions = db.transaction((transactions) => {

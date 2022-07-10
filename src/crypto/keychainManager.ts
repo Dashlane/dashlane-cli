@@ -12,7 +12,11 @@ import { sha512 } from './hash';
 
 const SERVICE = 'dashlane-cli';
 
-const setLocalKey = async (login: string, localKey?: Buffer): Promise<Buffer> => {
+export const setLocalKey = async (
+    login: string,
+    shouldNotSaveMasterPassword: boolean,
+    localKey?: Buffer
+): Promise<Buffer> => {
     if (!localKey) {
         localKey = crypto.randomBytes(32);
         if (!localKey) {
@@ -20,7 +24,9 @@ const setLocalKey = async (login: string, localKey?: Buffer): Promise<Buffer> =>
         }
     }
 
-    await keytar.setPassword(SERVICE, login, localKey.toString('base64'));
+    if (!shouldNotSaveMasterPassword) {
+        await keytar.setPassword(SERVICE, login, localKey.toString('base64'));
+    }
     return localKey;
 };
 
@@ -41,7 +47,7 @@ export const deleteLocalKey = (login: string): Promise<boolean> => {
 /**
  * Fake transaction used to set derivation parameters to encrypt the local key in the DB using the master password
  */
-const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
+export const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
     return {
         keyDerivation: {
             algo: 'argon2d',
@@ -67,12 +73,9 @@ const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
 const getSecretsWithoutDB = async (
     db: Database,
     login: string,
-    masterPassword?: string,
-    localKey?: Buffer
+    shouldNotSaveMasterPassword: boolean
 ): Promise<Secrets> => {
-    if (!masterPassword) {
-        masterPassword = await askMasterPassword();
-    }
+    const masterPassword = await askMasterPassword();
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         masterPassword,
@@ -81,34 +84,34 @@ const getSecretsWithoutDB = async (
 
     const { deviceAccessKey, deviceSecretKey } = await registerDevice({ login });
 
-    if (!localKey) {
-        localKey = await setLocalKey(login);
-    }
+    const localKey = await setLocalKey(login, shouldNotSaveMasterPassword);
 
     const deviceSecretKeyEncrypted = encryptAES(localKey, Buffer.from(deviceSecretKey, 'hex'));
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?)')
-        .bind(login, deviceAccessKey, deviceSecretKeyEncrypted, masterPasswordEncrypted, localKeyEncrypted)
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?)')
+        .bind(
+            login,
+            deviceAccessKey,
+            deviceSecretKeyEncrypted,
+            shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,
+            shouldNotSaveMasterPassword ? 1 : 0,
+            localKeyEncrypted
+        )
         .run();
 
     return {
         login,
         masterPassword,
+        localKey,
         accessKey: deviceAccessKey,
         secretKey: deviceSecretKey,
     };
 };
 
-const getSecretsWithoutKeychain = async (
-    login: string,
-    deviceKeys: DeviceKeys,
-    masterPassword?: string
-): Promise<Secrets> => {
-    if (!masterPassword) {
-        masterPassword = await askMasterPassword();
-    }
+const getSecretsWithoutKeychain = async (login: string, deviceKeys: DeviceKeys): Promise<Secrets> => {
+    const masterPassword = await askMasterPassword();
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         masterPassword,
@@ -118,11 +121,12 @@ const getSecretsWithoutKeychain = async (
     const localKey = decrypt(deviceKeys.localKeyEncrypted, derivate);
     const secretKey = decrypt(deviceKeys.secretKeyEncrypted, localKey).toString('hex');
 
-    await setLocalKey(login, localKey);
+    await setLocalKey(login, deviceKeys.shouldNotSaveMasterPassword, localKey);
 
     return {
         login,
         masterPassword,
+        localKey,
         accessKey: deviceKeys.accessKey,
         secretKey,
     };
@@ -131,7 +135,7 @@ const getSecretsWithoutKeychain = async (
 export const getSecrets = async (
     db: Database,
     deviceKeys: DeviceKeysWithLogin | null,
-    masterPassword?: string
+    shouldNotSaveMasterPasswordIfNoDeviceKeys = false
 ): Promise<Secrets> => {
     let login: string;
     if (deviceKeys) {
@@ -140,27 +144,31 @@ export const getSecrets = async (
         login = await askEmailAddress();
     }
 
-    const localKey = await getLocalKey(login);
-
     // If there are no secrets in the DB
     if (!deviceKeys) {
-        return getSecretsWithoutDB(db, login, masterPassword, localKey);
+        return getSecretsWithoutDB(db, login, shouldNotSaveMasterPasswordIfNoDeviceKeys);
     }
 
-    // If the keychain is unreachable, or empty, the local key is retrieved from the master password from the DB
-    if (!localKey) {
-        return getSecretsWithoutKeychain(login, deviceKeys, masterPassword);
+    let localKey: Buffer | undefined = undefined;
+
+    // If the master password is not saved or if the keychain is unreachable, or empty, the local key is retrieved from
+    // the master password from the DB
+    if (
+        deviceKeys.shouldNotSaveMasterPassword ||
+        !deviceKeys.masterPasswordEncrypted ||
+        !(localKey = await getLocalKey(login))
+    ) {
+        return getSecretsWithoutKeychain(login, deviceKeys);
     }
 
     // Otherwise, the local key can be used to decrypt the device secret key and the master password in the DB
-    if (!masterPassword) {
-        masterPassword = decrypt(deviceKeys.masterPasswordEncrypted, localKey).toString();
-    }
+    const masterPassword = decrypt(deviceKeys.masterPasswordEncrypted, localKey).toString();
     const secretKey = decrypt(deviceKeys.secretKeyEncrypted, localKey).toString('hex');
 
     return {
         login,
         masterPassword,
+        localKey,
         accessKey: deviceKeys.accessKey,
         secretKey,
     };

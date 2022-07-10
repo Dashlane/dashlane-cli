@@ -8,7 +8,7 @@ import { sync } from '../middleware/sync';
 
 export const connectAndPrepare = async (
     autoSync: boolean,
-    masterPassword?: string
+    shouldNotSaveMasterPasswordIfNoDeviceKeys = false
 ): Promise<{
     db: Database.Database;
     secrets: Secrets;
@@ -18,7 +18,7 @@ export const connectAndPrepare = async (
 
     // Create the tables and load the deviceKeys if it exists
     const deviceKeys = prepareDB({ db });
-    const secrets = await getSecrets(db, deviceKeys, masterPassword);
+    const secrets = await getSecrets(db, deviceKeys, shouldNotSaveMasterPasswordIfNoDeviceKeys);
 
     if (autoSync) {
         const lastClientSyncTimestamp =

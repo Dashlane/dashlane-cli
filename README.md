@@ -70,6 +70,10 @@ You can use `--debug` to see all the debug logs of the CLI.
 
 In order to disable the automatic sync while doing a command, add `--disable-auto-sync`.
 
+If you don't want to use the OS keychain or if you don't want the CLI to save your master password encrypted you can use
+`dcli configure save-master-password false`. If you previously had saved your master password encrypted it will delete
+it and also delete the local key from the OS keychain.
+
 ## How private data is stored on the computer
 
 See [src/crypto/README.md](src/crypto/README.md).
