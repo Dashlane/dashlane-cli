@@ -88,3 +88,17 @@ Don't include work that is not open source or not from you.
 | [![twitter/mikescops](https://avatars.githubusercontent.com/u/4266283?s=100&v=4)](http://twitter.com/mikescops 'Follow @mikescops on Twitter') | [![twitter/plhery](https://avatars.githubusercontent.com/u/4018426?s=100&v=4)](http://twitter.com/plhery 'Follow @plhery on Twitter') | ![](https://avatars.githubusercontent.com/u/52931370?v=4&s=100) |
 | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | [Corentin Mors](https://pixelswap.fr/)                                                                                                         | [Paul-Louis HERY](http://twitter.com/plhery)                                                                                          | [Jérôme Boillot](https://jerome-boillot.com/)                   |
+
+## Troubleshooting
+
+### mismatching signatures
+
+If you are using the CLI in multiple environments, and particularly in an IDE like WebStorm, they may use different
+OS keychain environments so the local keys may not match: the reason why signatures are invalid.
+
+To detect this problem you can, on Linux, install secret-tool: `sudo apt install libsecret-tools`, execute
+`secret-tool search service dashlane-cli` on every environment and check if the secrets match.
+
+If they don't, you can fix the error by manually editing what is stored in the OS keychain using this command:
+`secret-tool store --label "dashlane-cli@<dashlaneId>" service dashlane-cli account <dashlaneId>` in the
+failing environment with the secret from the healthy environment.

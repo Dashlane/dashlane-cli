@@ -1,6 +1,7 @@
 export interface Secrets {
     login: string;
     masterPassword: string;
+    shouldNotSaveMasterPassword: boolean;
     localKey: Buffer;
     accessKey: string;
     secretKey: string;
@@ -24,6 +25,17 @@ export interface CliVersion {
     minor: number;
     patch: number;
 }
+
+export type SymmetricKeyGetter =
+    | {
+          type: 'memoize';
+          secrets: Secrets;
+          derivates: Map<string, Promise<Buffer>>;
+      }
+    | {
+          type: 'alreadyComputed';
+          symmetricKey: Buffer;
+      };
 
 export interface BackupEditTransaction {
     /**
@@ -74,6 +86,8 @@ export interface BackupRemoveTransaction {
      */
     action: 'BACKUP_REMOVE';
 }
+
+export type TransactionContent = AuthentifiantTransactionContent | SecureNoteTransactionContent;
 
 export interface AuthentifiantTransactionContent {
     root: {

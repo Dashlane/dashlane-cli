@@ -106,6 +106,7 @@ const getSecretsWithoutDB = async (
     return {
         login,
         masterPassword,
+        shouldNotSaveMasterPassword,
         localKey,
         accessKey: deviceAccessKey,
         secretKey: deviceSecretKey,
@@ -120,16 +121,46 @@ const getSecretsWithoutKeychain = async (login: string, deviceKeys: DeviceKeys):
         getDerivationParametersForLocalKey(login)
     );
 
-    const localKey = decrypt(deviceKeys.localKeyEncrypted, derivate);
-    const secretKey = decrypt(deviceKeys.secretKeyEncrypted, localKey).toString('hex');
+    const localKey = await decrypt(deviceKeys.localKeyEncrypted, { type: 'alreadyComputed', symmetricKey: derivate });
+    const secretKey = (
+        await decrypt(deviceKeys.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
+    ).toString('hex');
 
     await setLocalKey(login, deviceKeys.shouldNotSaveMasterPassword, localKey);
 
     return {
         login,
         masterPassword,
+        shouldNotSaveMasterPassword: deviceKeys.shouldNotSaveMasterPassword,
         localKey,
         accessKey: deviceKeys.accessKey,
+        secretKey,
+    };
+};
+
+export const replaceMasterPassword = async (db: Database, secrets: Secrets): Promise<Secrets> => {
+    const { localKey, login, accessKey, secretKey, shouldNotSaveMasterPassword } = secrets;
+
+    const newMasterPassword = await askMasterPassword();
+
+    const derivate = await getDerivateUsingParametersFromEncryptedData(
+        newMasterPassword,
+        getDerivationParametersForLocalKey(login)
+    );
+
+    const masterPasswordEncrypted = encryptAES(secrets.localKey, Buffer.from(newMasterPassword));
+    const localKeyEncrypted = encryptAES(derivate, localKey);
+
+    db.prepare('UPDATE device SET localKeyEncrypted = ?, masterPasswordEncrypted = ? WHERE login = ?')
+        .bind(localKeyEncrypted, shouldNotSaveMasterPassword ? null : masterPasswordEncrypted, login)
+        .run();
+
+    return {
+        login,
+        masterPassword: newMasterPassword,
+        shouldNotSaveMasterPassword,
+        localKey,
+        accessKey,
         secretKey,
     };
 };
@@ -164,12 +195,17 @@ export const getSecrets = async (
     }
 
     // Otherwise, the local key can be used to decrypt the device secret key and the master password in the DB
-    const masterPassword = decrypt(deviceKeys.masterPasswordEncrypted, localKey).toString();
-    const secretKey = decrypt(deviceKeys.secretKeyEncrypted, localKey).toString('hex');
+    const masterPassword = (
+        await decrypt(deviceKeys.masterPasswordEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
+    ).toString();
+    const secretKey = (
+        await decrypt(deviceKeys.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
+    ).toString('hex');
 
     return {
         login,
         masterPassword,
+        shouldNotSaveMasterPassword: deviceKeys.shouldNotSaveMasterPassword,
         localKey,
         accessKey: deviceKeys.accessKey,
         secretKey,

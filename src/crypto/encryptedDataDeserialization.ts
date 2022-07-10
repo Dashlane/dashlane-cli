@@ -145,7 +145,13 @@ const deserializeSymmetricCipherConfig = (
     };
 };
 
-export const deserializeEncryptedData = (encryptedDataStr: string, encryptedData: Buffer): EncryptedData => {
+export const deserializeEncryptedData = (
+    encryptedDataStr: string,
+    encryptedData: Buffer
+): {
+    encryptedData: EncryptedData;
+    derivationMethodBytes: string;
+} => {
     let cursor = 0;
 
     const initialComponent = extractNextEncryptedDataStringComponent(encryptedDataStr);
@@ -177,6 +183,10 @@ export const deserializeEncryptedData = (encryptedDataStr: string, encryptedData
     const salt = remainingBytes.slice(0, saltLength);
     let readBytes = saltLength;
 
+    const derivationMethodBytes = encryptedData
+        .slice(0, encryptedData.byteLength - remainingBytes.byteLength + saltLength)
+        .toString('ascii');
+
     const iv = remainingBytes.slice(readBytes, readBytes + ivLength);
     readBytes += ivLength;
 
@@ -186,13 +196,16 @@ export const deserializeEncryptedData = (encryptedDataStr: string, encryptedData
     const encryptedPayload = remainingBytes.slice(readBytes);
 
     return {
-        keyDerivation: derivationConfig.derivationConfig,
-        cipherConfig: cipherConfig.cipherConfig,
-        cipherData: {
-            salt,
-            iv,
-            hash,
-            encryptedPayload,
+        encryptedData: {
+            keyDerivation: derivationConfig.derivationConfig,
+            cipherConfig: cipherConfig.cipherConfig,
+            cipherData: {
+                salt,
+                iv,
+                hash,
+                encryptedPayload,
+            },
         },
+        derivationMethodBytes,
     };
 };

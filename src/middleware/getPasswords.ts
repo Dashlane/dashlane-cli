@@ -4,16 +4,14 @@ import inquirer from 'inquirer';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 
-import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto';
+import { decryptTransaction } from '../crypto';
 import {
     BackupEditTransaction,
     VaultCredential,
     AuthentifiantTransactionContent,
-    Secrets,
     PrintableVaultCredential,
+    Secrets,
 } from '../types';
-import { notEmpty } from '../utils';
-import { askReplaceMasterPassword } from '../utils/dialogs';
 
 interface GetCredential {
     titleFilter: string | null;
@@ -27,36 +25,21 @@ const decryptPasswordTransactions = async (
     transactions: BackupEditTransaction[],
     secrets: Secrets
 ): Promise<AuthentifiantTransactionContent[]> => {
-    const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
-    if (!settingsTransaction) {
-        throw new Error('Unable to locate the settings of the vault');
-    }
-
-    const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
-
-    if (!decryptTransaction(settingsTransaction, derivate)) {
-        if (!(await askReplaceMasterPassword())) {
-            throw new Error('The master password is incorrect.');
-        }
-        return decryptPasswordTransactions(db, transactions, await getSecrets(db, null));
-    }
-
     const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
 
-    const passwordsDecrypted = authentifiantTransactions
-        .map((transaction) => decryptTransaction(transaction, derivate) as AuthentifiantTransactionContent | null)
-        .filter(notEmpty);
+    const passwordsDecrypted = await Promise.all(
+        authentifiantTransactions.map(
+            (transaction) => decryptTransaction(transaction, secrets) as Promise<AuthentifiantTransactionContent>
+        )
+    );
 
-    if (authentifiantTransactions.length !== passwordsDecrypted.length) {
-        winston.debug('Encountered decryption errors:', authentifiantTransactions.length - passwordsDecrypted.length);
-    }
     return passwordsDecrypted;
 };
 
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
     const { secrets, titleFilter, db } = params;
 
-    winston.debug('Retrieving:', titleFilter || '');
+    winston.debug(`Retrieving: ${titleFilter || ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)

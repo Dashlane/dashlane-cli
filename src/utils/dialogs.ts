@@ -16,7 +16,7 @@ export const askReplaceMasterPassword = async () => {
         {
             type: 'list',
             name: 'replaceMasterPassword',
-            message: "Couldn't decrypt any password, would you like to retry?",
+            message: 'The master password you provided is incorrect, would you like to retry?',
             choices: ['Yes', 'No'],
         },
     ]);
