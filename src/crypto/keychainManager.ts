@@ -47,7 +47,7 @@ export const deleteLocalKey = (login: string): Promise<boolean> => {
 /**
  * Fake transaction used to set derivation parameters to encrypt the local key in the DB using the master password
  */
-export const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
+const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
     return {
         keyDerivation: {
             algo: 'argon2d',
