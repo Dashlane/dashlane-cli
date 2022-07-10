@@ -10,7 +10,8 @@ export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
 
     db.prepare(
         `CREATE TABLE IF NOT EXISTS syncUpdates (
-            lastServerSyncTimestamp INT PRIMARY KEY,
+            login VARCHAR(255) PRIMARY KEY,
+            lastServerSyncTimestamp INT,
             lastClientSyncTimestamp INT
         );`
     ).run();

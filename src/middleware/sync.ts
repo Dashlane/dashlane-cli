@@ -16,10 +16,8 @@ export const sync = async (params: Sync) => {
     const lastServerSyncTimestamp =
         (
             db
-                .prepare(
-                    'SELECT lastServerSyncTimestamp FROM syncUpdates ORDER BY lastServerSyncTimestamp DESC LIMIT 1'
-                )
-                .get() as {
+                .prepare('SELECT lastServerSyncTimestamp FROM syncUpdates WHERE login = ? LIMIT 1')
+                .get(secrets.login) as {
                 lastServerSyncTimestamp?: number;
             }
         )?.lastServerSyncTimestamp || 0;
@@ -50,8 +48,8 @@ export const sync = async (params: Sync) => {
     replaceTransactions(values);
 
     // save the new transaction timestamp in the db
-    db.prepare('REPLACE INTO syncUpdates (lastServerSyncTimestamp, lastClientSyncTimestamp) VALUES(?, ?)')
-        .bind(Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
+    db.prepare('REPLACE INTO syncUpdates (login, lastServerSyncTimestamp, lastClientSyncTimestamp) VALUES(?, ?, ?)')
+        .bind(secrets.login, Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
         .run();
 
     winston.debug(`Requested timestamp ${lastServerSyncTimestamp}, new timestamp ${latestContent.timestamp}`);

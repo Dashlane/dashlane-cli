@@ -24,10 +24,8 @@ export const connectAndPrepare = async (
         const lastClientSyncTimestamp =
             (
                 db
-                    .prepare(
-                        'SELECT lastClientSyncTimestamp FROM syncUpdates ORDER BY lastServerSyncTimestamp DESC LIMIT 1'
-                    )
-                    .get() as {
+                    .prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ? LIMIT 1')
+                    .get(secrets.login) as {
                     lastClientSyncTimestamp?: number;
                 }
             )?.lastClientSyncTimestamp || 0;
