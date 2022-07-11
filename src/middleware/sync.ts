@@ -15,9 +15,7 @@ export const sync = async (params: Sync) => {
 
     const lastServerSyncTimestamp =
         (
-            db
-                .prepare('SELECT lastServerSyncTimestamp FROM syncUpdates WHERE login = ? LIMIT 1')
-                .get(secrets.login) as {
+            db.prepare('SELECT lastServerSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
                 lastServerSyncTimestamp?: number;
             }
         )?.lastServerSyncTimestamp || 0;

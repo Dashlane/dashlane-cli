@@ -23,9 +23,7 @@ export const connectAndPrepare = async (
     if (autoSync) {
         const lastClientSyncTimestamp =
             (
-                db
-                    .prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ? LIMIT 1')
-                    .get(secrets.login) as {
+                db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
                     lastClientSyncTimestamp?: number;
                 }
             )?.lastClientSyncTimestamp || 0;
