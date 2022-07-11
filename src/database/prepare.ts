@@ -17,10 +17,12 @@ export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
     ).run();
     db.prepare(
         `CREATE TABLE IF NOT EXISTS transactions (
-            identifier VARCHAR(255) PRIMARY KEY,
+            login VARCHAR(255),
+            identifier VARCHAR(255),
             type VARCHAR(255) NOT NULL,
             action VARCHAR(255) NOT NULL,
-            content BLOB
+            content BLOB,
+            PRIMARY KEY (login, identifier)
         );`
     ).run();
     db.prepare(

@@ -133,7 +133,7 @@ program
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {
-            const { db, secrets } = await connectAndPrepare(autoSync);
+            const { db, secrets } = await connectAndPrepare(false);
             try {
                 await deleteLocalKey(secrets.login);
             } catch {

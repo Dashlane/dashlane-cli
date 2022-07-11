@@ -29,14 +29,16 @@ export const sync = async (params: Sync) => {
     // insert the transactions
     const values = latestContent.transactions.map((transac) => {
         if (transac.action === 'BACKUP_EDIT') {
-            return [transac.identifier, transac.type, transac.action, transac.content];
+            return [secrets.login, transac.identifier, transac.type, transac.action, transac.content];
         }
-        return [transac.identifier, transac.type, transac.action, ''];
+        return [secrets.login, transac.identifier, transac.type, transac.action, ''];
     });
 
     winston.debug('Number of new updates:', values.length);
 
-    const statement = db.prepare('REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)');
+    const statement = db.prepare(
+        'REPLACE INTO transactions (login, identifier, type, action, content) VALUES (?, ?, ?, ?, ?)'
+    );
 
     // execute all transactions
     const replaceTransactions = db.transaction((transactions) => {
