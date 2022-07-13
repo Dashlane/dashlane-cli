@@ -8,10 +8,10 @@ import winston from 'winston';
 import { sync } from './middleware/sync';
 import { getNote } from './middleware/getSecureNotes';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
-import { connectAndPrepare, resetDB } from './database/index';
+import { connectAndPrepare } from './database/index';
 import { askConfirmReset } from './utils/dialogs';
-import { deleteLocalKey } from './crypto/keychainManager';
 import { configureSaveMasterPassword } from './middleware/configure';
+import { reset } from './middleware/reset';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 const autoSync = process.argv.indexOf('--disable-auto-sync') === -1;
@@ -134,12 +134,7 @@ program
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {
             const { db, secrets } = await connectAndPrepare(false);
-            try {
-                await deleteLocalKey(secrets.login);
-            } catch {
-                // Errors are ignored because the OS keychain may be unreachable
-            }
-            resetDB({ db });
+            await reset({ db, secrets });
             db.close();
         }
     });

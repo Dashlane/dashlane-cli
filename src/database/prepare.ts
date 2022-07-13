@@ -28,6 +28,7 @@ export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
     db.prepare(
         `CREATE TABLE IF NOT EXISTS device (
             login VARCHAR(255) PRIMARY KEY,
+            version VARCHAR(255) NOT NULL,
             accessKey VARCHAR(255) NOT NULL,
             secretKeyEncrypted VARCHAR(255) NOT NULL,
             masterPasswordEncrypted VARCHAR(255),

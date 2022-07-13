@@ -9,6 +9,7 @@ import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt'
 import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
 import { EncryptedData } from './types';
 import { sha512 } from './hash';
+import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 
 const SERVICE = 'dashlane-cli';
 
@@ -90,9 +91,10 @@ const getSecretsWithoutDB = async (
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?)')
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
+            cliVersionToString(CLI_VERSION),
             deviceAccessKey,
             deviceSecretKeyEncrypted,
             shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,

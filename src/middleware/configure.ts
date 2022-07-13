@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import winston from 'winston';
 
 import { Secrets } from '../types';
 import { deleteLocalKey, setLocalKey } from '../crypto/keychainManager';
@@ -18,8 +19,13 @@ export const configureSaveMasterPassword = async (params: ConfigureSaveMasterPas
         // local key
         try {
             await deleteLocalKey(secrets.login);
-        } catch {
+        } catch (error) {
             // Errors are ignored because the OS keychain may be unreachable
+            let errorMessage = 'unknown error';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            winston.debug(`Unable to delete the local key from the keychain: ${errorMessage}`);
         }
     }
 

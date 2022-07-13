@@ -16,6 +16,13 @@ export interface DeviceKeys {
 
 export interface DeviceKeysWithLogin extends DeviceKeys {
     login: string;
+    version: string;
+}
+
+export interface CliVersion {
+    major: number;
+    minor: number;
+    patch: number;
 }
 
 export interface BackupEditTransaction {
