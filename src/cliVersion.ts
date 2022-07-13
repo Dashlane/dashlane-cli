@@ -15,7 +15,7 @@ export const stringToCliVersion = (version: string): CliVersion => {
     return { major: versionSegments[0], minor: versionSegments[1], patch: versionSegments[2] };
 };
 
-export const lessThan = (version1: CliVersion, version2: CliVersion): boolean => {
+export const cliVersionLessThan = (version1: CliVersion, version2: CliVersion): boolean => {
     if (version1.major === version2.major) {
         if (version1.minor === version2.minor) {
             return version1.patch < version2.patch;

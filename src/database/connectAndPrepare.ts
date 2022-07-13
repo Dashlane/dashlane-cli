@@ -5,7 +5,13 @@ import { prepareDB } from './prepare';
 import { connect } from './connect';
 import { getSecrets } from '../crypto';
 import { sync } from '../middleware/sync';
-import { breakingChangesVersions, CLI_VERSION, cliVersionToString, lessThan, stringToCliVersion } from '../cliVersion';
+import {
+    breakingChangesVersions,
+    CLI_VERSION,
+    cliVersionToString,
+    cliVersionLessThan,
+    stringToCliVersion,
+} from '../cliVersion';
 import { askIgnoreBreakingChanges } from '../utils/dialogs';
 import { reset } from '../middleware/reset';
 
@@ -26,9 +32,9 @@ export const connectAndPrepare = async (
     if (deviceKeys && deviceKeys.version !== cliVersionToString(CLI_VERSION)) {
         const version = stringToCliVersion(deviceKeys.version);
 
-        let breakingChanges = lessThan(CLI_VERSION, version);
+        let breakingChanges = cliVersionLessThan(CLI_VERSION, version);
         for (const breakingVersion of breakingChangesVersions) {
-            if (lessThan(version, breakingVersion)) {
+            if (cliVersionLessThan(version, breakingVersion)) {
                 breakingChanges = true;
                 break;
             }
