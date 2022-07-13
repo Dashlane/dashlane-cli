@@ -3,9 +3,7 @@ import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
 
 import { BackupEditTransaction, PrintableVaultNote, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
-import { decryptTransaction, getDerivateUsingParametersFromTransaction, getSecrets } from '../crypto';
-import { notEmpty } from '../utils';
-import { askReplaceMasterPassword } from '../utils/dialogs';
+import { decryptTransaction } from '../crypto';
 
 interface GetSecureNote {
     titleFilter: string | null;
@@ -18,39 +16,21 @@ const decryptSecureNotesTransactions = async (
     transactions: BackupEditTransaction[],
     secrets: Secrets
 ): Promise<SecureNoteTransactionContent[] | null> => {
-    const settingsTransaction = transactions.find((item) => item.identifier === 'SETTINGS_userId');
-    if (!settingsTransaction) {
-        throw new Error('Unable to locate the settings of the vault');
-    }
-
-    const derivate = await getDerivateUsingParametersFromTransaction(secrets.masterPassword, settingsTransaction);
-
-    if (!decryptTransaction(settingsTransaction, derivate)) {
-        if (!(await askReplaceMasterPassword())) {
-            return null;
-        }
-        return decryptSecureNotesTransactions(db, transactions, await getSecrets(db, null));
-    }
-
     const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
 
-    const secureNotesDecrypted = secureNotesTransactions
-        .map(
-            (transaction: BackupEditTransaction) =>
-                decryptTransaction(transaction, derivate) as SecureNoteTransactionContent | null
+    const secureNotesDecrypted = await Promise.all(
+        secureNotesTransactions.map(
+            (transaction) => decryptTransaction(transaction, secrets) as Promise<SecureNoteTransactionContent>
         )
-        .filter(notEmpty);
+    );
 
-    if (secureNotesTransactions.length !== secureNotesDecrypted.length) {
-        winston.error('Encountered decryption errors:', secureNotesTransactions.length - secureNotesDecrypted.length);
-    }
     return secureNotesDecrypted;
 };
 
 export const getNote = async (params: GetSecureNote): Promise<void> => {
     const { secrets, titleFilter, db } = params;
 
-    winston.debug('Retrieving:', titleFilter || '');
+    winston.debug(`Retrieving: ${titleFilter || ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)

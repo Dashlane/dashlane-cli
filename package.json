@@ -1,5 +1,5 @@
 {
-    "name": "dashlane-cli",
+    "name": "@dashlane/cli",
     "version": "1.0.0",
     "description": "Manage your Dashlane vault through a CLI tool",
     "main": "dist/index.js",

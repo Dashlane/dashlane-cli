@@ -7,7 +7,7 @@ import winston from 'winston';
 
 import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash';
-import { BackupEditTransaction } from '../types';
+import { BackupEditTransaction, SymmetricKeyGetter, Secrets, TransactionContent } from '../types';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
 
 const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
@@ -26,26 +26,43 @@ const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer 
     return Buffer.concat([decipher.update(encryptedPayload), decipher.final()]);
 };
 
-export const decrypt = (encryptedAsBase64: string, symmetricKey: Buffer): Buffer => {
+export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: SymmetricKeyGetter): Promise<Buffer> => {
     const buffer = Buffer.from(encryptedAsBase64, 'base64');
     const decodedBase64 = buffer.toString('ascii');
-    const encryptedData = deserializeEncryptedData(decodedBase64, buffer);
+    const { encryptedData, derivationMethodBytes } = deserializeEncryptedData(decodedBase64, buffer);
+
+    let symmetricKey: Buffer | undefined;
+    switch (symmetricKeyGetter.type) {
+        case 'alreadyComputed':
+            symmetricKey = symmetricKeyGetter.symmetricKey;
+            break;
+        case 'memoize': {
+            let symmetricKeyPromise = symmetricKeyGetter.derivates.get(derivationMethodBytes);
+            if (!symmetricKeyPromise) {
+                winston.debug(`Computing new derivate with method: ${encryptedData.keyDerivation.algo}`);
+                symmetricKeyPromise = getDerivateUsingParametersFromEncryptedData(
+                    symmetricKeyGetter.secrets.masterPassword,
+                    encryptedData
+                );
+                symmetricKeyGetter.derivates.set(derivationMethodBytes, symmetricKeyPromise);
+            }
+            symmetricKey = await symmetricKeyPromise;
+        }
+    }
 
     return decryptCipherData(encryptedData.cipherData, symmetricKey);
 };
 
-export const decryptTransaction = (encryptedTransaction: BackupEditTransaction, derivate: Buffer): any => {
-    try {
-        const xmlContent = zlib.inflateRawSync(decrypt(encryptedTransaction.content, derivate).slice(6)).toString();
-        return JSON.parse(xmlJs.xml2json(xmlContent, { compact: true }));
-    } catch (error) {
-        if (error instanceof Error) {
-            winston.error(encryptedTransaction.type, error.message);
-        } else {
-            winston.error(encryptedTransaction.type, error);
-        }
-        return null;
-    }
+export const decryptTransaction = async (
+    encryptedTransaction: BackupEditTransaction,
+    secrets: Secrets
+): Promise<TransactionContent> => {
+    const decryptedTransactionContent = await decrypt(encryptedTransaction.content, {
+        type: 'alreadyComputed',
+        symmetricKey: secrets.localKey,
+    });
+    const xmlContent = zlib.inflateRawSync(decryptedTransactionContent.slice(6)).toString();
+    return JSON.parse(xmlJs.xml2json(xmlContent, { compact: true })) as TransactionContent;
 };
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
@@ -80,16 +97,4 @@ export const getDerivateUsingParametersFromEncryptedData = async (
                 `Impossible to compute derivate with derivation method '${cipheringMethod.keyDerivation.algo}'`
             );
     }
-};
-
-export const getDerivateUsingParametersFromTransaction = async (
-    masterPassword: string,
-    settingsTransaction: BackupEditTransaction
-): Promise<Buffer> => {
-    const buffer = Buffer.from(settingsTransaction.content, 'base64');
-    const decodedBase64 = buffer.toString('ascii');
-
-    const encryptedData = deserializeEncryptedData(decodedBase64, buffer);
-
-    return getDerivateUsingParametersFromEncryptedData(masterPassword, encryptedData);
 };

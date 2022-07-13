@@ -11,12 +11,12 @@ export const askMasterPassword = async (): Promise<string> => {
     return masterPassword;
 };
 
-export const askReplaceMasterPassword = async () => {
+export const askReplaceIncorrectMasterPassword = async () => {
     const { replaceMasterPassword } = await inquirer.prompt<{ replaceMasterPassword: string }>([
         {
             type: 'list',
             name: 'replaceMasterPassword',
-            message: "Couldn't decrypt any password, would you like to retry?",
+            message: 'The master password you provided is incorrect, would you like to retry?',
             choices: ['Yes', 'No'],
         },
     ]);

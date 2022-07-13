@@ -19,7 +19,7 @@ const autoSync = process.argv.indexOf('--disable-auto-sync') === -1;
 winston.configure({
     level: debugLevel,
     format: winston.format.combine(winston.format.splat(), winston.format.cli()),
-    transports: [new winston.transports.Console()],
+    transports: [new winston.transports.Console({ stderrLevels: ['error', 'debug', 'info'] })],
 });
 
 inquirer.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
@@ -139,4 +139,7 @@ program
         }
     });
 
-program.parseAsync().catch((err) => console.error(err));
+program.parseAsync().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});
