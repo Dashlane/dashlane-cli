@@ -8,9 +8,10 @@ import winston from 'winston';
 import { sync } from './middleware/sync';
 import { getNote } from './middleware/getSecureNotes';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
-import { connectAndPrepare, resetDB } from './database/index';
+import { connectAndPrepare } from './database/index';
 import { askConfirmReset } from './utils/dialogs';
-import { deleteLocalKey } from './crypto/keychainManager';
+import { configureSaveMasterPassword } from './middleware/configure';
+import { reset } from './middleware/reset';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 const autoSync = process.argv.indexOf('--disable-auto-sync') === -1;
@@ -23,8 +24,6 @@ winston.configure({
 
 inquirer.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 
-const masterPassword: string | undefined = process.env.MP;
-
 program.name('dcli').description('[Non Official] Dashlane CLI').version('1.0.0');
 
 program.option('--debug', 'Print debug messages');
@@ -35,7 +34,7 @@ program
     .alias('s')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        const { db, secrets } = await connectAndPrepare(false, masterPassword);
+        const { db, secrets } = await connectAndPrepare(false);
         await sync({ db, secrets });
         db.close();
     });
@@ -51,7 +50,7 @@ program
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null, options: { output: string | null }) => {
-        const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
+        const { db, secrets } = await connectAndPrepare(autoSync);
 
         if (options.output === 'json') {
             console.log(
@@ -84,7 +83,7 @@ program
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
-        const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
+        const { db, secrets } = await connectAndPrepare(autoSync);
         await getOtp({
             titleFilter: filter,
             secrets,
@@ -100,12 +99,31 @@ program
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
-        const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
+        const { db, secrets } = await connectAndPrepare(autoSync);
         await getNote({
             titleFilter: filter,
             secrets,
             db,
         });
+        db.close();
+    });
+
+const configureGroup = program.command('configure').alias('c').description('Configure the program.');
+
+configureGroup
+    .command('save-master-password <boolean>')
+    .description('Should the encrypted master password be saved and the OS keychain be used')
+    .action(async (boolean: string) => {
+        let shouldNotSaveMasterPassword: boolean;
+        if (boolean === 'true') {
+            shouldNotSaveMasterPassword = false;
+        } else if (boolean === 'false') {
+            shouldNotSaveMasterPassword = true;
+        } else {
+            throw new Error("The provided boolean variable should be either 'true' or 'false'");
+        }
+        const { db, secrets } = await connectAndPrepare(autoSync, shouldNotSaveMasterPassword);
+        await configureSaveMasterPassword({ db, secrets, shouldNotSaveMasterPassword });
         db.close();
     });
 
@@ -115,9 +133,8 @@ program
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {
-            const { db, secrets } = await connectAndPrepare(autoSync, masterPassword);
-            await deleteLocalKey(secrets.login);
-            resetDB({ db });
+            const { db, secrets } = await connectAndPrepare(false);
+            await reset({ db, secrets });
             db.close();
         }
     });

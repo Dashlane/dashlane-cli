@@ -15,11 +15,7 @@ export const sync = async (params: Sync) => {
 
     const lastServerSyncTimestamp =
         (
-            db
-                .prepare(
-                    'SELECT lastServerSyncTimestamp FROM syncUpdates ORDER BY lastServerSyncTimestamp DESC LIMIT 1'
-                )
-                .get() as {
+            db.prepare('SELECT lastServerSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
                 lastServerSyncTimestamp?: number;
             }
         )?.lastServerSyncTimestamp || 0;
@@ -33,14 +29,16 @@ export const sync = async (params: Sync) => {
     // insert the transactions
     const values = latestContent.transactions.map((transac) => {
         if (transac.action === 'BACKUP_EDIT') {
-            return [transac.identifier, transac.type, transac.action, transac.content];
+            return [secrets.login, transac.identifier, transac.type, transac.action, transac.content];
         }
-        return [transac.identifier, transac.type, transac.action, ''];
+        return [secrets.login, transac.identifier, transac.type, transac.action, ''];
     });
 
     winston.debug('Number of new updates:', values.length);
 
-    const statement = db.prepare(`REPLACE INTO transactions (identifier, type, action, content) VALUES (?, ?, ?, ?)`);
+    const statement = db.prepare(
+        'REPLACE INTO transactions (login, identifier, type, action, content) VALUES (?, ?, ?, ?, ?)'
+    );
 
     // execute all transactions
     const replaceTransactions = db.transaction((transactions) => {
@@ -50,8 +48,8 @@ export const sync = async (params: Sync) => {
     replaceTransactions(values);
 
     // save the new transaction timestamp in the db
-    db.prepare('REPLACE INTO syncUpdates (lastServerSyncTimestamp, lastClientSyncTimestamp) VALUES(?, ?)')
-        .bind(Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
+    db.prepare('REPLACE INTO syncUpdates (login, lastServerSyncTimestamp, lastClientSyncTimestamp) VALUES(?, ?, ?)')
+        .bind(secrets.login, Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
         .run();
 
     winston.debug(`Requested timestamp ${lastServerSyncTimestamp}, new timestamp ${latestContent.timestamp}`);

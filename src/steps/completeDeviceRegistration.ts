@@ -1,4 +1,5 @@
 import { requestApi } from '../requestApi';
+import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 
 interface CompleteDeviceRegistration {
     login: string;
@@ -50,7 +51,7 @@ export const completeDeviceRegistration = (params: CompleteDeviceRegistration) =
         payload: {
             device: {
                 deviceName: 'Dashlane CLI',
-                appVersion: '1.0.0-cli',
+                appVersion: `${cliVersionToString(CLI_VERSION)}-cli`,
                 platform: 'server_standalone',
                 osCountry: 'en_US',
                 osLanguage: 'en_US',

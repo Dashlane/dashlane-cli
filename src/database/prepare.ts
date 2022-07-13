@@ -10,24 +10,29 @@ export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
 
     db.prepare(
         `CREATE TABLE IF NOT EXISTS syncUpdates (
-            lastServerSyncTimestamp INT PRIMARY KEY,
+            login VARCHAR(255) PRIMARY KEY,
+            lastServerSyncTimestamp INT,
             lastClientSyncTimestamp INT
         );`
     ).run();
     db.prepare(
         `CREATE TABLE IF NOT EXISTS transactions (
-            identifier VARCHAR(255) PRIMARY KEY,
+            login VARCHAR(255),
+            identifier VARCHAR(255),
             type VARCHAR(255) NOT NULL,
             action VARCHAR(255) NOT NULL,
-            content BLOB
+            content BLOB,
+            PRIMARY KEY (login, identifier)
         );`
     ).run();
     db.prepare(
         `CREATE TABLE IF NOT EXISTS device (
             login VARCHAR(255) PRIMARY KEY,
+            version VARCHAR(255) NOT NULL,
             accessKey VARCHAR(255) NOT NULL,
             secretKeyEncrypted VARCHAR(255) NOT NULL,
-            masterPasswordEncrypted VARCHAR(255) NOT NULL,
+            masterPasswordEncrypted VARCHAR(255),
+            shouldNotSaveMasterPassword BIT NOT NULL,
             localKeyEncrypted VARCHAR(255) NOT NULL
         );`
     ).run();
