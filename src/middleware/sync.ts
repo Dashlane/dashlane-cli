@@ -5,7 +5,7 @@ import { getLatestContent } from '../steps';
 import type { Secrets } from '../types';
 import { decrypt } from '../crypto/decrypt';
 import { encryptAES } from '../crypto/encrypt';
-import { askReplaceMasterPassword } from '../utils/dialogs';
+import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
 import { notEmpty } from '../utils';
 import { replaceMasterPassword } from '../crypto/keychainManager';
 
@@ -57,7 +57,7 @@ export const sync = async (params: Sync) => {
                         winston.debug(`Unable to decrypt a transactions while sync: ${errorMessage}`);
 
                         if (transac.identifier === 'SETTINGS_userId') {
-                            if (!(await askReplaceMasterPassword())) {
+                            if (!(await askReplaceIncorrectMasterPassword())) {
                                 throw new Error('The master password is incorrect.');
                             }
                             secrets = await replaceMasterPassword(db, secrets);

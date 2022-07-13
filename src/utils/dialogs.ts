@@ -11,7 +11,7 @@ export const askMasterPassword = async (): Promise<string> => {
     return masterPassword;
 };
 
-export const askReplaceMasterPassword = async () => {
+export const askReplaceIncorrectMasterPassword = async () => {
     const { replaceMasterPassword } = await inquirer.prompt<{ replaceMasterPassword: string }>([
         {
             type: 'list',
