@@ -57,7 +57,7 @@ export const connectAndPrepare = async (
             .run();
     }
 
-    if (autoSync || deviceKeys?.autoSync !== 0) {
+    if ((autoSync === undefined && deviceKeys?.autoSync !== 0) || autoSync) {
         const lastClientSyncTimestamp =
             (
                 db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
