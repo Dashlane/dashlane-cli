@@ -1,7 +1,7 @@
-import * as apiconnect from './api-connect';
 import * as got from 'got';
+import * as apiconnect from './api-connect';
+import { CLI_VERSION, cliVersionToString } from './cliVersion';
 import { gotImplementation } from './utils/';
-import { cliVersionToString, CLI_VERSION } from './cliVersion';
 
 interface RequestApi {
     login: string;

@@ -1,7 +1,6 @@
-import winston from 'winston';
 import Database from 'better-sqlite3';
 import inquirer from 'inquirer';
-
+import winston from 'winston';
 import { BackupEditTransaction, PrintableVaultNote, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
 import { decryptTransaction } from '../crypto';
 

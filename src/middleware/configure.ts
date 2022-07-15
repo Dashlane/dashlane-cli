@@ -1,9 +1,8 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-
-import { Secrets } from '../types';
-import { deleteLocalKey, setLocalKey } from '../crypto/keychainManager';
 import { encryptAES } from '../crypto/encrypt';
+import { deleteLocalKey, setLocalKey } from '../crypto/keychainManager';
+import { Secrets } from '../types';
 
 interface ConfigureSaveMasterPassword {
     db: Database.Database;

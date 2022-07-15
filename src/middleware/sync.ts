@@ -1,13 +1,12 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-
-import { getLatestContent } from '../steps';
-import type { Secrets } from '../types';
 import { decrypt } from '../crypto/decrypt';
 import { encryptAES } from '../crypto/encrypt';
-import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
-import { notEmpty } from '../utils';
 import { replaceMasterPassword } from '../crypto/keychainManager';
+import { getLatestContent } from '../steps';
+import type { Secrets } from '../types';
+import { notEmpty } from '../utils';
+import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
 
 interface Sync {
     db: Database.Database;
@@ -46,7 +45,7 @@ export const sync = async (params: Sync) => {
                     try {
                         transactionContent = await decrypt(transac.content, {
                             type: 'memoize',
-                            secrets: params.secrets,
+                            secrets,
                             derivates,
                         });
                     } catch (error) {
@@ -65,7 +64,7 @@ export const sync = async (params: Sync) => {
                         }
                         return null;
                     }
-                    const encryptedTransactionContent = encryptAES(params.secrets.localKey, transactionContent);
+                    const encryptedTransactionContent = encryptAES(secrets.localKey, transactionContent);
                     return [
                         secrets.login,
                         transac.identifier,

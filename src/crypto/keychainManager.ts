@@ -1,15 +1,15 @@
-import crypto from 'crypto';
-import keytar from 'keytar';
 import { Database } from 'better-sqlite3';
-
-import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types';
-import { registerDevice } from '../middleware/registerDevice';
-import { encryptAES } from './encrypt';
+import keytar from 'keytar';
+import winston from 'winston';
+import crypto from 'crypto';
 import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
-import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
-import { EncryptedData } from './types';
+import { encryptAES } from './encrypt';
 import { sha512 } from './hash';
+import { EncryptedData } from './types';
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
+import { registerDevice } from '../middleware/registerDevice';
+import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types';
+import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
 
 const SERVICE = 'dashlane-cli';
 
@@ -76,16 +76,28 @@ const getSecretsWithoutDB = async (
     login: string,
     shouldNotSaveMasterPassword: boolean
 ): Promise<Secrets> => {
+    let localKey: Buffer;
+    try {
+        localKey = await setLocalKey(login, shouldNotSaveMasterPassword);
+    } catch (error) {
+        let errorMessage = 'unknown error';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        winston.debug(`Unable to reach OS keychain: ${errorMessage}`);
+        throw new Error(
+            'Your OS keychain is probably unreachable. Install it or disable its usage via `dcli configure save-master-password false`'
+        );
+    }
+
+    const { deviceAccessKey, deviceSecretKey } = await registerDevice({ login });
+
     const masterPassword = await askMasterPassword();
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         masterPassword,
         getDerivationParametersForLocalKey(login)
     );
-
-    const { deviceAccessKey, deviceSecretKey } = await registerDevice({ login });
-
-    const localKey = await setLocalKey(login, shouldNotSaveMasterPassword);
 
     const deviceSecretKeyEncrypted = encryptAES(localKey, Buffer.from(deviceSecretKey, 'hex'));
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));

@@ -1,8 +1,7 @@
-import * as crypto from 'crypto';
 import { expect } from 'chai';
-
-import { encryptAES } from './encrypt';
+import * as crypto from 'crypto';
 import { decrypt } from './decrypt';
+import { encryptAES } from './encrypt';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
 
 describe('Encrypt and decrypt using random symmetric key', () => {
