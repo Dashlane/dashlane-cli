@@ -1,0 +1,25 @@
+name: Generate and Release bundled CLI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - run: npm ci
+      - run: npm run pkg
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.14
+        with:
+          files: |
+            bundle/dcli-linux
+            bundle/dcli-macos
+            bundle/dcli-win.exe
