@@ -10,6 +10,12 @@ interface ConfigureSaveMasterPassword {
     shouldNotSaveMasterPassword: boolean;
 }
 
+interface ConfigureDisableAutoSync {
+    db: Database.Database;
+    secrets: Secrets;
+    disableAutoSync: boolean;
+}
+
 export const configureSaveMasterPassword = async (params: ConfigureSaveMasterPassword) => {
     const { db, secrets, shouldNotSaveMasterPassword } = params;
 
@@ -41,5 +47,13 @@ export const configureSaveMasterPassword = async (params: ConfigureSaveMasterPas
 
     db.prepare('UPDATE device SET masterPasswordEncrypted = ?, shouldNotSaveMasterPassword = ? WHERE login = ?')
         .bind(masterPasswordEncrypted, shouldNotSaveMasterPassword ? 1 : 0, secrets.login)
+        .run();
+};
+
+export const configureDisableAutoSync = (params: ConfigureDisableAutoSync) => {
+    const { db, secrets, disableAutoSync } = params;
+
+    db.prepare('UPDATE device SET autoSync = ? WHERE login = ?')
+        .bind(disableAutoSync ? 0 : 1, secrets.login)
         .run();
 };

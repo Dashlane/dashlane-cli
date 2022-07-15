@@ -15,9 +15,10 @@ export interface DeviceKeys {
     localKeyEncrypted: string;
 }
 
-export interface DeviceKeysWithLogin extends DeviceKeys {
+export interface DeviceConfiguration extends DeviceKeys {
     login: string;
     version: string;
+    autoSync: 0 | 1;
 }
 
 export interface CliVersion {
@@ -151,9 +152,12 @@ export class PrintableVaultCredential {
 
     toString(): string {
         return (
-            this.vaultCredential.title +
+            this.vaultCredential.title.trim() +
             ' - ' +
-            (this.vaultCredential.email || this.vaultCredential.login || this.vaultCredential.secondaryLogin || '')
+            (this.vaultCredential.email?.trim() ||
+                this.vaultCredential.login?.trim() ||
+                this.vaultCredential.secondaryLogin?.trim() ||
+                '')
         );
     }
 }
@@ -184,6 +188,6 @@ export class PrintableVaultNote {
     }
 
     toString(): string {
-        return this.vaultNote.title;
+        return this.vaultNote.title.trim();
     }
 }

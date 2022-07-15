@@ -8,7 +8,7 @@ import { sha512 } from './hash';
 import { EncryptedData } from './types';
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 import { registerDevice } from '../middleware/registerDevice';
-import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types';
+import { DeviceConfiguration, DeviceKeys, Secrets } from '../types';
 import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
 
 const SERVICE = 'dashlane-cli';
@@ -103,7 +103,7 @@ const getSecretsWithoutDB = async (
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?)')
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
             cliVersionToString(CLI_VERSION),
@@ -111,7 +111,8 @@ const getSecretsWithoutDB = async (
             deviceSecretKeyEncrypted,
             shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,
             shouldNotSaveMasterPassword ? 1 : 0,
-            localKeyEncrypted
+            localKeyEncrypted,
+            1
         )
         .run();
 
@@ -179,18 +180,18 @@ export const replaceMasterPassword = async (db: Database, secrets: Secrets): Pro
 
 export const getSecrets = async (
     db: Database,
-    deviceKeys: DeviceKeysWithLogin | null,
+    deviceConfiguration: DeviceConfiguration | null,
     shouldNotSaveMasterPasswordIfNoDeviceKeys = false
 ): Promise<Secrets> => {
     let login: string;
-    if (deviceKeys) {
-        login = deviceKeys.login;
+    if (deviceConfiguration) {
+        login = deviceConfiguration.login;
     } else {
         login = await askEmailAddress();
     }
 
     // If there are no secrets in the DB
-    if (!deviceKeys) {
+    if (!deviceConfiguration) {
         return getSecretsWithoutDB(db, login, shouldNotSaveMasterPasswordIfNoDeviceKeys);
     }
 
@@ -199,27 +200,27 @@ export const getSecrets = async (
     // If the master password is not saved or if the keychain is unreachable, or empty, the local key is retrieved from
     // the master password from the DB
     if (
-        deviceKeys.shouldNotSaveMasterPassword ||
-        !deviceKeys.masterPasswordEncrypted ||
+        deviceConfiguration.shouldNotSaveMasterPassword ||
+        !deviceConfiguration.masterPasswordEncrypted ||
         !(localKey = await getLocalKey(login))
     ) {
-        return getSecretsWithoutKeychain(login, deviceKeys);
+        return getSecretsWithoutKeychain(login, deviceConfiguration);
     }
 
     // Otherwise, the local key can be used to decrypt the device secret key and the master password in the DB
     const masterPassword = (
-        await decrypt(deviceKeys.masterPasswordEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
+        await decrypt(deviceConfiguration.masterPasswordEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString();
     const secretKey = (
-        await decrypt(deviceKeys.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
+        await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
 
     return {
         login,
         masterPassword,
-        shouldNotSaveMasterPassword: deviceKeys.shouldNotSaveMasterPassword,
+        shouldNotSaveMasterPassword: deviceConfiguration.shouldNotSaveMasterPassword,
         localKey,
-        accessKey: deviceKeys.accessKey,
+        accessKey: deviceConfiguration.accessKey,
         secretKey,
     };
 };

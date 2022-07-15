@@ -5,7 +5,7 @@ import { Secrets } from '../types';
 
 interface ResetDB {
     db: Database.Database;
-    secrets: Secrets;
+    secrets?: Secrets;
 }
 
 export const reset = async (params: ResetDB) => {
@@ -17,14 +17,16 @@ export const reset = async (params: ResetDB) => {
 
     winston.debug('Database reset');
 
-    try {
-        await deleteLocalKey(secrets.login);
-    } catch (error) {
-        // Errors are ignored because the OS keychain may be unreachable
-        let errorMessage = 'unknown error';
-        if (error instanceof Error) {
-            errorMessage = error.message;
+    if (secrets) {
+        try {
+            await deleteLocalKey(secrets.login);
+        } catch (error) {
+            // Errors are ignored because the OS keychain may be unreachable
+            let errorMessage = 'unknown error';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            winston.debug(`Unable to delete the local key from the keychain: ${errorMessage}`);
         }
-        winston.debug(`Unable to delete the local key from the keychain: ${errorMessage}`);
     }
 };
