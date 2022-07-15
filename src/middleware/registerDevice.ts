@@ -31,7 +31,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
             {
                 type: 'number',
                 name: 'otp',
-                message: 'Please enter your OTP code',
+                message: 'Please enter your OTP code:',
             },
         ]);
         ({ authTicket } = await performTotpVerification({
@@ -43,7 +43,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
             {
                 type: 'number',
                 name: 'token',
-                message: 'Please enter the code you received by email',
+                message: 'Please enter the code you received by email:',
             },
         ]);
         ({ authTicket } = await performEmailTokenVerification({

@@ -15,22 +15,36 @@ import { sync } from '../middleware/sync';
 import { Secrets } from '../types';
 import { askIgnoreBreakingChanges } from '../utils/dialogs';
 
+export interface ConnectAndPrepareParams {
+    /* Is the vault automatically synchronized every hour */
+    autoSync?: boolean;
+
+    /* If the user logs in for the first time, does the master password not have to be saved */
+    shouldNotSaveMasterPasswordIfNoDeviceKeys?: boolean;
+
+    failIfNoDB?: true;
+}
+
 export const connectAndPrepare = async (
-    autoSync: boolean | undefined = undefined,
-    shouldNotSaveMasterPasswordIfNoDeviceKeys = false
+    params: ConnectAndPrepareParams
 ): Promise<{
     db: Database.Database;
     secrets: Secrets;
 }> => {
+    const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB } = params;
     const db = connect();
     db.serialize();
 
-    // Create the tables and load the deviceKeys if it exists
-    const deviceKeys = prepareDB({ db });
-    const secrets = await getSecrets(db, deviceKeys, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+    // Create the tables and load the deviceConfiguration if it exists
+    const deviceConfiguration = prepareDB({ db });
+    if (failIfNoDB && !deviceConfiguration) {
+        throw new Error('No device registered in the database');
+    }
 
-    if (deviceKeys && deviceKeys.version !== cliVersionToString(CLI_VERSION)) {
-        const version = stringToCliVersion(deviceKeys.version);
+    const secrets = await getSecrets(db, deviceConfiguration, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+
+    if (deviceConfiguration && deviceConfiguration.version !== cliVersionToString(CLI_VERSION)) {
+        const version = stringToCliVersion(deviceConfiguration.version);
 
         let breakingChanges = false;
         if (version instanceof Error) {
@@ -49,15 +63,15 @@ export const connectAndPrepare = async (
             if (!(await askIgnoreBreakingChanges())) {
                 await reset({ db, secrets });
                 db.close();
-                return connectAndPrepare(undefined, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+                return connectAndPrepare(params);
             }
         }
         db.prepare('UPDATE device SET version = ? WHERE login = ?')
-            .bind(cliVersionToString(CLI_VERSION), deviceKeys.login)
+            .bind(cliVersionToString(CLI_VERSION), deviceConfiguration.login)
             .run();
     }
 
-    if ((autoSync === undefined && deviceKeys?.autoSync !== 0) || autoSync) {
+    if ((autoSync === undefined && deviceConfiguration?.autoSync !== 0) || autoSync) {
         const lastClientSyncTimestamp =
             (
                 db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {

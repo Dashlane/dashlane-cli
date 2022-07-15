@@ -1,11 +1,11 @@
 import Database from 'better-sqlite3';
-import { DeviceKeysWithLogin } from '../types';
+import { DeviceConfiguration } from '../types';
 
 interface PrepareDB {
     db: Database.Database;
 }
 
-export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
+export const prepareDB = (params: PrepareDB): DeviceConfiguration | null => {
     const { db } = params;
 
     db.prepare(
@@ -38,5 +38,5 @@ export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
         );`
     ).run();
 
-    return db.prepare('SELECT * FROM device LIMIT 1').get() as DeviceKeysWithLogin | null;
+    return db.prepare('SELECT * FROM device LIMIT 1').get() as DeviceConfiguration | null;
 };

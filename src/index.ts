@@ -11,6 +11,9 @@ import { configureDisableAutoSync, configureSaveMasterPassword } from './middlew
 import { reset } from './middleware/reset';
 import { sync } from './middleware/sync';
 import { parseBooleanString } from './utils';
+import { Database } from 'better-sqlite3';
+import { Secrets } from './types';
+import { connect } from './database/connect';
 
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
@@ -33,7 +36,7 @@ program
     .alias('s')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        const { db, secrets } = await connectAndPrepare(false);
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
         await sync({ db, secrets });
         db.close();
     });
@@ -49,7 +52,7 @@ program
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null, options: { output: string | null }) => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare({});
 
         if (options.output === 'json') {
             console.log(
@@ -82,7 +85,7 @@ program
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare({});
         await getOtp({
             titleFilter: filter,
             secrets,
@@ -98,7 +101,7 @@ program
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
-        const { db, secrets } = await connectAndPrepare();
+        const { db, secrets } = await connectAndPrepare({});
         await getNote({
             titleFilter: filter,
             secrets,
@@ -114,7 +117,7 @@ configureGroup
     .description('Disable automatic synchronization which is done once per hour (default: false).')
     .action(async (boolean: string) => {
         const disableAutoSync = parseBooleanString(boolean);
-        const { db, secrets } = await connectAndPrepare(false);
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
         configureDisableAutoSync({ db, secrets, disableAutoSync });
         db.close();
     });
@@ -124,18 +127,34 @@ configureGroup
     .description('Should the encrypted master password be saved and the OS keychain be used (default: true).')
     .action(async (boolean: string) => {
         const shouldNotSaveMasterPassword = !parseBooleanString(boolean);
-        const { db, secrets } = await connectAndPrepare(false, shouldNotSaveMasterPassword);
+        const { db, secrets } = await connectAndPrepare({
+            autoSync: false,
+            shouldNotSaveMasterPasswordIfNoDeviceKeys: shouldNotSaveMasterPassword,
+        });
         await configureSaveMasterPassword({ db, secrets, shouldNotSaveMasterPassword });
         db.close();
     });
 
 program
     .command('reset')
-    .description('Reset and clean your local database and keystore.')
+    .description('Reset and clean your local database and OS keychain.')
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {
-            const { db, secrets } = await connectAndPrepare(false);
+            let db: Database;
+            let secrets: Secrets | undefined;
+            try {
+                ({ db, secrets } = await connectAndPrepare({ autoSync: false, failIfNoDB: true }));
+            } catch (error) {
+                let errorMessage = 'unknown error';
+                if (error instanceof Error) {
+                    errorMessage = error.message;
+                }
+                winston.debug(`Unable to read device configuration during reset: ${errorMessage}`);
+
+                db = connect();
+                db.serialize();
+            }
             await reset({ db, secrets });
             db.close();
         }
