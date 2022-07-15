@@ -1,7 +1,7 @@
 import * as apiconnect from './api-connect';
-import { gotImplementation } from './utils/';
-import { HTTPError } from 'got';
 import * as got from 'got';
+import { gotImplementation } from './utils/';
+import { cliVersionToString, CLI_VERSION } from './cliVersion';
 
 interface RequestApi {
     login: string;
@@ -27,6 +27,15 @@ class DashlaneApiError extends Error {
     }
 }
 
+/**
+ * Don't report security issues for having this API keys here, this is expected
+ * Dashlane CLI project is explicitely allowed by Dashlane, Inc. to use those keys
+ */
+const dashlaneApiKeys = {
+    appAccessKey: 'HB9JQATDY6Y62JYKT7KXBN4C7FH8HKC5',
+    appSecretKey: 'boUtXxmDgLUtNFaigCMQ3+u+LAx0tg1ePAUE13nkR7dto+Zwq1naOHZTwbxxM7iL',
+};
+
 export const requestApi = async <T>(params: RequestApi): Promise<T> => {
     const { payload, path, deviceKeys, login } = params;
 
@@ -37,23 +46,21 @@ export const requestApi = async <T>(params: RequestApi): Promise<T> => {
             authentication: deviceKeys
                 ? {
                       type: 'userDevice',
-                      appAccessKey: 'C4F8H4SEAMXNBQVSASVBWDDZNCVTESMY',
-                      appSecretKey: 'Na9Dz3WcmjMZ5pdYU1AmC5TdYkeWAOzvOK6PkbU4QjfjPQTSaXY8pjPwrvHfVH14',
+                      ...dashlaneApiKeys,
                       login,
                       ...deviceKeys,
                   }
                 : {
                       type: 'app',
-                      appAccessKey: 'C4F8H4SEAMXNBQVSASVBWDDZNCVTESMY',
-                      appSecretKey: 'Na9Dz3WcmjMZ5pdYU1AmC5TdYkeWAOzvOK6PkbU4QjfjPQTSaXY8pjPwrvHfVH14',
+                      ...dashlaneApiKeys,
                   },
             path: 'v1/' + path,
             payload,
-            userAgent: 'TURBOBOT', // the user agent is mandatory when using "fetch" module
+            userAgent: `Dashlane CLI v${cliVersionToString(CLI_VERSION)}`,
         });
     } catch (error: unknown) {
         // Generate a DashlaneApiError if appropriate
-        if (error instanceof HTTPError && typeof error.response?.body === 'string') {
+        if (error instanceof got.HTTPError && typeof error.response?.body === 'string') {
             let details;
             try {
                 details = (JSON.parse(error.response.body) as DashlaneApiErrorResponse).errors[0];
