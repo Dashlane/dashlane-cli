@@ -16,7 +16,7 @@ import { Secrets } from '../types';
 import { askIgnoreBreakingChanges } from '../utils/dialogs';
 
 export const connectAndPrepare = async (
-    autoSync: boolean,
+    autoSync: boolean | undefined = undefined,
     shouldNotSaveMasterPasswordIfNoDeviceKeys = false
 ): Promise<{
     db: Database.Database;
@@ -49,7 +49,7 @@ export const connectAndPrepare = async (
             if (!(await askIgnoreBreakingChanges())) {
                 await reset({ db, secrets });
                 db.close();
-                return connectAndPrepare(autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+                return connectAndPrepare(undefined, shouldNotSaveMasterPasswordIfNoDeviceKeys);
             }
         }
         db.prepare('UPDATE device SET version = ? WHERE login = ?')
@@ -57,7 +57,7 @@ export const connectAndPrepare = async (
             .run();
     }
 
-    if (autoSync) {
+    if (autoSync || deviceKeys?.autoSync !== 0) {
         const lastClientSyncTimestamp =
             (
                 db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {

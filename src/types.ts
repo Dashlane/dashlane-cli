@@ -18,6 +18,7 @@ export interface DeviceKeys {
 export interface DeviceKeysWithLogin extends DeviceKeys {
     login: string;
     version: string;
+    autoSync: 0 | 1;
 }
 
 export interface CliVersion {

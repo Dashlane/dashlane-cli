@@ -103,7 +103,7 @@ const getSecretsWithoutDB = async (
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?)')
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
             cliVersionToString(CLI_VERSION),
@@ -111,7 +111,8 @@ const getSecretsWithoutDB = async (
             deviceSecretKeyEncrypted,
             shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,
             shouldNotSaveMasterPassword ? 1 : 0,
-            localKeyEncrypted
+            localKeyEncrypted,
+            1
         )
         .run();
 

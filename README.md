@@ -70,7 +70,8 @@ dcli note [titleFilter]
 
 You can use `--debug` to see all the debug logs of the CLI.
 
-In order to disable the automatic sync while doing a command, add `--disable-auto-sync`.
+In order to disable automatic synchronization of your vault that is done every hour you can use
+`dcli configure disable-auto-sync true`.
 
 If you don't want to use the OS keychain or if you don't want the CLI to save your master password encrypted you can use
 `dcli configure save-master-password false`. If you previously had saved your master password encrypted it will delete

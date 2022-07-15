@@ -4,17 +4,17 @@ import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
 import { connectAndPrepare } from './database/index';
-import { configureSaveMasterPassword } from './middleware/configure';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
 import { getNote } from './middleware/getSecureNotes';
+import { askConfirmReset } from './utils/dialogs';
+import { configureDisableAutoSync, configureSaveMasterPassword } from './middleware/configure';
 import { reset } from './middleware/reset';
 import { sync } from './middleware/sync';
-import { askConfirmReset } from './utils/dialogs';
+import { parseBooleanString } from './utils';
 
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
-const autoSync = process.argv.indexOf('--disable-auto-sync') === -1;
 
 winston.configure({
     level: debugLevel,
@@ -27,7 +27,6 @@ inquirer.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 program.name('dcli').description('[Non Official] Dashlane CLI').version('1.0.0');
 
 program.option('--debug', 'Print debug messages');
-program.option('--disable-auto-sync', 'Disable automatic synchronization which is done once per hour');
 
 program
     .command('sync')
@@ -50,7 +49,7 @@ program
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
     .action(async (filter: string | null, options: { output: string | null }) => {
-        const { db, secrets } = await connectAndPrepare(autoSync);
+        const { db, secrets } = await connectAndPrepare();
 
         if (options.output === 'json') {
             console.log(
@@ -83,7 +82,7 @@ program
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
-        const { db, secrets } = await connectAndPrepare(autoSync);
+        const { db, secrets } = await connectAndPrepare();
         await getOtp({
             titleFilter: filter,
             secrets,
@@ -99,7 +98,7 @@ program
     .description('Retrieve secure notes from local vault and open it.')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
-        const { db, secrets } = await connectAndPrepare(autoSync);
+        const { db, secrets } = await connectAndPrepare();
         await getNote({
             titleFilter: filter,
             secrets,
@@ -108,28 +107,31 @@ program
         db.close();
     });
 
-const configureGroup = program.command('configure').alias('c').description('Configure the program.');
+const configureGroup = program.command('configure').alias('c').description('Configure the CLI.');
+
+configureGroup
+    .command('disable-auto-sync <boolean>')
+    .description('Disable automatic synchronization which is done once per hour (default: false).')
+    .action(async (boolean: string) => {
+        const disableAutoSync = parseBooleanString(boolean);
+        const { db, secrets } = await connectAndPrepare(false);
+        configureDisableAutoSync({ db, secrets, disableAutoSync });
+        db.close();
+    });
 
 configureGroup
     .command('save-master-password <boolean>')
-    .description('Should the encrypted master password be saved and the OS keychain be used')
+    .description('Should the encrypted master password be saved and the OS keychain be used (default: true).')
     .action(async (boolean: string) => {
-        let shouldNotSaveMasterPassword: boolean;
-        if (boolean === 'true') {
-            shouldNotSaveMasterPassword = false;
-        } else if (boolean === 'false') {
-            shouldNotSaveMasterPassword = true;
-        } else {
-            throw new Error("The provided boolean variable should be either 'true' or 'false'");
-        }
-        const { db, secrets } = await connectAndPrepare(autoSync, shouldNotSaveMasterPassword);
+        const shouldNotSaveMasterPassword = !parseBooleanString(boolean);
+        const { db, secrets } = await connectAndPrepare(false, shouldNotSaveMasterPassword);
         await configureSaveMasterPassword({ db, secrets, shouldNotSaveMasterPassword });
         db.close();
     });
 
 program
     .command('reset')
-    .description('Reset and clean your local database and keystore')
+    .description('Reset and clean your local database and keystore.')
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {

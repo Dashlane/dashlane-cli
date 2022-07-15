@@ -33,7 +33,8 @@ export const prepareDB = (params: PrepareDB): DeviceKeysWithLogin | null => {
             secretKeyEncrypted VARCHAR(255) NOT NULL,
             masterPasswordEncrypted VARCHAR(255),
             shouldNotSaveMasterPassword BIT NOT NULL,
-            localKeyEncrypted VARCHAR(255) NOT NULL
+            localKeyEncrypted VARCHAR(255) NOT NULL,
+            autoSync BIT NOT NULL
         );`
     ).run();
 
