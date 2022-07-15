@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import winston from 'winston';
 
 import { Secrets } from '../types';
 import { prepareDB } from './prepare';
@@ -32,11 +33,17 @@ export const connectAndPrepare = async (
     if (deviceKeys && deviceKeys.version !== cliVersionToString(CLI_VERSION)) {
         const version = stringToCliVersion(deviceKeys.version);
 
-        let breakingChanges = cliVersionLessThan(CLI_VERSION, version);
-        for (const breakingVersion of breakingChangesVersions) {
-            if (cliVersionLessThan(version, breakingVersion)) {
-                breakingChanges = true;
-                break;
+        let breakingChanges = false;
+        if (version instanceof Error) {
+            breakingChanges = true;
+            winston.debug(`Error in CLI version: ${version.message}`);
+        } else {
+            breakingChanges = cliVersionLessThan(CLI_VERSION, version);
+            for (const breakingVersion of breakingChangesVersions) {
+                if (cliVersionLessThan(version, breakingVersion)) {
+                    breakingChanges = true;
+                    break;
+                }
             }
         }
         if (breakingChanges) {
