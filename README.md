@@ -46,19 +46,21 @@ In order to sync your vault (this is also the recommended first step):
 dcli sync
 ```
 
-In order to get a password:
+In order to **get a password**:
 
 ```
 dcli password [titleFilter]
 ```
 
-In order to generate an OTP:
+Note: You can select a different output for passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.
+
+In order to **generate an OTP**:
 
 ```
 dcli otp [titleFilter]
 ```
 
-In order to get a secured note:
+In order to **get a secure note**:
 
 ```
 dcli note [titleFilter]

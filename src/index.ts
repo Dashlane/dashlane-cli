@@ -44,7 +44,7 @@ program
     .alias('p')
     .description('Retrieve passwords from local vault and save it in the clipboard.')
     .option(
-        '--output <type>',
+        '-o, --output <type>',
         'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.',
         'clipboard'
     )
