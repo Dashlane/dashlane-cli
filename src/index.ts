@@ -3,6 +3,7 @@ import { program } from 'commander';
 import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
+import { Database } from 'better-sqlite3';
 import { connectAndPrepare } from './database/index';
 import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
 import { getNote } from './middleware/getSecureNotes';
@@ -11,7 +12,6 @@ import { configureDisableAutoSync, configureSaveMasterPassword } from './middlew
 import { reset } from './middleware/reset';
 import { sync } from './middleware/sync';
 import { parseBooleanString } from './utils';
-import { Database } from 'better-sqlite3';
 import { Secrets } from './types';
 import { connect } from './database/connect';
 
@@ -44,10 +44,10 @@ program
 program
     .command('password')
     .alias('p')
-    .description('Retrieve passwords from local vault and save it in the clipboard.')
+    .description('Retrieve passwords from local vault and save it in the clipboard')
     .option(
         '-o, --output <type>',
-        'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.',
+        'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials',
         'clipboard'
     )
     .argument('[filter]', 'Filter passwords based on their title (usually the website)')
@@ -81,7 +81,7 @@ program
 program
     .command('otp')
     .alias('o')
-    .description('Retrieve an OTP code from local vault and save it in the clipboard.')
+    .description('Retrieve an OTP code from local vault and save it in the clipboard')
     .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
@@ -98,7 +98,7 @@ program
 program
     .command('note')
     .alias('n')
-    .description('Retrieve secure notes from local vault and open it.')
+    .description('Retrieve secure notes from local vault and open it')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
         const { db, secrets } = await connectAndPrepare({});
@@ -110,11 +110,11 @@ program
         db.close();
     });
 
-const configureGroup = program.command('configure').alias('c').description('Configure the CLI.');
+const configureGroup = program.command('configure').alias('c').description('Configure the CLI');
 
 configureGroup
     .command('disable-auto-sync <boolean>')
-    .description('Disable automatic synchronization which is done once per hour (default: false).')
+    .description('Disable automatic synchronization which is done once per hour (default: false)')
     .action(async (boolean: string) => {
         const disableAutoSync = parseBooleanString(boolean);
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
@@ -124,7 +124,7 @@ configureGroup
 
 configureGroup
     .command('save-master-password <boolean>')
-    .description('Should the encrypted master password be saved and the OS keychain be used (default: true).')
+    .description('Should the encrypted master password be saved and the OS keychain be used (default: true)')
     .action(async (boolean: string) => {
         const shouldNotSaveMasterPassword = !parseBooleanString(boolean);
         const { db, secrets } = await connectAndPrepare({
@@ -137,7 +137,7 @@ configureGroup
 
 program
     .command('reset')
-    .description('Reset and clean your local database and OS keychain.')
+    .description('Reset and clean your local database and OS keychain')
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {

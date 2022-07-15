@@ -8,7 +8,7 @@ import { sha512 } from './hash';
 import { EncryptedData } from './types';
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 import { registerDevice } from '../middleware/registerDevice';
-import { DeviceKeys, DeviceKeysWithLogin, Secrets } from '../types';
+import { DeviceConfiguration, DeviceKeys, Secrets } from '../types';
 import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
 
 const SERVICE = 'dashlane-cli';
