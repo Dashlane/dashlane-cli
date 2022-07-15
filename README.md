@@ -4,6 +4,8 @@
 
 ![GitHub](https://img.shields.io/github/license/Dashlane/dashlane-cli) ![GitHub package.json version](https://img.shields.io/github/package-json/v/Dashlane/dashlane-cli)
 
+![Dashlane CLI Demo](./demo.png)
+
 ## How to install
 
 Install the dependencies:
