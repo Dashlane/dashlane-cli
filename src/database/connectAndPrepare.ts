@@ -1,20 +1,19 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-
-import { Secrets } from '../types';
-import { prepareDB } from './prepare';
 import { connect } from './connect';
-import { getSecrets } from '../crypto';
-import { sync } from '../middleware/sync';
+import { prepareDB } from './prepare';
 import {
-    breakingChangesVersions,
     CLI_VERSION,
-    cliVersionToString,
+    breakingChangesVersions,
     cliVersionLessThan,
+    cliVersionToString,
     stringToCliVersion,
 } from '../cliVersion';
-import { askIgnoreBreakingChanges } from '../utils/dialogs';
+import { getSecrets } from '../crypto';
 import { reset } from '../middleware/reset';
+import { sync } from '../middleware/sync';
+import { Secrets } from '../types';
+import { askIgnoreBreakingChanges } from '../utils/dialogs';
 
 export const connectAndPrepare = async (
     autoSync: boolean,

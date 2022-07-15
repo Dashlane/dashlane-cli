@@ -1,6 +1,6 @@
-import fs from 'fs';
 import Database from 'better-sqlite3';
 import winston from 'winston';
+import fs from 'fs';
 
 // The most appropriate folder to store the user's data, by OS
 const USER_DATA_PATH =

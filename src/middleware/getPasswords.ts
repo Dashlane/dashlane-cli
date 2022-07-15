@@ -1,17 +1,16 @@
-import * as clipboard from 'clipboardy';
 import Database from 'better-sqlite3';
+import * as clipboard from 'clipboardy';
 import inquirer from 'inquirer';
 import { authenticator } from 'otplib';
 import winston from 'winston';
-
-import { decryptTransaction } from '../crypto';
 import {
-    BackupEditTransaction,
-    VaultCredential,
     AuthentifiantTransactionContent,
+    BackupEditTransaction,
     PrintableVaultCredential,
     Secrets,
+    VaultCredential,
 } from '../types';
+import { decryptTransaction } from '../crypto';
 
 interface GetCredential {
     titleFilter: string | null;

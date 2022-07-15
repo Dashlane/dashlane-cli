@@ -1,5 +1,5 @@
-import * as apiconnect from '../api-connect';
 import * as got from 'got';
+import * as apiconnect from '../api-connect';
 
 export const gotImplementation: apiconnect.RequestFunction<got.Response<string>> = (
     options: apiconnect.RequestFunctionOptions

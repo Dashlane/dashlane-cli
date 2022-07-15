@@ -1,9 +1,9 @@
 import {
     Argon2DerivationConfig,
-    SymmetricCipherConfig,
-    EncryptedData,
     DerivationConfig,
+    EncryptedData,
     Pbkdf2DerivationConfig,
+    SymmetricCipherConfig,
 } from './types';
 
 const extractNextEncryptedDataStringComponent = (

@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import inquirer from 'inquirer';
-import PromptConstructor = inquirer.prompts.PromptConstructor;
 import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
-
-import { sync } from './middleware/sync';
-import { getNote } from './middleware/getSecureNotes';
-import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
 import { connectAndPrepare } from './database/index';
-import { askConfirmReset } from './utils/dialogs';
 import { configureSaveMasterPassword } from './middleware/configure';
+import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
+import { getNote } from './middleware/getSecureNotes';
 import { reset } from './middleware/reset';
+import { sync } from './middleware/sync';
+import { askConfirmReset } from './utils/dialogs';
+
+import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 const autoSync = process.argv.indexOf('--disable-auto-sync') === -1;

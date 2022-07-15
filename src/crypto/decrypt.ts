@@ -1,14 +1,13 @@
-import * as crypto from 'crypto';
-import zlib from 'zlib';
-import * as xmlJs from 'xml-js';
 import * as argon2 from 'argon2';
-import { promisify } from 'util';
 import winston from 'winston';
-
+import * as xmlJs from 'xml-js';
+import * as crypto from 'crypto';
+import { promisify } from 'util';
+import zlib from 'zlib';
 import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash';
-import { BackupEditTransaction, SymmetricKeyGetter, Secrets, TransactionContent } from '../types';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
+import { BackupEditTransaction, Secrets, SymmetricKeyGetter, TransactionContent } from '../types';
 
 const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
     const combinedKey = sha512(originalKey);
