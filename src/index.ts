@@ -44,7 +44,7 @@ program
 program
     .command('password')
     .alias('p')
-    .description('Retrieve passwords from local vault and save it in the clipboard')
+    .description('Retrieve a password from the local vault and copy it to the clipboard')
     .option(
         '-o, --output <type>',
         'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials',
@@ -81,8 +81,8 @@ program
 program
     .command('otp')
     .alias('o')
-    .description('Retrieve an OTP code from local vault and save it in the clipboard')
-    .option('--print', 'Prints just the OTP code, instead of copying it inside the clipboard')
+    .description('Retrieve an OTP code from local vault and copy it to the clipboard')
+    .option('--print', 'Prints just the OTP code, instead of copying it to the clipboard')
     .argument('[filter]', 'Filter credentials based on their title (usually the website)')
     .action(async (filter: string | null, options: { print: boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
@@ -98,7 +98,7 @@ program
 program
     .command('note')
     .alias('n')
-    .description('Retrieve secure notes from local vault and open it')
+    .description('Retrieve secure notes from the local vault and open it')
     .argument('[filter]', 'Filter notes based on their title')
     .action(async (filter: string | null) => {
         const { db, secrets } = await connectAndPrepare({});
