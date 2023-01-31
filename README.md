@@ -1,4 +1,4 @@
-# [Non Official] Dashlane CLI
+# Experimental Dashlane CLI
 
 **Warranty note**: Dashlane CLI project is provided “as is,” without warranty of any kind, either express or implied. Neither Dashlane, Inc. nor its affiliates, employees or contractors warrant that Dashlane CLI will meet your requirements, operate as required without error or provide future updates. Dashlane, Inc. does not provide customer support on this project. The community is invited to submit bugs and improvements in the issues and pull requests sections of this repository.
 
