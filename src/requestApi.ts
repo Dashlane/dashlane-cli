@@ -29,7 +29,7 @@ class DashlaneApiError extends Error {
 
 /**
  * Don't report security issues for having this API keys here, this is expected
- * Dashlane CLI project is explicitely allowed by Dashlane, Inc. to use those keys
+ * Dashlane CLI project is explicitly allowed by Dashlane, Inc. to use those keys
  */
 const dashlaneApiKeys = {
     appAccessKey: 'HB9JQATDY6Y62JYKT7KXBN4C7FH8HKC5',
