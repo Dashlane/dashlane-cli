@@ -108,7 +108,7 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
     switch (params.output || 'clipboard') {
         case 'clipboard':
             clipboard.writeSync(selectedCredential.password);
-            console.log(`🔓 Password for "${selectedCredential.title}" copied to clipboard!`);
+            console.log(`🔓 Password for "${selectedCredential.title || selectedCredential.url}" copied to clipboard!`);
 
             if (selectedCredential.otpSecret) {
                 const token = authenticator.generate(selectedCredential.otpSecret);
