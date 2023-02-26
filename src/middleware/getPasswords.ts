@@ -13,7 +13,7 @@ import {
 import { decryptTransaction } from '../crypto';
 
 interface GetCredential {
-    titleFilter: string | null;
+    filters: string[] | null;
     secrets: Secrets;
     output: string | null;
     db: Database.Database;
@@ -36,9 +36,9 @@ const decryptPasswordTransactions = async (
 };
 
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
-    const { secrets, titleFilter, db } = params;
+    const { secrets, filters, db } = params;
 
-    winston.debug(`Retrieving: ${titleFilter || ''}`);
+    winston.debug(`Retrieving: ${filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)
@@ -58,12 +58,34 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
     );
 
     let matchedCredentials = beautifiedCredentials;
-    if (titleFilter) {
-        const canonicalTitleFilter = titleFilter.toLowerCase();
-        matchedCredentials = beautifiedCredentials?.filter(
-            (item) =>
-                item.url?.toLowerCase().includes(canonicalTitleFilter) ||
-                item.title?.toLowerCase().includes(canonicalTitleFilter)
+    if (filters) {
+        interface ItemFilter {
+            keys: string[];
+            value: string;
+        }
+        const parsedFilters: ItemFilter[] = [];
+
+        filters.forEach((filter) => {
+            const [splitFilterKey, ...splitFilterValues] = filter.split('=');
+
+            const filterValue = splitFilterValues.join('=') || splitFilterKey;
+            const filterKeys = splitFilterValues.length > 0 ? splitFilterKey.split(',') : ['url', 'title'];
+
+            const canonicalFilterValue = filterValue.toLowerCase();
+
+            parsedFilters.push({
+                keys: filterKeys,
+                value: canonicalFilterValue,
+            });
+        });
+
+        matchedCredentials = matchedCredentials?.filter((item) =>
+            parsedFilters
+                .map((filter) =>
+                    filter.keys.map((key) => item[key as keyof VaultCredential]?.toLowerCase().includes(filter.value))
+                )
+                .flat()
+                .some((b) => b)
         );
     }
 
@@ -83,7 +105,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         return matchedCredentials[0];
     }
 
-    const message = params.titleFilter
+    const message = params.filters
         ? 'There are multiple results for your query, pick one:'
         : 'What password would you like to get?';
 

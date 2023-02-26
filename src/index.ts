@@ -75,15 +75,18 @@ program
         'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials',
         'clipboard'
     )
-    .argument('[filter]', 'Filter passwords based on their title (usually the website)')
-    .action(async (filter: string | null, options: { output: string | null }) => {
+    .argument(
+        '[filters...]',
+        'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
+    )
+    .action(async (filters: string[] | null, options: { output: string | null }) => {
         const { db, secrets } = await connectAndPrepare({});
 
         if (options.output === 'json') {
             console.log(
                 JSON.stringify(
                     await selectCredentials({
-                        titleFilter: filter,
+                        filters,
                         secrets,
                         output: options.output,
                         db,
@@ -94,7 +97,7 @@ program
             );
         } else {
             await getPassword({
-                titleFilter: filter,
+                filters,
                 secrets,
                 output: options.output,
                 db,
@@ -108,11 +111,14 @@ program
     .alias('o')
     .description('Retrieve an OTP code from local vault and copy it to the clipboard')
     .option('--print', 'Prints just the OTP code, instead of copying it to the clipboard')
-    .argument('[filter]', 'Filter credentials based on their title (usually the website)')
-    .action(async (filter: string | null, options: { print: boolean }) => {
+    .argument(
+        '[filters...]',
+        'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
+    )
+    .action(async (filters: string[] | null, options: { print: boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getOtp({
-            titleFilter: filter,
+            filters,
             secrets,
             output: options.print ? 'otp' : 'clipboard',
             db,
