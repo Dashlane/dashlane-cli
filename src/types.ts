@@ -117,7 +117,7 @@ export interface SecureNoteTransactionContent {
 }
 
 export interface VaultCredential {
-    title: string;
+    title?: string;
     email?: string;
     login?: string;
     password: string;
@@ -152,7 +152,7 @@ export class PrintableVaultCredential {
 
     toString(): string {
         return (
-            this.vaultCredential.title.trim() +
+            (this.vaultCredential.title?.trim() || this.vaultCredential.url || 'N\\C') +
             ' - ' +
             (this.vaultCredential.email?.trim() ||
                 this.vaultCredential.login?.trim() ||
