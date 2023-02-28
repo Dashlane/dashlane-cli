@@ -5,7 +5,13 @@
 
 ![Dashlane CLI Demo](./demo.png)
 
-## How to install
+## How to install with brew
+
+```sh
+brew install --build-from-source dashlane-cli.rb
+```
+
+## How to install (manually)
 
 Install the dependencies:
 
