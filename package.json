@@ -22,6 +22,7 @@
         "start": "node dist",
         "pkg:linux": "./prepare-pkg.sh glibc && pkg . -t node16-linux-x64 -o bundle/dcli-linux",
         "pkg:macos": "./prepare-pkg.sh unknown && pkg . -t node16-macos-x64 -o bundle/dcli-macos",
+        "pkg:macos-arm": "./prepare-pkg.sh unknown && pkg . -t node16-macos-arm64 -o bundle/dcli-macos-arm",
         "pkg:win": "./prepare-pkg.sh unknown && pkg . -t node16-win-x64 -o bundle/dcli-win.exe",
         "pkg": "npm run build && npm run pkg:linux && npm run pkg:macos && npm run pkg:win",
         "prepare": "husky install",
