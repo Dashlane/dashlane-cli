@@ -14,7 +14,8 @@ import { sync } from './middleware/sync';
 import { parseBooleanString } from './utils';
 import { Secrets } from './types';
 import { connect } from './database/connect';
-
+import { getTeamMembers } from './steps/getTeamMembers';
+import { getPremiumStatus } from './steps/getStatus';
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
@@ -38,6 +39,30 @@ program
     .action(async () => {
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
         await sync({ db, secrets });
+        db.close();
+    });
+
+program
+    .command('teammembers')
+    .alias('t')
+    .description('List team members')
+    .argument('[page]', 'Page number', '0')
+    .action(async (page: string) => {
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
+        const premiumStatus = await getPremiumStatus({
+            secrets,
+        });
+        const teamId = premiumStatus.b2bStatus?.currentTeam?.teamId;
+        if (!teamId) {
+            console.error('No team Id');
+            return process.exit(0);
+        }
+        const response = await getTeamMembers({
+            secrets,
+            teamId,
+            page: parseInt(page),
+        });
+        console.log(JSON.stringify(response));
         db.close();
     });
 
