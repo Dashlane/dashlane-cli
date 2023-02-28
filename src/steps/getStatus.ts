@@ -19,7 +19,7 @@ export const getPremiumStatus = (params: GetPremiumStatusParams) =>
 export interface GetPremiumStatusOutput {
     currentTimestampUnix?: number;
     /**
-     * B2C Status of the user independant of the B2B status
+     * B2C Status of the user independent of the B2B status
      */
     b2cStatus: {
         /**

@@ -38,7 +38,7 @@ const decryptPasswordTransactions = async (
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
     const { secrets, filters, db } = params;
 
-    winston.debug(`Retrieving: ${filters.length > 0 ? filters.join(' ') : ''}`);
+    winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)
