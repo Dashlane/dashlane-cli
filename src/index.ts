@@ -28,7 +28,7 @@ winston.configure({
 
 inquirer.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 
-program.name('dcli').description('[Non Official] Dashlane CLI').version('1.0.0');
+program.name('dcli').description('Dashlane CLI').version('1.1.0');
 
 program.option('--debug', 'Print debug messages');
 
