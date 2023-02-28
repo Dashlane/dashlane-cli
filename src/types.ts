@@ -152,7 +152,7 @@ export class PrintableVaultCredential {
 
     toString(): string {
         return (
-            (this.vaultCredential.title?.trim() || this.vaultCredential.url) +
+            (this.vaultCredential.title?.trim() || this.vaultCredential.url || 'N\\C') +
             ' - ' +
             (this.vaultCredential.email?.trim() ||
                 this.vaultCredential.login?.trim() ||
