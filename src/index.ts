@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 import { program } from 'commander';
-import inquirer from 'inquirer';
-import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
 import { Database } from 'better-sqlite3';
 import { connectAndPrepare } from './database/index';
@@ -21,8 +19,6 @@ import {
     reset,
 } from './middleware';
 
-import PromptConstructor = inquirer.prompts.PromptConstructor;
-
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
 winston.configure({
@@ -30,8 +26,6 @@ winston.configure({
     format: winston.format.combine(winston.format.splat(), winston.format.cli()),
     transports: [new winston.transports.Console({ stderrLevels: ['error', 'debug', 'info'] })],
 });
-
-inquirer.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 
 program.name('dcli').description('Dashlane CLI').version('1.1.0');
 
@@ -44,6 +38,7 @@ program
     .action(async () => {
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
         await sync({ db, secrets });
+        console.log('Successfully synced');
         db.close();
     });
 

@@ -1,16 +1,10 @@
 import Database from 'better-sqlite3';
 import * as clipboard from 'clipboardy';
-import inquirer from 'inquirer';
 import { authenticator } from 'otplib';
 import winston from 'winston';
-import {
-    AuthentifiantTransactionContent,
-    BackupEditTransaction,
-    PrintableVaultCredential,
-    Secrets,
-    VaultCredential,
-} from '../types';
+import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
 import { decryptTransaction } from '../crypto';
+import { askCredentialChoice } from '../utils';
 
 interface GetCredential {
     filters: string[] | null;
@@ -105,23 +99,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         return matchedCredentials[0];
     }
 
-    const message = params.filters
-        ? 'There are multiple results for your query, pick one:'
-        : 'What password would you like to get?';
-
-    const { printableCredential } = await inquirer.prompt<{ printableCredential: PrintableVaultCredential }>([
-        {
-            type: 'search-list',
-            name: 'printableCredential',
-            message,
-            choices: matchedCredentials.map((item) => {
-                const printableItem = new PrintableVaultCredential(item);
-                return { name: printableItem.toString(), value: printableItem };
-            }),
-        },
-    ]);
-
-    return printableCredential.vaultCredential;
+    return askCredentialChoice({ matchedCredentials, hasFilters: Boolean(params.filters) });
 };
 
 export const getPassword = async (params: GetCredential): Promise<void> => {

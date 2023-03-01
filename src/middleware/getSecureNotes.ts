@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
-import inquirer from 'inquirer';
 import winston from 'winston';
-import { BackupEditTransaction, PrintableVaultNote, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
+import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
 import { decryptTransaction } from '../crypto';
+import { askSecureNoteChoice } from '../utils';
 
 interface GetSecureNote {
     titleFilter: string | null;
@@ -62,23 +62,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
     } else if (matchedNotes.length === 1) {
         selectedNote = matchedNotes[0];
     } else {
-        const message = titleFilter
-            ? 'There are multiple results for your query, pick one:'
-            : 'What note would you like to get?';
-
-        const { printableNote } = await inquirer.prompt<{ printableNote: PrintableVaultNote }>([
-            {
-                type: 'search-list',
-                name: 'printableNote',
-                message,
-                choices: matchedNotes.map((item) => {
-                    const printableItem = new PrintableVaultNote(item);
-                    return { name: printableItem.toString(), value: printableItem };
-                }),
-            },
-        ]);
-
-        selectedNote = printableNote.vaultNote;
+        selectedNote = await askSecureNoteChoice({ matchedNotes, hasFilters: Boolean(titleFilter) });
     }
 
     console.log(selectedNote.content);
