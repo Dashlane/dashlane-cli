@@ -18,6 +18,7 @@ import {
     configureSaveMasterPassword,
     reset,
 } from './middleware';
+import { cliVersionToString, CLI_VERSION } from './cliVersion';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
@@ -27,7 +28,7 @@ winston.configure({
     transports: [new winston.transports.Console({ stderrLevels: ['error', 'debug', 'info'] })],
 });
 
-program.name('dcli').description('Dashlane CLI').version('1.1.0');
+program.name('dcli').description('Dashlane CLI').version(cliVersionToString(CLI_VERSION));
 
 program.option('--debug', 'Print debug messages');
 
