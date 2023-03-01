@@ -34,7 +34,9 @@ export interface RequestDeviceRegistrationOutput {
           }
     )[];
 }
-
+/**
+ * @deprecated Use getAuthenticationMethodsForDevice
+ */
 export const requestDeviceRegistration = (params: RequestDeviceRegistration) =>
     requestApi<RequestDeviceRegistrationOutput>({
         path: 'authentication/RequestDeviceRegistration',
