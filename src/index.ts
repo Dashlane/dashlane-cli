@@ -174,6 +174,7 @@ program
                 db.serialize();
             }
             await reset({ db, secrets });
+            console.log('The local Dashlane local storage has been reset');
             db.close();
         }
     });
