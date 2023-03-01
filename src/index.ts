@@ -5,17 +5,22 @@ import inquirerSearchList from 'inquirer-search-list';
 import winston from 'winston';
 import { Database } from 'better-sqlite3';
 import { connectAndPrepare } from './database/index';
-import { getOtp, getPassword, selectCredentials } from './middleware/getPasswords';
-import { getNote } from './middleware/getSecureNotes';
 import { askConfirmReset } from './utils/dialogs';
-import { configureDisableAutoSync, configureSaveMasterPassword } from './middleware/configure';
-import { reset } from './middleware/reset';
-import { sync } from './middleware/sync';
 import { parseBooleanString } from './utils';
 import { Secrets } from './types';
 import { connect } from './database/connect';
-import { getTeamMembers } from './steps/getTeamMembers';
-import { getPremiumStatus } from './steps/getStatus';
+import {
+    sync,
+    selectCredentials,
+    getOtp,
+    getNote,
+    getPassword,
+    getTeamMembers,
+    configureDisableAutoSync,
+    configureSaveMasterPassword,
+    reset,
+} from './middleware';
+
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
@@ -49,20 +54,7 @@ program
     .argument('[page]', 'Page number', '0')
     .action(async (page: string) => {
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        const premiumStatus = await getPremiumStatus({
-            secrets,
-        });
-        const teamId = premiumStatus.b2bStatus?.currentTeam?.teamId;
-        if (!teamId) {
-            console.error('No team Id');
-            return process.exit(0);
-        }
-        const response = await getTeamMembers({
-            secrets,
-            teamId,
-            page: parseInt(page),
-        });
-        console.log(JSON.stringify(response));
+        await getTeamMembers({ secrets, page: parseInt(page) });
         db.close();
     });
 
@@ -191,7 +183,7 @@ program
         }
     });
 
-program.parseAsync().catch((err) => {
-    console.error(err);
+program.parseAsync().catch((error: Error) => {
+    console.error(`ERROR: ${error.message}`);
     process.exit(1);
 });

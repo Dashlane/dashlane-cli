@@ -3,7 +3,7 @@ import winston from 'winston';
 import { decrypt } from '../crypto/decrypt';
 import { encryptAES } from '../crypto/encrypt';
 import { replaceMasterPassword } from '../crypto/keychainManager';
-import { getLatestContent } from '../steps';
+import { getLatestContent } from '../endpoints';
 import type { Secrets } from '../types';
 import { notEmpty } from '../utils';
 import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
