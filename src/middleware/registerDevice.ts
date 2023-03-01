@@ -3,12 +3,12 @@ import winston from 'winston';
 import {
     CompleteDeviceRegistrationOutput,
     completeDeviceRegistration,
+    performDashlaneAuthenticatorVerification,
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
     requestDeviceRegistration,
-} from '../steps';
-import { performDashlaneAuthenticatorVerification } from '../steps/performDashlaneAuthenticatorVerification';
+} from '../endpoints';
 
 interface RegisterDevice {
     login: string;
@@ -21,7 +21,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
     // Log in via a compatible verification method
     const { verification } = await requestDeviceRegistration({ login });
 
-    let authTicket;
+    let authTicket: string;
     if (verification.find((method) => method.type === 'duo_push')) {
         ({ authTicket } = await performDuoPushVerification({ login }));
     } else if (verification.find((method) => method.type === 'dashlane_authenticator')) {
