@@ -1,7 +1,13 @@
 import inquirer from 'inquirer';
+import inquirerSearchList from 'inquirer-search-list';
+import { PrintableVaultCredential, PrintableVaultNote, VaultCredential, VaultNote } from '../types';
+import PromptConstructor = inquirer.prompts.PromptConstructor;
+
+export const prompt = inquirer.createPromptModule({ output: process.stderr });
+prompt.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 
 export const askMasterPassword = async (): Promise<string> => {
-    const { masterPassword } = await inquirer.prompt<{ masterPassword: string }>([
+    const { masterPassword } = await prompt<{ masterPassword: string }>([
         {
             type: 'password',
             name: 'masterPassword',
@@ -12,7 +18,7 @@ export const askMasterPassword = async (): Promise<string> => {
 };
 
 export const askReplaceIncorrectMasterPassword = async () => {
-    const { replaceMasterPassword } = await inquirer.prompt<{ replaceMasterPassword: string }>([
+    const { replaceMasterPassword } = await prompt<{ replaceMasterPassword: string }>([
         {
             type: 'list',
             name: 'replaceMasterPassword',
@@ -24,7 +30,7 @@ export const askReplaceIncorrectMasterPassword = async () => {
 };
 
 export const askIgnoreBreakingChanges = async () => {
-    const { ignoreBreakingChanges } = await inquirer.prompt<{ ignoreBreakingChanges: string }>([
+    const { ignoreBreakingChanges } = await prompt<{ ignoreBreakingChanges: string }>([
         {
             type: 'list',
             name: 'ignoreBreakingChanges',
@@ -37,7 +43,7 @@ export const askIgnoreBreakingChanges = async () => {
 };
 
 export const askEmailAddress = async (): Promise<string> => {
-    const { login } = await inquirer.prompt<{ login: string }>([
+    const { login } = await prompt<{ login: string }>([
         {
             type: 'input',
             name: 'login',
@@ -57,4 +63,66 @@ export const askConfirmReset = async () => {
         },
     ]);
     return confirmReset === 'Yes';
+};
+
+export const askCredentialChoice = async (params: { matchedCredentials: VaultCredential[]; hasFilters: boolean }) => {
+    const message = params.hasFilters
+        ? 'There are multiple results for your query, pick one:'
+        : 'What password would you like to get?';
+
+    const response = await prompt<{ printableCredential: PrintableVaultCredential }>([
+        {
+            type: 'search-list',
+            name: 'printableCredential',
+            message,
+            choices: params.matchedCredentials.map((item) => {
+                const printableItem = new PrintableVaultCredential(item);
+                return { name: printableItem.toString(), value: printableItem };
+            }),
+        },
+    ]);
+
+    return response.printableCredential.vaultCredential;
+};
+
+export const askSecureNoteChoice = async (params: { matchedNotes: VaultNote[]; hasFilters: boolean }) => {
+    const message = params.hasFilters
+        ? 'There are multiple results for your query, pick one:'
+        : 'What note would you like to get?';
+
+    const response = await prompt<{ printableNote: PrintableVaultNote }>([
+        {
+            type: 'search-list',
+            name: 'printableNote',
+            message,
+            choices: params.matchedNotes.map((item) => {
+                const printableItem = new PrintableVaultNote(item);
+                return { name: printableItem.toString(), value: printableItem };
+            }),
+        },
+    ]);
+
+    return response.printableNote.vaultNote;
+};
+
+export const askOtp = async () => {
+    const { otp } = await prompt<{ otp: number }>([
+        {
+            type: 'number',
+            name: 'otp',
+            message: 'Please enter your OTP code:',
+        },
+    ]);
+    return otp;
+};
+
+export const askToken = async () => {
+    const { token } = await prompt<{ token: number }>([
+        {
+            type: 'number',
+            name: 'token',
+            message: 'Please enter the code you received by email:',
+        },
+    ]);
+    return token;
 };

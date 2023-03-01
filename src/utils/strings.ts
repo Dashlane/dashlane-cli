@@ -7,7 +7,6 @@ export const parseBooleanString = (booleanString: string): boolean => {
         return true;
     } else if (booleanString === 'false') {
         return false;
-    } else {
-        throw new Error("The provided boolean variable should be either 'true' or 'false'");
     }
+    throw new Error("The provided boolean variable should be either 'true' or 'false'");
 };
