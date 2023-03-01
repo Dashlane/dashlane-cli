@@ -105,15 +105,9 @@ Don't include work that is not open source or not from you.
 
 **Warranty note**: Dashlane CLI project is provided “as is,” without warranty of any kind, either express or implied. Neither Dashlane, Inc. nor its affiliates, employees or contractors warrant that Dashlane CLI will meet your requirements, operate as required without error or provide future updates. Dashlane, Inc. does not provide customer support on this project. The community is invited to submit bugs and improvements in the issues and pull requests sections of this repository.
 
-## Authors
-
-| [![twitter/mikescops](https://avatars.githubusercontent.com/u/4266283?s=100&v=4)](http://twitter.com/mikescops 'Follow @mikescops on Twitter') | [![twitter/plhery](https://avatars.githubusercontent.com/u/4018426?s=100&v=4)](http://twitter.com/plhery 'Follow @plhery on Twitter') | ![](https://avatars.githubusercontent.com/u/52931370?v=4&s=100) |
-| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| [Corentin Mors](https://pixelswap.fr/)                                                                                                         | [Paul-Louis HERY](http://twitter.com/plhery)                                                                                          | [Jérôme Boillot](https://jerome-boillot.com/)                   |
-
 ## Troubleshooting
 
-### mismatching signatures
+### Mismatching signatures
 
 If you are using the CLI in multiple environments, and particularly in an IDE like WebStorm, they may use different
 OS keychain environments so the local keys may not match: the reason why signatures are invalid.
@@ -124,3 +118,20 @@ To detect this problem you can, on Linux, install secret-tool: `sudo apt install
 If they don't, you can fix the error by manually editing what is stored in the OS keychain using this command:
 `secret-tool store --label "dashlane-cli@<dashlaneId>" service dashlane-cli account <dashlaneId>` in the
 failing environment with the secret from the healthy environment.
+
+### Password selection does not work on WSL2
+
+Our clipboard dependency fails to detect WSL2 (Windows Subsystem for Linux 2) in some scenarios. We recommend downloading clipboard_x86_64.exe and placing it in "C:\snapshot\dashlane-cli\node_modules\clipboardy\fallbacks\windows\clipboard_x86_64.exe".
+
+See the issue [#45](https://github.com/Dashlane/dashlane-cli/issues/45).
+
+### RequestError: unable to verify the first certificate
+
+In NodeJS the list of certificate authorities is hardcoded, read more here: [nodejs/node#4175](https://github.com/nodejs/node/issues/4175).
+You can use an environment variable to add custom certs ([see documentation](https://nodejs.org/docs/latest-v16.x/api/cli.html#node_extra_ca_certsfile)):
+
+```sh
+NODE_EXTRA_CA_CERTS=/<...>/.ssl/extra_certs.pem
+```
+
+See the issue [#46](https://github.com/Dashlane/dashlane-cli/issues/46).
