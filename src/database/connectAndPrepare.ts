@@ -12,7 +12,7 @@ import {
 import { getSecrets } from '../crypto';
 import { reset } from '../middleware/reset';
 import { sync } from '../middleware/sync';
-import { Secrets } from '../types';
+import { DeviceConfiguration, Secrets } from '../types';
 import { askIgnoreBreakingChanges } from '../utils/dialogs';
 
 export interface ConnectAndPrepareParams {
@@ -30,6 +30,7 @@ export const connectAndPrepare = async (
 ): Promise<{
     db: Database.Database;
     secrets: Secrets;
+    deviceConfiguration: DeviceConfiguration | null;
 }> => {
     const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB } = params;
     const db = connect();
@@ -71,7 +72,7 @@ export const connectAndPrepare = async (
             .run();
     }
 
-    if ((autoSync === undefined && deviceConfiguration?.autoSync !== 0) || autoSync) {
+    if (deviceConfiguration && ((autoSync === undefined && deviceConfiguration?.autoSync !== 0) || autoSync)) {
         const lastClientSyncTimestamp =
             (
                 db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
@@ -81,12 +82,13 @@ export const connectAndPrepare = async (
 
         // If there were no updates during last hour, synchronize the vault
         if (Date.now() / 1000 - lastClientSyncTimestamp > 3600) {
-            await sync({ db, secrets });
+            await sync({ db, secrets, deviceConfiguration });
         }
     }
 
     return {
         db,
         secrets,
+        deviceConfiguration,
     };
 };

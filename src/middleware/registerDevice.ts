@@ -1,6 +1,6 @@
 import winston from 'winston';
 import {
-    CompleteDeviceRegistrationOutput,
+    CompleteDeviceRegistrationWithAuthTicketOutput,
     completeDeviceRegistration,
     performDashlaneAuthenticatorVerification,
     performDuoPushVerification,
@@ -15,7 +15,9 @@ interface RegisterDevice {
     login: string;
 }
 
-export const registerDevice = async (params: RegisterDevice): Promise<CompleteDeviceRegistrationOutput> => {
+export const registerDevice = async (
+    params: RegisterDevice
+): Promise<CompleteDeviceRegistrationWithAuthTicketOutput> => {
     const { login } = params;
     winston.debug('Registering the device...');
 

@@ -4,13 +4,14 @@ import { decrypt } from '../crypto/decrypt';
 import { encryptAES } from '../crypto/encrypt';
 import { replaceMasterPassword } from '../crypto/keychainManager';
 import { getLatestContent } from '../endpoints';
-import type { Secrets } from '../types';
+import type { DeviceConfiguration, Secrets } from '../types';
 import { notEmpty } from '../utils';
 import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
 
 interface Sync {
     db: Database.Database;
     secrets: Secrets;
+    deviceConfiguration: DeviceConfiguration | null;
 }
 
 export const sync = async (params: Sync) => {
@@ -59,7 +60,7 @@ export const sync = async (params: Sync) => {
                             if (!(await askReplaceIncorrectMasterPassword())) {
                                 throw new Error('The master password is incorrect.');
                             }
-                            secrets = await replaceMasterPassword(db, secrets);
+                            secrets = await replaceMasterPassword(db, secrets, params.deviceConfiguration);
                             masterPasswordValid = false;
                         }
                         return null;
