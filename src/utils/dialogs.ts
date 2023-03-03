@@ -7,18 +7,21 @@ export const prompt = inquirer.createPromptModule({ output: process.stderr });
 prompt.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 
 export const askMasterPassword = async (): Promise<string> => {
-    const { masterPassword } = await prompt<{ masterPassword: string }>([
+    const response = await prompt<{ masterPassword: string }>([
         {
             type: 'password',
             name: 'masterPassword',
             message: 'Please enter your master password:',
+            validate(input: string) {
+                return input.length ? true : 'Master password cannot be empty';
+            },
         },
     ]);
-    return masterPassword;
+    return response.masterPassword;
 };
 
 export const askReplaceIncorrectMasterPassword = async () => {
-    const { replaceMasterPassword } = await prompt<{ replaceMasterPassword: string }>([
+    const response = await prompt<{ replaceMasterPassword: string }>([
         {
             type: 'list',
             name: 'replaceMasterPassword',
@@ -26,11 +29,11 @@ export const askReplaceIncorrectMasterPassword = async () => {
             choices: ['Yes', 'No'],
         },
     ]);
-    return replaceMasterPassword === 'Yes';
+    return response.replaceMasterPassword === 'Yes';
 };
 
 export const askIgnoreBreakingChanges = async () => {
-    const { ignoreBreakingChanges } = await prompt<{ ignoreBreakingChanges: string }>([
+    const response = await prompt<{ ignoreBreakingChanges: string }>([
         {
             type: 'list',
             name: 'ignoreBreakingChanges',
@@ -39,22 +42,25 @@ export const askIgnoreBreakingChanges = async () => {
             choices: ['Reset your local storage', 'Ignore the warning'],
         },
     ]);
-    return ignoreBreakingChanges === 'Ignore the warning';
+    return response.ignoreBreakingChanges === 'Ignore the warning';
 };
 
 export const askEmailAddress = async (): Promise<string> => {
-    const { login } = await prompt<{ login: string }>([
+    const response = await prompt<{ login: string }>([
         {
             type: 'input',
             name: 'login',
             message: 'Please enter your email address:',
+            validate(input: string) {
+                return /^([\w-.]+@([\w-]+\.)+[\w-]{2,4})$/.test(input) ? true : 'Not a valid email address';
+            },
         },
     ]);
-    return login;
+    return response.login;
 };
 
 export const askConfirmReset = async () => {
-    const { confirmReset } = await inquirer.prompt<{ confirmReset: string }>([
+    const response = await inquirer.prompt<{ confirmReset: string }>([
         {
             type: 'list',
             name: 'confirmReset',
@@ -62,7 +68,7 @@ export const askConfirmReset = async () => {
             choices: ['Yes', 'No'],
         },
     ]);
-    return confirmReset === 'Yes';
+    return response.confirmReset === 'Yes';
 };
 
 export const askCredentialChoice = async (params: { matchedCredentials: VaultCredential[]; hasFilters: boolean }) => {
@@ -106,23 +112,29 @@ export const askSecureNoteChoice = async (params: { matchedNotes: VaultNote[]; h
 };
 
 export const askOtp = async () => {
-    const { otp } = await prompt<{ otp: number }>([
+    const response = await prompt<{ otp: string }>([
         {
-            type: 'number',
+            type: 'input',
             name: 'otp',
             message: 'Please enter your OTP code:',
+            validate(input: string) {
+                return /^(\d{4,16})$/.test(input) ? true : 'Not a valid OTP';
+            },
         },
     ]);
-    return otp;
+    return response.otp;
 };
 
 export const askToken = async () => {
-    const { token } = await prompt<{ token: number }>([
+    const response = await prompt<{ token: string }>([
         {
-            type: 'number',
+            type: 'input',
             name: 'token',
             message: 'Please enter the code you received by email:',
+            validate(input: string) {
+                return /^(\d{6})$/.test(input) ? true : 'Not a valid email token';
+            },
         },
     ]);
-    return token;
+    return response.token;
 };
