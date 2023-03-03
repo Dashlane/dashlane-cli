@@ -29,10 +29,9 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
         ({ authTicket } = await performDashlaneAuthenticatorVerification({ login }));
     } else if (verifications.find((method) => method.type === 'totp')) {
         const otp = await askOtp();
-
         ({ authTicket } = await performTotpVerification({
             login,
-            otp: String(otp).padStart(5, '0'),
+            otp,
         }));
     } else if (verifications.find((method) => method.type === 'email_token')) {
         await requestEmailTokenVerification({ login });
@@ -40,7 +39,7 @@ export const registerDevice = async (params: RegisterDevice): Promise<CompleteDe
         const token = await askToken();
         ({ authTicket } = await performEmailTokenVerification({
             login,
-            token: String(token).padStart(5, '0'),
+            token,
         }));
     } else {
         throw new Error('Auth verification method not supported: ' + verifications[0].type);
