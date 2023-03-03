@@ -37,8 +37,8 @@ program
     .alias('s')
     .description('Manually synchronize the local vault with Dashlane')
     .action(async () => {
-        const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        await sync({ db, secrets });
+        const { db, secrets, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
+        await sync({ db, secrets, deviceConfiguration });
         console.log('Successfully synced');
         db.close();
     });

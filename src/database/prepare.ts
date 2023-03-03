@@ -34,7 +34,9 @@ export const prepareDB = (params: PrepareDB): DeviceConfiguration | null => {
             masterPasswordEncrypted VARCHAR(255),
             shouldNotSaveMasterPassword BIT NOT NULL,
             localKeyEncrypted VARCHAR(255) NOT NULL,
-            autoSync BIT NOT NULL
+            autoSync BIT NOT NULL,
+            authenticationMode VARCHAR(255),
+            serverKeyEncrypted VARCHAR(255)
         );`
     ).run();
 

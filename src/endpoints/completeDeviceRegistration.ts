@@ -6,46 +6,60 @@ interface CompleteDeviceRegistration {
     authTicket: string;
 }
 
-export interface CompleteDeviceRegistrationOutput {
+export interface CompleteDeviceRegistrationWithAuthTicketOutput {
     /**
-     * The registered device access key. Must be stored unencrypted as it is required to log in
+     * The generated device access key
      */
     deviceAccessKey: string;
     /**
-     * The registered device secret key. Must be stored securely and never transmitted over the network
+     * The device secret key
      */
     deviceSecretKey: string;
-    /**
-     * The Master Password encryption key in base 64
-     */
-    mpEncryptionKey?: string;
-    /**
-     * The signed external authentication token for externalToken authentication in base 64
-     */
-    signedExternalAuthenticationToken?: {
-        /**
-         * External token provided by the partner
-         */
-        token: string;
-        /**
-         * Base 64 encoded signature
-         */
-        signature: string;
-        [k: string]: any;
+    settings: {
+        /** Version of the transaction (for treatproblems) */
+        backupDate: number;
+        /** Identifiers (GUID or special identifiers XXXXXXXX_userId for unique objects) */
+        identifier: string;
+        /** User local timestamp of the latest modification of this item */
+        time: number;
+        /** Base 64 encoded content of the object */
+        content: string;
+        type: 'SETTINGS';
+        /** Whether this transaction is to EDIT(/ADD) an object or REMOVE it */
+        action: 'BACKUP_EDIT';
     };
     /**
-     * Remote keys
+     * When provided, this will set or update the sharing keys
+     * @example {"privateKey":"","publicKey":""}
      */
+    sharingKeys?: {
+        privateKey: string;
+        publicKey: string;
+    };
+    /** Remote keys */
     remoteKeys?: {
         uuid: string;
         key: string;
         type: 'sso' | 'master_password';
     }[];
-    [k: string]: any;
+    /** Number of non temporary devices */
+    numberOfDevices: number;
+    /** Is a desktop device already registered. */
+    hasDesktopDevices: boolean;
+    /** User public identifier */
+    publicUserId: string;
+    /** Unique identifier for user used to log data analytics */
+    userAnalyticsId: string;
+    /** Unique identifier for device used to log data analytics */
+    deviceAnalyticsId: string;
+    /** SSO server key, if the user is an SSO User */
+    ssoServerKey?: string;
+    /** Server key used to decipher local data, if the user has OTP for login */
+    serverKey?: string;
 }
 
 export const completeDeviceRegistration = (params: CompleteDeviceRegistration) =>
-    requestApi<CompleteDeviceRegistrationOutput>({
+    requestApi<CompleteDeviceRegistrationWithAuthTicketOutput>({
         path: 'authentication/CompleteDeviceRegistrationWithAuthTicket',
         login: params.login,
         payload: {

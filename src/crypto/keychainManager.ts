@@ -8,8 +8,10 @@ import { sha512 } from './hash';
 import { EncryptedData } from './types';
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 import { registerDevice } from '../middleware/registerDevice';
-import { DeviceConfiguration, DeviceKeys, Secrets } from '../types';
+import { DeviceConfiguration, Secrets } from '../types';
 import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
+import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated';
+import { perform2FAVerification } from '../middleware/perform2FAVerification';
 
 const SERVICE = 'dashlane-cli';
 
@@ -90,9 +92,20 @@ const getSecretsWithoutDB = async (
         );
     }
 
-    const { deviceAccessKey, deviceSecretKey } = await registerDevice({ login });
+    // Register the user's device
+    const { deviceAccessKey, deviceSecretKey, serverKey } = await registerDevice({ login });
 
-    const masterPassword = await askMasterPassword();
+    // Get the authentication type (mainly to identify if the user is with OTP2)
+    const { type } = await get2FAStatusUnauthenticated({ login });
+
+    let masterPassword = await askMasterPassword();
+
+    // In case of OTP2
+    let serverKeyEncrypted = null;
+    if (type === 'totp_login' && serverKey) {
+        serverKeyEncrypted = encryptAES(localKey, Buffer.from(serverKey));
+        masterPassword = serverKey + masterPassword;
+    }
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         masterPassword,
@@ -103,7 +116,7 @@ const getSecretsWithoutDB = async (
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
             cliVersionToString(CLI_VERSION),
@@ -112,7 +125,9 @@ const getSecretsWithoutDB = async (
             shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,
             shouldNotSaveMasterPassword ? 1 : 0,
             localKeyEncrypted,
-            1
+            1,
+            type,
+            serverKeyEncrypted
         )
         .run();
 
@@ -126,35 +141,59 @@ const getSecretsWithoutDB = async (
     };
 };
 
-const getSecretsWithoutKeychain = async (login: string, deviceKeys: DeviceKeys): Promise<Secrets> => {
-    const masterPassword = await askMasterPassword();
+const getSecretsWithoutKeychain = async (login: string, deviceConfiguration: DeviceConfiguration): Promise<Secrets> => {
+    let serverKey;
+    let masterPassword = '';
+    if (deviceConfiguration.authenticationMode === 'totp_login') {
+        serverKey = await perform2FAVerification({ login, deviceAccessKey: deviceConfiguration.accessKey });
+        masterPassword = serverKey ?? '';
+    }
+
+    masterPassword += await askMasterPassword();
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         masterPassword,
         getDerivationParametersForLocalKey(login)
     );
 
-    const localKey = await decrypt(deviceKeys.localKeyEncrypted, { type: 'alreadyComputed', symmetricKey: derivate });
+    const localKey = await decrypt(deviceConfiguration.localKeyEncrypted, {
+        type: 'alreadyComputed',
+        symmetricKey: derivate,
+    });
     const secretKey = (
-        await decrypt(deviceKeys.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
+        await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
 
-    await setLocalKey(login, deviceKeys.shouldNotSaveMasterPassword, localKey);
+    await setLocalKey(login, deviceConfiguration.shouldNotSaveMasterPassword, localKey);
 
     return {
         login,
         masterPassword,
-        shouldNotSaveMasterPassword: deviceKeys.shouldNotSaveMasterPassword,
+        shouldNotSaveMasterPassword: deviceConfiguration.shouldNotSaveMasterPassword,
         localKey,
-        accessKey: deviceKeys.accessKey,
+        accessKey: deviceConfiguration.accessKey,
         secretKey,
     };
 };
 
-export const replaceMasterPassword = async (db: Database, secrets: Secrets): Promise<Secrets> => {
+export const replaceMasterPassword = async (
+    db: Database,
+    secrets: Secrets,
+    deviceConfiguration: DeviceConfiguration | null
+): Promise<Secrets> => {
     const { localKey, login, accessKey, secretKey, shouldNotSaveMasterPassword } = secrets;
 
-    const newMasterPassword = await askMasterPassword();
+    let newMasterPassword = '';
+    let serverKey;
+    let serverKeyEncrypted = null;
+
+    if (deviceConfiguration && deviceConfiguration.authenticationMode === 'totp_login') {
+        serverKey = await perform2FAVerification({ login, deviceAccessKey: deviceConfiguration.accessKey });
+        newMasterPassword = serverKey ?? '';
+        serverKeyEncrypted = encryptAES(secrets.localKey, Buffer.from(serverKey ?? ''));
+    }
+
+    newMasterPassword += await askMasterPassword();
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         newMasterPassword,
@@ -164,8 +203,15 @@ export const replaceMasterPassword = async (db: Database, secrets: Secrets): Pro
     const masterPasswordEncrypted = encryptAES(secrets.localKey, Buffer.from(newMasterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
 
-    db.prepare('UPDATE device SET localKeyEncrypted = ?, masterPasswordEncrypted = ? WHERE login = ?')
-        .bind(localKeyEncrypted, shouldNotSaveMasterPassword ? null : masterPasswordEncrypted, login)
+    db.prepare(
+        'UPDATE device SET localKeyEncrypted = ?, masterPasswordEncrypted = ?, serverKeyEncrypted = ? WHERE login = ?'
+    )
+        .bind(
+            localKeyEncrypted,
+            shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,
+            serverKeyEncrypted,
+            login
+        )
         .run();
 
     return {
@@ -208,6 +254,7 @@ export const getSecrets = async (
     }
 
     // Otherwise, the local key can be used to decrypt the device secret key and the master password in the DB
+    // In case of OTP2, the masterPassword here is already concatenated with the serverKey
     const masterPassword = (
         await decrypt(deviceConfiguration.masterPasswordEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString();
