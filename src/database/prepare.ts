@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import { upgradeDatabase } from './upgrade/upgrade';
 import { DeviceConfiguration } from '../types';
 
 interface PrepareDB {
@@ -34,9 +35,13 @@ export const prepareDB = (params: PrepareDB): DeviceConfiguration | null => {
             masterPasswordEncrypted VARCHAR(255),
             shouldNotSaveMasterPassword BIT NOT NULL,
             localKeyEncrypted VARCHAR(255) NOT NULL,
-            autoSync BIT NOT NULL
+            autoSync BIT NOT NULL,
+            authenticationMode VARCHAR(255),
+            serverKeyEncrypted VARCHAR(255)
         );`
     ).run();
+
+    upgradeDatabase(db);
 
     return db.prepare('SELECT * FROM device LIMIT 1').get() as DeviceConfiguration | null;
 };

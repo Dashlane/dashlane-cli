@@ -1,3 +1,5 @@
+import { TwoFactorAuthenticationType } from './types/two-factor-authentication';
+
 export interface Secrets {
     login: string;
     masterPassword: string;
@@ -13,12 +15,14 @@ export interface DeviceKeys {
     masterPasswordEncrypted: string | null;
     shouldNotSaveMasterPassword: boolean;
     localKeyEncrypted: string;
+    serverKeyEncrypted: string | null;
 }
 
 export interface DeviceConfiguration extends DeviceKeys {
     login: string;
     version: string;
     autoSync: 0 | 1;
+    authenticationMode: TwoFactorAuthenticationType | null;
 }
 
 export interface CliVersion {
