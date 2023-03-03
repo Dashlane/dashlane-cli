@@ -44,17 +44,6 @@ program
     });
 
 program
-    .command('teammembers')
-    .alias('t')
-    .description('List team members')
-    .argument('[page]', 'Page number', '0')
-    .action(async (page: string) => {
-        const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        await getTeamMembers({ secrets, page: parseInt(page) });
-        db.close();
-    });
-
-program
     .command('password')
     .alias('p')
     .description('Retrieve a password from the local vault and copy it to the clipboard')
@@ -126,6 +115,19 @@ program
             secrets,
             db,
         });
+        db.close();
+    });
+
+const teamGroup = program.command('team').alias('t').description('Team related commands');
+
+teamGroup
+    .command('members')
+    .alias('m')
+    .description('List team members')
+    .argument('[page]', 'Page number', '0')
+    .action(async (page: string) => {
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
+        await getTeamMembers({ secrets, page: parseInt(page) });
         db.close();
     });
 
