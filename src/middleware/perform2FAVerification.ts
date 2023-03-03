@@ -26,7 +26,7 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
         const otp = await askOtp();
         ({ authTicket } = await performTotpVerification({
             login,
-            otp: String(otp).padStart(5, '0'), // Buggy if OTP starts with 0
+            otp,
         }));
 
         const { ssoServerKey, serverKey } = await completeLoginWithAuthTicket({
