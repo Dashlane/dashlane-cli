@@ -9,9 +9,7 @@
     },
     "pkg": {
         "assets": [
-            "node_modules/argon2/napi-v3/argon2.node",
-            "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
-            "node_modules/keytar/build/Release/keytar.node"
+            "node_modules/better-sqlite3/build/Release/better_sqlite3.node"
         ]
     },
     "scripts": {
@@ -20,11 +18,11 @@
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
         "start": "node dist",
-        "pkg:linux": "./prepare-pkg.sh glibc && pkg . -t node16-linux-x64 -o bundle/dcli-linux",
-        "pkg:macos": "./prepare-pkg.sh unknown && pkg . -t node16-macos-x64 -o bundle/dcli-macos",
-        "pkg:macos-arm": "./prepare-pkg.sh unknown && pkg . -t node16-macos-arm64 -o bundle/dcli-macos-arm",
-        "pkg:win": "./prepare-pkg.sh unknown && pkg . -t node16-win-x64 -o bundle/dcli-win.exe",
-        "pkg": "npm run build && npm run pkg:linux && npm run pkg:macos && npm run pkg:win",
+        "pkg:linux": "pkg . -t node16-linux-x64 -o bundle/dcli-linux",
+        "pkg:macos": "pkg . -t node16-macos-x64 -o bundle/dcli-macos",
+        "pkg:macos-arm": "pkg . -t node16-macos-arm64 -o bundle/dcli-macos-arm",
+        "pkg:win": "pkg . -t node16-win-x64 -o bundle/dcli-win.exe",
+        "pkg": "yarn run build && yarn run pkg:linux && yarn run pkg:macos && yarn run pkg:win",
         "prepare": "husky install",
         "test": "mocha"
     },
@@ -66,14 +64,14 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
-        "argon2": "^0.30.3",
+        "@napi-rs/keyring": "^0.0.1",
+        "@node-rs/argon2": "^1.4.0",
         "better-sqlite3": "^8.1.0",
         "clipboardy": "^2.3.0",
         "commander": "^10.0.0",
         "got": "^11.8.5",
         "inquirer": "^8.2.0",
         "inquirer-search-list": "^1.2.6",
-        "keytar": "^7.9.0",
         "otplib": "^12.0.1",
         "winston": "^3.8.2",
         "xml-js": "^1.6.11",
@@ -81,6 +79,7 @@
     },
     "engines": {
         "node": ">=16",
-        "npm": ">=8"
-    }
+        "yarn": ">=3.4.0"
+    },
+    "packageManager": "yarn@3.4.1"
 }

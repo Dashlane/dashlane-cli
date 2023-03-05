@@ -62,7 +62,7 @@ export const connectAndPrepare = async (
         }
         if (breakingChanges) {
             if (!(await askIgnoreBreakingChanges())) {
-                await reset({ db, secrets });
+                reset({ db, secrets });
                 db.close();
                 return connectAndPrepare(params);
             }

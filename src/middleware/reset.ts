@@ -8,7 +8,7 @@ interface ResetDB {
     secrets?: Secrets;
 }
 
-export const reset = async (params: ResetDB) => {
+export const reset = (params: ResetDB) => {
     const { db, secrets } = params;
 
     db.prepare('DROP TABLE IF EXISTS syncUpdates').run();
@@ -19,7 +19,7 @@ export const reset = async (params: ResetDB) => {
 
     if (secrets) {
         try {
-            await deleteLocalKey(secrets.login);
+            deleteLocalKey(secrets.login);
         } catch (error) {
             // Errors are ignored because the OS keychain may be unreachable
             let errorMessage = 'unknown error';
