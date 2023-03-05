@@ -16,14 +16,14 @@ interface ConfigureDisableAutoSync {
     disableAutoSync: boolean;
 }
 
-export const configureSaveMasterPassword = async (params: ConfigureSaveMasterPassword) => {
+export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword) => {
     const { db, secrets, shouldNotSaveMasterPassword } = params;
 
     if (shouldNotSaveMasterPassword) {
         // Forget the local key stored in the OS keychain because the master password and the DB are enough to retrieve the
         // local key
         try {
-            await deleteLocalKey(secrets.login);
+            deleteLocalKey(secrets.login);
         } catch (error) {
             // Errors are ignored because the OS keychain may be unreachable
             let errorMessage = 'unknown error';
@@ -42,7 +42,7 @@ export const configureSaveMasterPassword = async (params: ConfigureSaveMasterPas
         masterPasswordEncrypted = encryptAES(secrets.localKey, Buffer.from(secrets.masterPassword));
 
         // Set local key in the OS keychain
-        await setLocalKey(secrets.login, shouldNotSaveMasterPassword, secrets.localKey);
+        setLocalKey(secrets.login, shouldNotSaveMasterPassword, secrets.localKey);
     }
 
     db.prepare('UPDATE device SET masterPasswordEncrypted = ?, shouldNotSaveMasterPassword = ? WHERE login = ?')

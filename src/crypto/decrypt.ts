@@ -1,4 +1,4 @@
-import * as argon2 from 'argon2';
+import * as argon2 from '@node-rs/argon2';
 import winston from 'winston';
 import * as xmlJs from 'xml-js';
 import * as crypto from 'crypto';
@@ -72,16 +72,14 @@ export const getDerivateUsingParametersFromEncryptedData = async (
 ): Promise<Buffer> => {
     switch (cipheringMethod.keyDerivation.algo) {
         case 'argon2d':
-            return argon2.hash(masterPassword, {
-                type: argon2.argon2d,
-                saltLength: cipheringMethod.keyDerivation.saltLength,
+            return argon2.hashRaw(masterPassword, {
+                algorithm: 0,
                 timeCost: cipheringMethod.keyDerivation.tCost,
                 memoryCost: cipheringMethod.keyDerivation.mCost,
                 parallelism: cipheringMethod.keyDerivation.parallelism,
                 salt: cipheringMethod.cipherData.salt,
-                version: 19,
-                hashLength: 32,
-                raw: true,
+                version: 1, // v19
+                outputLen: 32,
             });
         case 'pbkdf2':
             return pbkdf2Async(

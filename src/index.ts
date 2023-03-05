@@ -152,7 +152,7 @@ configureGroup
             autoSync: false,
             shouldNotSaveMasterPasswordIfNoDeviceKeys: shouldNotSaveMasterPassword,
         });
-        await configureSaveMasterPassword({ db, secrets, shouldNotSaveMasterPassword });
+        configureSaveMasterPassword({ db, secrets, shouldNotSaveMasterPassword });
         db.close();
     });
 
@@ -176,7 +176,7 @@ program
                 db = connect();
                 db.serialize();
             }
-            await reset({ db, secrets });
+            reset({ db, secrets });
             console.log('The local Dashlane local storage has been reset');
             db.close();
         }

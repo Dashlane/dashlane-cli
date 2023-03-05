@@ -16,25 +16,25 @@ brew install --build-from-source dashlane-cli.rb
 Install the dependencies:
 
 ```sh
-npm ci
+yarn
 ```
 
 In order to build:
 
 ```sh
-npm run build
+yarn run build
 ```
 
 In order to link:
 
 ```sh
-npm link
+yarn link
 ```
 
 In order to bundle for Linux-x64, macOS-x64 and Windows-x64:
 
 ```sh
-npm run pkg
+yarn run pkg
 ```
 
 It outputs in `bundle` directory. Be aware you must use the same Node version as the target.

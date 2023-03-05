@@ -1,0 +1,23 @@
+name: Test to bundle release artifacts
+
+on: [workflow_dispatch]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Use Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 16.x
+            - run: yarn
+            - run: yarn run pkg
+            - name: Archive production artifacts
+              uses: actions/upload-artifact@v3
+              with:
+                  name: bundles
+                  path: |
+                      bundle/dcli-linux
+                      bundle/dcli-macos
+                      bundle/dcli-win.exe

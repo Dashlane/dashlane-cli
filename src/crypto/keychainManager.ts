@@ -1,5 +1,5 @@
 import { Database } from 'better-sqlite3';
-import keytar from 'keytar';
+import { Entry } from '@napi-rs/keyring';
 import winston from 'winston';
 import crypto from 'crypto';
 import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
@@ -15,11 +15,7 @@ import { perform2FAVerification } from '../middleware/perform2FAVerification';
 
 const SERVICE = 'dashlane-cli';
 
-export const setLocalKey = async (
-    login: string,
-    shouldNotSaveMasterPassword: boolean,
-    localKey?: Buffer
-): Promise<Buffer> => {
+export const setLocalKey = (login: string, shouldNotSaveMasterPassword: boolean, localKey?: Buffer): Buffer => {
     if (!localKey) {
         localKey = crypto.randomBytes(32);
         if (!localKey) {
@@ -28,13 +24,15 @@ export const setLocalKey = async (
     }
 
     if (!shouldNotSaveMasterPassword) {
-        await keytar.setPassword(SERVICE, login, localKey.toString('base64'));
+        const entry = new Entry(SERVICE, login);
+        entry.setPassword(localKey.toString('base64'));
     }
     return localKey;
 };
 
-const getLocalKey = async (login: string): Promise<Buffer | undefined> => {
-    const localKeyEncoded = await keytar.getPassword(SERVICE, login);
+const getLocalKey = (login: string): Buffer | undefined => {
+    const entry = new Entry(SERVICE, login);
+    const localKeyEncoded = entry.getPassword();
 
     if (localKeyEncoded) {
         return Buffer.from(localKeyEncoded, 'base64');
@@ -43,8 +41,9 @@ const getLocalKey = async (login: string): Promise<Buffer | undefined> => {
     }
 };
 
-export const deleteLocalKey = (login: string): Promise<boolean> => {
-    return keytar.deletePassword(SERVICE, login);
+export const deleteLocalKey = (login: string) => {
+    const entry = new Entry(SERVICE, login);
+    entry.deletePassword();
 };
 
 /**
@@ -80,7 +79,7 @@ const getSecretsWithoutDB = async (
 ): Promise<Secrets> => {
     let localKey: Buffer;
     try {
-        localKey = await setLocalKey(login, shouldNotSaveMasterPassword);
+        localKey = setLocalKey(login, shouldNotSaveMasterPassword);
     } catch (error) {
         let errorMessage = 'unknown error';
         if (error instanceof Error) {
@@ -164,7 +163,7 @@ const getSecretsWithoutKeychain = async (login: string, deviceConfiguration: Dev
         await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
 
-    await setLocalKey(login, deviceConfiguration.shouldNotSaveMasterPassword, localKey);
+    setLocalKey(login, deviceConfiguration.shouldNotSaveMasterPassword, localKey);
 
     return {
         login,
@@ -248,7 +247,7 @@ export const getSecrets = async (
     if (
         deviceConfiguration.shouldNotSaveMasterPassword ||
         !deviceConfiguration.masterPasswordEncrypted ||
-        !(localKey = await getLocalKey(login))
+        !(localKey = getLocalKey(login))
     ) {
         return getSecretsWithoutKeychain(login, deviceConfiguration);
     }
