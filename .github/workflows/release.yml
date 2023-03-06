@@ -28,7 +28,11 @@ jobs:
 
             - run: yarn
             - run: yarn run build
-            - run: yarn dlx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }}
+            # remove dev dependencies before packaging
+            - run: yarn workspaces focus --all --production
+            # package final binaries
+            - run: |
+                  yarn dlx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
 
             - name: Archive binary artifact
               uses: actions/upload-artifact@v3
