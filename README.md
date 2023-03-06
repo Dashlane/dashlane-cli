@@ -119,12 +119,6 @@ If they don't, you can fix the error by manually editing what is stored in the O
 `secret-tool store --label "dashlane-cli@<dashlaneId>" service dashlane-cli account <dashlaneId>` in the
 failing environment with the secret from the healthy environment.
 
-### Password selection does not work on WSL2
-
-Our clipboard dependency fails to detect WSL2 (Windows Subsystem for Linux 2) in some scenarios. We recommend downloading clipboard_x86_64.exe and placing it in "C:\snapshot\dashlane-cli\node_modules\clipboardy\fallbacks\windows\clipboard_x86_64.exe".
-
-See the issue [#45](https://github.com/Dashlane/dashlane-cli/issues/45).
-
 ### RequestError: unable to verify the first certificate
 
 In NodeJS the list of certificate authorities is hardcoded, read more here: [nodejs/node#4175](https://github.com/nodejs/node/issues/4175).
