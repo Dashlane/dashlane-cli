@@ -7,19 +7,54 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                settings:
+                    - host: macos-latest
+                      target: macos-x64
+                    - host: windows-latest
+                      target: win-x64
+                      extension: .exe
+                    - host: ubuntu-latest
+                      target: linux-x64
+        runs-on: ${{ matrix.settings.host }}
+        name: dev build - ${{ matrix.settings.target }} - node@16
         steps:
             - uses: actions/checkout@v3
             - name: Use Node.js
               uses: actions/setup-node@v3
               with:
                   node-version: 16.x
+
             - run: yarn
-            - run: yarn run pkg
+            - run: yarn run build
+            - run: yarn dlx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }}
+
+            - name: Archive binary artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: dcli-${{ matrix.settings.target }}
+                  path: bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }}
+                  retention-days: 1
+
+    release:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - uses: actions/checkout@v3
+            - name: Download all artifacts
+              uses: actions/download-artifact@v3
+              with:
+                  path: artifacts
+
+            - name: List artifacts
+              run: ls -R artifacts
+              shell: bash
+
             - name: Release
               uses: softprops/action-gh-release@v0.1.14
               with:
                   files: |
-                      bundle/dcli-linux
-                      bundle/dcli-macos
-                      bundle/dcli-win.exe
+                      artifacts/dcli-linux-x64/dcli-linux-x64
+                      artifacts/dcli-macos-x64/dcli-macos-x64
+                      artifacts/dcli-win-x64/dcli-win-x64.exe
