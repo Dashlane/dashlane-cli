@@ -64,10 +64,10 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
+        "@napi-rs/clipboard": "^1.0.2",
         "@napi-rs/keyring": "^0.0.1",
         "@node-rs/argon2": "^1.4.0",
         "better-sqlite3": "^8.1.0",
-        "clipboardy": "^2.3.0",
         "commander": "^10.0.0",
         "got": "^11.8.5",
         "inquirer": "^8.2.0",

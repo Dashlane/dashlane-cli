@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import * as clipboard from 'clipboardy';
+import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
@@ -103,11 +103,12 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
 };
 
 export const getPassword = async (params: GetCredential): Promise<void> => {
+    const clipboard = new Clipboard();
     const selectedCredential = await selectCredential(params);
 
     switch (params.output || 'clipboard') {
         case 'clipboard':
-            clipboard.writeSync(selectedCredential.password);
+            clipboard.setText(selectedCredential.password);
             console.log(
                 `🔓 Password for "${selectedCredential.title || selectedCredential.url || 'N\\C'}" copied to clipboard!`
             );
@@ -127,6 +128,7 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
 };
 
 export const getOtp = async (params: GetCredential): Promise<void> => {
+    const clipboard = new Clipboard();
     const selectedCredential = await selectCredential(params, true);
 
     // otpSecret can't be null because onlyOtpCredentials is set to true above
@@ -135,6 +137,7 @@ export const getOtp = async (params: GetCredential): Promise<void> => {
     const timeRemaining = authenticator.timeRemaining();
     switch (params.output || 'clipboard') {
         case 'clipboard':
+            clipboard.setText(token);
             console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
             break;
         case 'otp':
