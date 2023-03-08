@@ -91,7 +91,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@dashlane/cli@workspace:."
   dependencies:
-    "@napi-rs/clipboard": ^1.1.0
+    "@napi-rs/clipboard": ^1.1.1
     "@napi-rs/keyring": ^0.0.1
     "@node-rs/argon2": ^1.4.0
     "@types/async": ^3.2.18
@@ -234,90 +234,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-darwin-arm64@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-darwin-arm64@npm:1.1.0"
+"@napi-rs/clipboard-darwin-arm64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-darwin-arm64@npm:1.1.1"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-darwin-x64@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-darwin-x64@npm:1.1.0"
+"@napi-rs/clipboard-darwin-x64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-darwin-x64@npm:1.1.1"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-linux-arm-gnueabihf@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-linux-arm-gnueabihf@npm:1.1.0"
+"@napi-rs/clipboard-linux-arm-gnueabihf@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-linux-arm-gnueabihf@npm:1.1.1"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-linux-arm64-gnu@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-linux-arm64-gnu@npm:1.1.0"
+"@napi-rs/clipboard-linux-arm64-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-linux-arm64-gnu@npm:1.1.1"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-linux-arm64-musl@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-linux-arm64-musl@npm:1.1.0"
+"@napi-rs/clipboard-linux-arm64-musl@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-linux-arm64-musl@npm:1.1.1"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-linux-x64-gnu@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-linux-x64-gnu@npm:1.1.0"
+"@napi-rs/clipboard-linux-x64-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-linux-x64-gnu@npm:1.1.1"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-linux-x64-musl@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-linux-x64-musl@npm:1.1.0"
+"@napi-rs/clipboard-linux-x64-musl@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-linux-x64-musl@npm:1.1.1"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-win32-arm64-msvc@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-win32-arm64-msvc@npm:1.1.0"
+"@napi-rs/clipboard-win32-arm64-msvc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-win32-arm64-msvc@npm:1.1.1"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-win32-ia32-msvc@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-win32-ia32-msvc@npm:1.1.0"
+"@napi-rs/clipboard-win32-ia32-msvc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-win32-ia32-msvc@npm:1.1.1"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard-win32-x64-msvc@npm:1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard-win32-x64-msvc@npm:1.1.0"
+"@napi-rs/clipboard-win32-x64-msvc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard-win32-x64-msvc@npm:1.1.1"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@napi-rs/clipboard@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/clipboard@npm:1.1.0"
+"@napi-rs/clipboard@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/clipboard@npm:1.1.1"
   dependencies:
-    "@napi-rs/clipboard-darwin-arm64": 1.1.0
-    "@napi-rs/clipboard-darwin-x64": 1.1.0
-    "@napi-rs/clipboard-linux-arm-gnueabihf": 1.1.0
-    "@napi-rs/clipboard-linux-arm64-gnu": 1.1.0
-    "@napi-rs/clipboard-linux-arm64-musl": 1.1.0
-    "@napi-rs/clipboard-linux-x64-gnu": 1.1.0
-    "@napi-rs/clipboard-linux-x64-musl": 1.1.0
-    "@napi-rs/clipboard-win32-arm64-msvc": 1.1.0
-    "@napi-rs/clipboard-win32-ia32-msvc": 1.1.0
-    "@napi-rs/clipboard-win32-x64-msvc": 1.1.0
+    "@napi-rs/clipboard-darwin-arm64": 1.1.1
+    "@napi-rs/clipboard-darwin-x64": 1.1.1
+    "@napi-rs/clipboard-linux-arm-gnueabihf": 1.1.1
+    "@napi-rs/clipboard-linux-arm64-gnu": 1.1.1
+    "@napi-rs/clipboard-linux-arm64-musl": 1.1.1
+    "@napi-rs/clipboard-linux-x64-gnu": 1.1.1
+    "@napi-rs/clipboard-linux-x64-musl": 1.1.1
+    "@napi-rs/clipboard-win32-arm64-msvc": 1.1.1
+    "@napi-rs/clipboard-win32-ia32-msvc": 1.1.1
+    "@napi-rs/clipboard-win32-x64-msvc": 1.1.1
   dependenciesMeta:
     "@napi-rs/clipboard-darwin-arm64":
       optional: true
@@ -339,7 +339,7 @@ __metadata:
       optional: true
     "@napi-rs/clipboard-win32-x64-msvc":
       optional: true
-  checksum: 06cfddff0c1d06ad19550d7a53b6a11c7770753e0947b8dad4ec725d2ceeddfa9e682a4406530c9d9bf0740eceab90e1fd6d7972a5a75d8fb113ce8e9a571f97
+  checksum: 942461a37c1f45247528a4eb2c3507d74d6b16dcf9fbc806ebd57f6f06aacd648cb7fea4a267320e4196a304c4870a87d217087f31b2b704931839d7203fc074
   languageName: node
   linkType: hard
 

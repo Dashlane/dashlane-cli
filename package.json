@@ -64,7 +64,7 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
-        "@napi-rs/clipboard": "^1.1.0",
+        "@napi-rs/clipboard": "^1.1.1",
         "@napi-rs/keyring": "^0.0.1",
         "@node-rs/argon2": "^1.4.0",
         "better-sqlite3": "^8.1.0",
