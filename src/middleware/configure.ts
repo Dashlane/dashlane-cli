@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
 import { encryptAES } from '../crypto/encrypt';
-import { deleteLocalKey, setLocalKey } from '../crypto/keychainManager';
+import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../crypto/keychainManager';
 import { Secrets } from '../types';
 
 interface ConfigureSaveMasterPassword {
@@ -17,7 +17,8 @@ interface ConfigureDisableAutoSync {
 }
 
 export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword) => {
-    const { db, secrets, shouldNotSaveMasterPassword } = params;
+    const { db, secrets } = params;
+    let shouldNotSaveMasterPassword = params.shouldNotSaveMasterPassword;
 
     if (shouldNotSaveMasterPassword) {
         // Forget the local key stored in the OS keychain because the master password and the DB are enough to retrieve the
@@ -30,7 +31,7 @@ export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword)
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
-            winston.debug(`Unable to delete the local key from the keychain: ${errorMessage}`);
+            winston.warn(`Unable to delete the local key from the keychain: ${errorMessage}`);
         }
     }
 
@@ -41,8 +42,13 @@ export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword)
         // Set encrypted master password in the DB
         masterPasswordEncrypted = encryptAES(secrets.localKey, Buffer.from(secrets.masterPassword));
 
-        // Set local key in the OS keychain
-        setLocalKey(secrets.login, shouldNotSaveMasterPassword, secrets.localKey);
+        if (!shouldNotSaveMasterPassword) {
+            // Set local key in the OS keychain
+            setLocalKey(secrets.login, secrets.localKey, (errorMessage: string) => {
+                warnUnreachableKeychainDisabled(errorMessage);
+                shouldNotSaveMasterPassword = true;
+            });
+        }
     }
 
     db.prepare('UPDATE device SET masterPasswordEncrypted = ?, shouldNotSaveMasterPassword = ? WHERE login = ?')
