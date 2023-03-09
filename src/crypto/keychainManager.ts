@@ -15,19 +15,25 @@ import { perform2FAVerification } from '../middleware/perform2FAVerification';
 
 const SERVICE = 'dashlane-cli';
 
-export const setLocalKey = (login: string, shouldNotSaveMasterPassword: boolean, localKey?: Buffer): Buffer => {
+export const generateLocalKey = (): Buffer => {
+    const localKey = crypto.randomBytes(32);
     if (!localKey) {
-        localKey = crypto.randomBytes(32);
-        if (!localKey) {
-            throw new Error('Unable to generate AES local key');
-        }
-    }
-
-    if (!shouldNotSaveMasterPassword) {
-        const entry = new Entry(SERVICE, login);
-        entry.setPassword(localKey.toString('base64'));
+        throw new Error('Unable to generate AES local key');
     }
     return localKey;
+};
+
+export const setLocalKey = (login: string, localKey: Buffer, callbackOnError: (errorMessage: string) => void) => {
+    try {
+        const entry = new Entry(SERVICE, login);
+        entry.setPassword(localKey.toString('base64'));
+    } catch (error) {
+        let errorMessage = 'unknown error';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        callbackOnError(errorMessage);
+    }
 };
 
 const getLocalKey = (login: string): Buffer | undefined => {
@@ -77,19 +83,7 @@ const getSecretsWithoutDB = async (
     login: string,
     shouldNotSaveMasterPassword: boolean
 ): Promise<Secrets> => {
-    let localKey: Buffer;
-    try {
-        localKey = setLocalKey(login, shouldNotSaveMasterPassword);
-    } catch (error) {
-        let errorMessage = 'unknown error';
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        winston.debug(`Unable to reach OS keychain: ${errorMessage}`);
-        throw new Error(
-            'Your OS keychain is probably unreachable. Install it or disable its usage via `dcli configure save-master-password false`'
-        );
-    }
+    const localKey = generateLocalKey();
 
     // Register the user's device
     const { deviceAccessKey, deviceSecretKey, serverKey } = await registerDevice({ login });
@@ -114,6 +108,13 @@ const getSecretsWithoutDB = async (
     const deviceSecretKeyEncrypted = encryptAES(localKey, Buffer.from(deviceSecretKey, 'hex'));
     const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
     const localKeyEncrypted = encryptAES(derivate, localKey);
+
+    if (!shouldNotSaveMasterPassword) {
+        setLocalKey(login, localKey, (errorMessage) => {
+            warnUnreachableKeychainDisabled(errorMessage);
+            shouldNotSaveMasterPassword = true;
+        });
+    }
 
     db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
@@ -163,7 +164,12 @@ const getSecretsWithoutKeychain = async (login: string, deviceConfiguration: Dev
         await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
 
-    setLocalKey(login, deviceConfiguration.shouldNotSaveMasterPassword, localKey);
+    if (!deviceConfiguration.shouldNotSaveMasterPassword) {
+        setLocalKey(login, localKey, (errorMessage) => {
+            winston.warn(`Unable to reach OS keychain because of error: "${errorMessage}". \
+Install it or disable its usage via \`dcli configure save-master-password false\`.`);
+        });
+    }
 
     return {
         login,
@@ -269,4 +275,10 @@ export const getSecrets = async (
         accessKey: deviceConfiguration.accessKey,
         secretKey,
     };
+};
+
+export const warnUnreachableKeychainDisabled = (errorMessage: string) => {
+    winston.warn(`Unable to reach OS keychain because of error: "${errorMessage}", so its use has been disabled. \
+To retry using it, please execute \`dcli configure save-master-password true\`. \
+Until then, you will have to retype your master password each time you run the CLI.`);
 };
