@@ -9,7 +9,6 @@ import { Secrets } from './types';
 import { connect } from './database/connect';
 import {
     sync,
-    selectCredentials,
     getOtp,
     getNote,
     getPassword,
@@ -57,7 +56,7 @@ program
         '[filters...]',
         'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
     )
-    .action(async (filters: string[] | null, options: { output: string | null, one: Boolean }) => {
+    .action(async (filters: string[] | null, options: { output: string | null, one: boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getPassword({
             filters,
@@ -79,7 +78,7 @@ program
         '[filters...]',
         'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
     )
-    .action(async (filters: string[] | null, options: { print: boolean, one: Boolean }) => {
+    .action(async (filters: string[] | null, options: { print: boolean, one: boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getOtp({
             filters,
@@ -105,7 +104,7 @@ program
         '[filters...]',
         'Filter notes based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
     )
-    .action(async (filters: string[] | null, options: { output: string | null, one: Boolean }) => {
+    .action(async (filters: string[] | null, options: { output: string | null, one: boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getNote({
             filters,

@@ -1,8 +1,8 @@
-export const filterMatches = async <VaultType>(
+export const filterMatches = <VaultType>(
     values: VaultType[] | undefined,
     filters: string[] | null,
     defaultMatch: string[] = ['url', 'title'],
-): Promise<VaultType[]> => {
+): VaultType[] => {
     if (!values) {
         return [] as VaultType[];
     }

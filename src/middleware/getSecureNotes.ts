@@ -1,15 +1,15 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
+import { filterMatches } from './utils';
 import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
 import { decryptTransaction } from '../crypto';
 import { askSecureNoteChoice } from '../utils';
-import { filterMatches } from './utils';
 
 interface GetSecureNote {
     filters: string[] | null;
     secrets: Secrets;
     output: string | null;
-    one: Boolean;
+    one: boolean;
     db: Database.Database;
 }
 
@@ -51,24 +51,17 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
             ) as unknown as VaultNote
     );
 
-    let matchedNotes = await filterMatches<VaultNote>(beautifiedNotes, filters, ['title']);
+    let matchedNotes = filterMatches<VaultNote>(beautifiedNotes, filters, ['title']);
 
     if (one && matchedNotes?.length !== 1) {
-        throw new Error('Matched ' + (matchedNotes?.length || 0) + ' notes, required exactly one match.');
+        throw new Error(`Matched ${String(matchedNotes?.length || 0)} notes, required exactly one match.`);
     }
 
     switch (output || 'text') {
         case 'json':
-            let outputNotes;
-            if (one && matchedNotes) {
-                outputNotes = matchedNotes[0];
-            } else {
-                outputNotes = matchedNotes;
-            }
-
-            console.log(JSON.stringify(outputNotes, null, 4));
+            console.log(JSON.stringify(one ? matchedNotes[0] : matchedNotes, null, 4));
             break;
-        case 'text':
+        case 'text': {
             let selectedNote: VaultNote | null = null;
 
             if (!matchedNotes || matchedNotes.length === 0) {
@@ -82,6 +75,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
 
             console.log(selectedNote.content);
             break;
+        }
         default:
             throw new Error('Unable to recognize the output mode.');
     }

@@ -2,16 +2,16 @@ import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
+import { filterMatches } from './utils';
 import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
 import { decryptTransaction } from '../crypto';
 import { askCredentialChoice } from '../utils';
-import { filterMatches } from './utils';
 
 interface GetCredential {
     filters: string[] | null;
     secrets: Secrets;
     output: string | null;
-    one: Boolean;
+    one: boolean;
     db: Database.Database;
 }
 
@@ -53,10 +53,10 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
             ) as unknown as VaultCredential
     );
 
-    let matchedCredentials = await filterMatches<VaultCredential>(beautifiedCredentials, filters);
+    const matchedCredentials = filterMatches<VaultCredential>(beautifiedCredentials, filters);
 
     if (one && matchedCredentials?.length !== 1) {
-        throw new Error('Matched ' + (matchedCredentials?.length || 0) + ' credentials, required exactly one match.');
+        throw new Error(`Matched ${String(matchedCredentials?.length || 0)} credentials, required exactly one match.`);
     }
 
     return matchedCredentials;
@@ -83,15 +83,7 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
 
     if (params.output == 'json') {
         const selectedCredentials = await selectCredentials(params);
-
-        let outputCredentials;
-        if (params.one && selectedCredentials) {
-            outputCredentials = selectedCredentials[0];
-        } else {
-            outputCredentials = selectedCredentials;
-        }
-
-        console.log(JSON.stringify(outputCredentials, null, 4));
+        console.log(JSON.stringify(params.one ? selectedCredentials[0] : selectedCredentials, null, 4));
         return;
     }
 
