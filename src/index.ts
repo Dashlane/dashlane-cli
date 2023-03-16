@@ -112,16 +112,18 @@ program
         'How to print the notes among `text, json`. The JSON option outputs all the matching notes',
         'text'
     )
+    .option('-1, --one', 'Returns the matching note only if a single one matches, errors out otherwise')
     .argument(
         '[filters...]',
         'Filter notes based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
     )
-    .action(async (filters: string[] | null, options: { output: string | null }) => {
+    .action(async (filters: string[] | null, options: { output: string | null, one: Boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getNote({
             filters,
             secrets,
             output: options.output,
+            one: options.one,
             db,
         });
         db.close();

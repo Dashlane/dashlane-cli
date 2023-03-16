@@ -8,6 +8,7 @@ interface GetSecureNote {
     filters: string[] | null;
     secrets: Secrets;
     output: string | null;
+    one: Boolean;
     db: Database.Database;
 }
 
@@ -28,7 +29,7 @@ const decryptSecureNotesTransactions = async (
 };
 
 export const getNote = async (params: GetSecureNote): Promise<void> => {
-    const { secrets, filters, db, output } = params;
+    const { secrets, filters, db, output, one } = params;
 
     winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
@@ -82,9 +83,20 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
         );
     }
 
+    if (one && matchedNotes?.length !== 1) {
+        throw new Error('Matched ' + (matchedNotes?.length || 0) + ' notes, required exactly one match.');
+    }
+
     switch (output || 'text') {
         case 'json':
-            console.log(JSON.stringify(matchedNotes, null, 4));
+            let outputNotes;
+            if (one && matchedNotes) {
+                outputNotes = matchedNotes[0];
+            } else {
+                outputNotes = matchedNotes;
+            }
+
+            console.log(JSON.stringify(outputNotes, null, 4));
             break;
         case 'text':
             let selectedNote: VaultNote | null = null;
