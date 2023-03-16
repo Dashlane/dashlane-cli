@@ -99,7 +99,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
         return matchedCredentials[0];
     }
 
-    return askCredentialChoice({ matchedCredentials, hasFilters: Boolean(params.filters) });
+    return askCredentialChoice({ matchedCredentials, hasFilters: Boolean(params.filters?.length) });
 };
 
 export const getPassword = async (params: GetCredential): Promise<void> => {
