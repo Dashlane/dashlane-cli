@@ -5,8 +5,9 @@ import { decryptTransaction } from '../crypto';
 import { askSecureNoteChoice } from '../utils';
 
 interface GetSecureNote {
-    titleFilter: string | null;
+    filters: string[] | null;
     secrets: Secrets;
+    output: string | null;
     db: Database.Database;
 }
 
@@ -27,9 +28,9 @@ const decryptSecureNotesTransactions = async (
 };
 
 export const getNote = async (params: GetSecureNote): Promise<void> => {
-    const { secrets, titleFilter, db } = params;
+    const { secrets, filters, db, output } = params;
 
-    winston.debug(`Retrieving: ${titleFilter || ''}`);
+    winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)
@@ -49,21 +50,57 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
     );
 
     let matchedNotes = beautifiedNotes;
-    if (titleFilter) {
-        const canonicalTitleFilter = titleFilter.toLowerCase();
-        matchedNotes = beautifiedNotes?.filter((item) => item.title.toLowerCase().includes(canonicalTitleFilter));
+
+    if (filters?.length) {
+        interface ItemFilter {
+            keys: string[];
+            value: string;
+        }
+        const parsedFilters: ItemFilter[] = [];
+
+        filters.forEach((filter) => {
+            const [splitFilterKey, ...splitFilterValues] = filter.split('=');
+
+            const filterValue = splitFilterValues.join('=') || splitFilterKey;
+            const filterKeys = splitFilterValues.length > 0 ? splitFilterKey.split(',') : ['title'];
+
+            const canonicalFilterValue = filterValue.toLowerCase();
+
+            parsedFilters.push({
+                keys: filterKeys,
+                value: canonicalFilterValue,
+            });
+        });
+
+        matchedNotes = matchedNotes?.filter((item) =>
+            parsedFilters
+                .map((filter) =>
+                    filter.keys.map((key) => item[key as keyof VaultNote]?.toLowerCase().includes(filter.value))
+                )
+                .flat()
+                .some((b) => b)
+        );
     }
-    matchedNotes = matchedNotes?.sort();
 
-    let selectedNote: VaultNote | null = null;
+    switch (output || 'text') {
+        case 'json':
+            console.log(JSON.stringify(matchedNotes, null, 4));
+            break;
+        case 'text':
+            let selectedNote: VaultNote | null = null;
 
-    if (!matchedNotes || matchedNotes.length === 0) {
-        throw new Error('No note found');
-    } else if (matchedNotes.length === 1) {
-        selectedNote = matchedNotes[0];
-    } else {
-        selectedNote = await askSecureNoteChoice({ matchedNotes, hasFilters: Boolean(titleFilter) });
+            if (!matchedNotes || matchedNotes.length === 0) {
+                throw new Error('No note found');
+            } else if (matchedNotes.length === 1) {
+                selectedNote = matchedNotes[0];
+            } else {
+                matchedNotes = matchedNotes?.sort();
+                selectedNote = await askSecureNoteChoice({ matchedNotes, hasFilters: Boolean(filters?.length) });
+            }
+
+            console.log(selectedNote.content);
+            break;
+        default:
+            throw new Error('Unable to recognize the output mode.');
     }
-
-    console.log(selectedNote.content);
 };

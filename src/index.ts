@@ -107,12 +107,21 @@ program
     .command('note')
     .alias('n')
     .description('Retrieve a secure note from the local vault and open it')
-    .argument('[filter]', 'Filter notes based on their title')
-    .action(async (filter: string | null) => {
+    .option(
+        '-o, --output <type>',
+        'How to print the notes among `text, json`. The JSON option outputs all the matching notes',
+        'text'
+    )
+    .argument(
+        '[filters...]',
+        'Filter notes based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
+    )
+    .action(async (filters: string[] | null, options: { output: string | null }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getNote({
-            titleFilter: filter,
+            filters,
             secrets,
+            output: options.output,
             db,
         });
         db.close();
