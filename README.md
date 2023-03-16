@@ -80,7 +80,7 @@ dcli otp [filters]
 In order to **get a secure note**:
 
 ```sh
-dcli note [titleFilter]
+dcli note [filters]
 ```
 
 ### Options
