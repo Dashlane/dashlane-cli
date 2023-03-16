@@ -5,6 +5,7 @@ import winston from 'winston';
 import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
 import { decryptTransaction } from '../crypto';
 import { askCredentialChoice } from '../utils';
+import { filterMatches } from './utils';
 
 interface GetCredential {
     filters: string[] | null;
@@ -52,37 +53,7 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
             ) as unknown as VaultCredential
     );
 
-    let matchedCredentials = beautifiedCredentials;
-    if (filters?.length) {
-        interface ItemFilter {
-            keys: string[];
-            value: string;
-        }
-        const parsedFilters: ItemFilter[] = [];
-
-        filters.forEach((filter) => {
-            const [splitFilterKey, ...splitFilterValues] = filter.split('=');
-
-            const filterValue = splitFilterValues.join('=') || splitFilterKey;
-            const filterKeys = splitFilterValues.length > 0 ? splitFilterKey.split(',') : ['url', 'title'];
-
-            const canonicalFilterValue = filterValue.toLowerCase();
-
-            parsedFilters.push({
-                keys: filterKeys,
-                value: canonicalFilterValue,
-            });
-        });
-
-        matchedCredentials = matchedCredentials?.filter((item) =>
-            parsedFilters
-                .map((filter) =>
-                    filter.keys.map((key) => item[key as keyof VaultCredential]?.toLowerCase().includes(filter.value))
-                )
-                .flat()
-                .some((b) => b)
-        );
-    }
+    let matchedCredentials = await filterMatches<VaultCredential>(beautifiedCredentials, filters);
 
     if (one && matchedCredentials?.length !== 1) {
         throw new Error('Matched ' + (matchedCredentials?.length || 0) + ' credentials, required exactly one match.');

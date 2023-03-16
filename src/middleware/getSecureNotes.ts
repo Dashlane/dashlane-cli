@@ -3,6 +3,7 @@ import winston from 'winston';
 import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
 import { decryptTransaction } from '../crypto';
 import { askSecureNoteChoice } from '../utils';
+import { filterMatches } from './utils';
 
 interface GetSecureNote {
     filters: string[] | null;
@@ -50,38 +51,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
             ) as unknown as VaultNote
     );
 
-    let matchedNotes = beautifiedNotes;
-
-    if (filters?.length) {
-        interface ItemFilter {
-            keys: string[];
-            value: string;
-        }
-        const parsedFilters: ItemFilter[] = [];
-
-        filters.forEach((filter) => {
-            const [splitFilterKey, ...splitFilterValues] = filter.split('=');
-
-            const filterValue = splitFilterValues.join('=') || splitFilterKey;
-            const filterKeys = splitFilterValues.length > 0 ? splitFilterKey.split(',') : ['title'];
-
-            const canonicalFilterValue = filterValue.toLowerCase();
-
-            parsedFilters.push({
-                keys: filterKeys,
-                value: canonicalFilterValue,
-            });
-        });
-
-        matchedNotes = matchedNotes?.filter((item) =>
-            parsedFilters
-                .map((filter) =>
-                    filter.keys.map((key) => item[key as keyof VaultNote]?.toLowerCase().includes(filter.value))
-                )
-                .flat()
-                .some((b) => b)
-        );
-    }
+    let matchedNotes = await filterMatches<VaultNote>(beautifiedNotes, filters, ['title']);
 
     if (one && matchedNotes?.length !== 1) {
         throw new Error('Matched ' + (matchedNotes?.length || 0) + ' notes, required exactly one match.');
