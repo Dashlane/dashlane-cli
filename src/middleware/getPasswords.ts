@@ -10,6 +10,7 @@ interface GetCredential {
     filters: string[] | null;
     secrets: Secrets;
     output: string | null;
+    one: Boolean;
     db: Database.Database;
 }
 
@@ -30,7 +31,7 @@ const decryptPasswordTransactions = async (
 };
 
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
-    const { secrets, filters, db } = params;
+    const { secrets, filters, db, one } = params;
 
     winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
@@ -83,6 +84,10 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
         );
     }
 
+    if (one && matchedCredentials?.length !== 1) {
+        throw new Error('Matched ' + (matchedCredentials?.length || 0) + ' credentials, required exactly one match.');
+    }
+
     return matchedCredentials;
 };
 
@@ -104,7 +109,22 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
 
 export const getPassword = async (params: GetCredential): Promise<void> => {
     const clipboard = new Clipboard();
-    const selectedCredential = await selectCredential(params);
+
+    if (params.output == 'json') {
+        const selectedCredentials = await selectCredentials(params);
+
+        let outputCredentials;
+        if (params.one && selectedCredentials) {
+            outputCredentials = selectedCredentials[0];
+        } else {
+            outputCredentials = selectedCredentials;
+        }
+
+        console.log(JSON.stringify(outputCredentials, null, 4));
+        return;
+    }
+
+    const selectedCredential = await selectCredential(params, false);
 
     switch (params.output || 'clipboard') {
         case 'clipboard':

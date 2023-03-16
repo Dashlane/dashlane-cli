@@ -52,34 +52,20 @@ program
         'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials',
         'clipboard'
     )
+    .option('-1, --one', 'Returns the matching credential only if a single one matches, errors out otherwise')
     .argument(
         '[filters...]',
         'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
     )
-    .action(async (filters: string[] | null, options: { output: string | null }) => {
+    .action(async (filters: string[] | null, options: { output: string | null, one: Boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
-
-        if (options.output === 'json') {
-            console.log(
-                JSON.stringify(
-                    await selectCredentials({
-                        filters,
-                        secrets,
-                        output: options.output,
-                        db,
-                    }),
-                    null,
-                    4
-                )
-            );
-        } else {
-            await getPassword({
-                filters,
-                secrets,
-                output: options.output,
-                db,
-            });
-        }
+        await getPassword({
+            filters,
+            secrets,
+            output: options.output,
+            one: options.one,
+            db,
+        });
         db.close();
     });
 
@@ -88,16 +74,18 @@ program
     .alias('o')
     .description('Retrieve an OTP code from local vault and copy it to the clipboard')
     .option('--print', 'Prints just the OTP code, instead of copying it to the clipboard')
+    .option('-1, --one', 'Returns the matching credential only if a single one matches, errors out otherwise')
     .argument(
         '[filters...]',
         'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
     )
-    .action(async (filters: string[] | null, options: { print: boolean }) => {
+    .action(async (filters: string[] | null, options: { print: boolean, one: Boolean }) => {
         const { db, secrets } = await connectAndPrepare({});
         await getOtp({
             filters,
             secrets,
             output: options.print ? 'otp' : 'clipboard',
+            one: options.one,
             db,
         });
         db.close();
