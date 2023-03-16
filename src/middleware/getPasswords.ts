@@ -52,7 +52,7 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
     );
 
     let matchedCredentials = beautifiedCredentials;
-    if (filters) {
+    if (filters?.length) {
         interface ItemFilter {
             keys: string[];
             value: string;
