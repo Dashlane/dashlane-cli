@@ -129,14 +129,12 @@ export const getPassword = async (params: GetPassword): Promise<void> => {
                 console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
             }
 
-            if (params.deviceConfiguration) {
-                if (params.deviceConfiguration.sleepAfterCopy) {
-                    const sleepTime = params.deviceConfiguration.sleepTime
-                        ? params.deviceConfiguration.sleepTime * 1000
-                        : 10;
-                    console.log(`⏲️  Sleeping for ${params.deviceConfiguration.sleepTime} seconds`);
-                    await new Promise((resolve) => setTimeout(resolve, sleepTime));
-                }
+            if (params.deviceConfiguration && params.deviceConfiguration.sleepAfterCopy) {
+                const sleepTime = params.deviceConfiguration.sleepTime
+                    ? params.deviceConfiguration.sleepTime * 1000
+                    : 10;
+                console.log(`⏲️  Sleeping for ${params.deviceConfiguration.sleepTime} seconds`);
+                await new Promise((resolve) => setTimeout(resolve, sleepTime));
             }
             break;
         case 'password':
