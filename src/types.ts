@@ -23,6 +23,8 @@ export interface DeviceConfiguration extends DeviceKeys {
     version: string;
     autoSync: 0 | 1;
     authenticationMode: TwoFactorAuthenticationType | null;
+    sleepAfterCopy: 0 | 1;
+    sleepTime: number;
 }
 
 export interface CliVersion {

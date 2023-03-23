@@ -116,7 +116,7 @@ const getSecretsWithoutDB = async (
         });
     }
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
             cliVersionToString(CLI_VERSION),
@@ -127,7 +127,9 @@ const getSecretsWithoutDB = async (
             localKeyEncrypted,
             1,
             type,
-            serverKeyEncrypted
+            serverKeyEncrypted,
+            0,
+            30
         )
         .run();
 

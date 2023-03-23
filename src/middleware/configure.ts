@@ -16,6 +16,13 @@ interface ConfigureDisableAutoSync {
     disableAutoSync: boolean;
 }
 
+interface ConfigureSleepAfterCopy {
+    db: Database.Database;
+    secrets: Secrets;
+    enableSleepAfterCopy: boolean;
+    sleepTime: number;
+}
+
 export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword) => {
     const { db, secrets } = params;
     let shouldNotSaveMasterPassword = params.shouldNotSaveMasterPassword;
@@ -61,5 +68,13 @@ export const configureDisableAutoSync = (params: ConfigureDisableAutoSync) => {
 
     db.prepare('UPDATE device SET autoSync = ? WHERE login = ?')
         .bind(disableAutoSync ? 0 : 1, secrets.login)
+        .run();
+};
+
+export const configureSleepAfterCopy = (params: ConfigureSleepAfterCopy) => {
+    const { db, secrets, enableSleepAfterCopy, sleepTime } = params;
+
+    db.prepare('UPDATE device SET sleepAfterCopy = ?, sleepTime = ? WHERE login = ?')
+        .bind(enableSleepAfterCopy ? 0 : 1, sleepTime, secrets.login)
         .run();
 };

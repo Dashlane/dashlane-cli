@@ -2,7 +2,13 @@ import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
-import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
+import {
+    AuthentifiantTransactionContent,
+    BackupEditTransaction,
+    DeviceConfiguration,
+    Secrets,
+    VaultCredential,
+} from '../types';
 import { decryptTransaction } from '../crypto';
 import { askCredentialChoice } from '../utils';
 
@@ -11,6 +17,10 @@ interface GetCredential {
     secrets: Secrets;
     output: string | null;
     db: Database.Database;
+}
+
+interface GetPassword extends GetCredential {
+    deviceConfiguration: DeviceConfiguration | null;
 }
 
 const decryptPasswordTransactions = async (
@@ -102,7 +112,7 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
     return askCredentialChoice({ matchedCredentials, hasFilters: Boolean(params.filters?.length) });
 };
 
-export const getPassword = async (params: GetCredential): Promise<void> => {
+export const getPassword = async (params: GetPassword): Promise<void> => {
     const clipboard = new Clipboard();
     const selectedCredential = await selectCredential(params);
 
@@ -117,6 +127,16 @@ export const getPassword = async (params: GetCredential): Promise<void> => {
                 const token = authenticator.generate(selectedCredential.otpSecret);
                 const timeRemaining = authenticator.timeRemaining();
                 console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+            }
+
+            if (params.deviceConfiguration) {
+                if (params.deviceConfiguration.sleepAfterCopy) {
+                    const sleepTime = params.deviceConfiguration.sleepTime
+                        ? params.deviceConfiguration.sleepTime * 1000
+                        : 10;
+                    console.log(`⏲️  Sleeping for ${params.deviceConfiguration.sleepTime} seconds`);
+                    await new Promise((resolve) => setTimeout(resolve, sleepTime));
+                }
             }
             break;
         case 'password':

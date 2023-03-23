@@ -16,6 +16,7 @@ import {
     getTeamMembers,
     configureDisableAutoSync,
     configureSaveMasterPassword,
+    configureSleepAfterCopy,
     reset,
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
@@ -57,7 +58,7 @@ program
         'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
     )
     .action(async (filters: string[] | null, options: { output: string | null }) => {
-        const { db, secrets } = await connectAndPrepare({});
+        const { db, secrets, deviceConfiguration } = await connectAndPrepare({});
 
         if (options.output === 'json') {
             console.log(
@@ -78,6 +79,7 @@ program
                 secrets,
                 output: options.output,
                 db,
+                deviceConfiguration,
             });
         }
         db.close();
@@ -153,6 +155,19 @@ configureGroup
             shouldNotSaveMasterPasswordIfNoDeviceKeys: shouldNotSaveMasterPassword,
         });
         configureSaveMasterPassword({ db, secrets, shouldNotSaveMasterPassword });
+        db.close();
+    });
+
+configureGroup
+    .command('sleep-after-copy <boolean> <seconds>')
+    .description('Should the application sleep after copying the password to the clipboard (default: false)')
+    .action(async (boolean: string, seconds: string) => {
+        const enableSleep = !parseBooleanString(boolean);
+        const sleepTime = parseInt(seconds);
+        const { db, secrets } = await connectAndPrepare({
+            autoSync: false,
+        });
+        configureSleepAfterCopy({ db, secrets, enableSleepAfterCopy: enableSleep, sleepTime });
         db.close();
     });
 
