@@ -4,10 +4,11 @@ import { Secrets } from '../types';
 interface GetTeamMembersParams {
     secrets: Secrets;
     page: number;
+    limit: number;
 }
 
 export const getTeamMembers = async (params: GetTeamMembersParams) => {
-    const { secrets, page } = params;
+    const { secrets, page, limit } = params;
 
     const premiumStatus = await getPremiumStatus({
         secrets,
@@ -20,6 +21,7 @@ export const getTeamMembers = async (params: GetTeamMembersParams) => {
         secrets,
         teamId,
         page,
+        limit,
     });
 
     console.log(JSON.stringify(response));
