@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';
 
@@ -53,8 +53,7 @@ export const getAuthenticationMethodsForDevice = ({
     login,
     supportedMethods = defaultSupportedMethods,
 }: GetAuthenticationMethodsForDeviceParams) =>
-    requestApi<GetAuthenticationMethodsForDeviceResult>({
+    requestAppApi<GetAuthenticationMethodsForDeviceResult>({
         path: 'authentication/GetAuthenticationMethodsForDevice',
-        login,
         payload: { login, methods: supportedMethods },
     });

@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface PerformEmailTokenVerification {
     login: string;
@@ -13,8 +13,7 @@ export interface PerformEmailTokenVerificationOutput {
 }
 
 export const performEmailTokenVerification = (params: PerformEmailTokenVerification) =>
-    requestApi<PerformEmailTokenVerificationOutput>({
+    requestAppApi<PerformEmailTokenVerificationOutput>({
         path: 'authentication/PerformEmailTokenVerification',
-        login: params.login,
         payload: { login: params.login, token: params.token },
     });

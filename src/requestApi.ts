@@ -4,13 +4,9 @@ import { CLI_VERSION, cliVersionToString } from './cliVersion';
 import { gotImplementation } from './utils/';
 
 interface RequestApi {
-    login: string;
     payload: Dictionary<unknown>;
     path: string;
-    deviceKeys?: {
-        accessKey: string;
-        secretKey: string;
-    };
+    authentication: apiconnect.Authentication;
 }
 
 interface DashlaneApiErrorResponse {
@@ -36,24 +32,14 @@ const dashlaneApiKeys = {
     appSecretKey: 'boUtXxmDgLUtNFaigCMQ3+u+LAx0tg1ePAUE13nkR7dto+Zwq1naOHZTwbxxM7iL',
 };
 
-export const requestApi = async <T>(params: RequestApi): Promise<T> => {
-    const { payload, path, deviceKeys, login } = params;
+const requestApi = async <T>(params: RequestApi): Promise<T> => {
+    const { payload, path, authentication } = params;
 
     let response;
     try {
         response = await apiconnect.postRequestAPI<got.Response<string>>({
             requestFunction: gotImplementation,
-            authentication: deviceKeys
-                ? {
-                      type: 'userDevice',
-                      ...dashlaneApiKeys,
-                      login,
-                      ...deviceKeys,
-                  }
-                : {
-                      type: 'app',
-                      ...dashlaneApiKeys,
-                  },
+            authentication,
             path: 'v1/' + path,
             payload,
             userAgent: `Dashlane CLI v${cliVersionToString(CLI_VERSION)}`,
@@ -78,4 +64,65 @@ export const requestApi = async <T>(params: RequestApi): Promise<T> => {
         throw new Error('Server responded an error : ' + response.body);
     }
     return (JSON.parse(response.body) as { data: T }).data;
+};
+
+export interface RequestAppApi {
+    payload: Dictionary<unknown>;
+    path: string;
+}
+
+export const requestAppApi = async <T>(params: RequestAppApi): Promise<T> => {
+    return requestApi({
+        ...params,
+        authentication: {
+            type: 'app',
+            ...dashlaneApiKeys,
+        },
+    });
+};
+
+export interface RequestUserApi {
+    login: string;
+    payload: Dictionary<unknown>;
+    path: string;
+    deviceKeys: {
+        accessKey: string;
+        secretKey: string;
+    };
+}
+
+export const requestUserApi = async <T>(params: RequestUserApi): Promise<T> => {
+    const { login, deviceKeys, ...otherParams } = params;
+    return requestApi({
+        ...otherParams,
+        authentication: {
+            type: 'userDevice',
+            ...dashlaneApiKeys,
+            login,
+            ...deviceKeys,
+        },
+    });
+};
+
+export interface RequestTeamApi {
+    teamUuid: string;
+    payload: Dictionary<unknown>;
+    path: string;
+    teamDeviceKeys: {
+        accessKey: string;
+        secretKey: string;
+    };
+}
+
+export const requestTeamApi = async <T>(params: RequestTeamApi): Promise<T> => {
+    const { teamUuid, teamDeviceKeys, ...otherParams } = params;
+    return requestApi({
+        ...otherParams,
+        authentication: {
+            type: 'teamDevice',
+            ...dashlaneApiKeys,
+            teamUuid,
+            ...teamDeviceKeys,
+        },
+    });
 };

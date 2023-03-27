@@ -1,5 +1,5 @@
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface CompleteDeviceRegistration {
     login: string;
@@ -59,9 +59,8 @@ export interface CompleteDeviceRegistrationWithAuthTicketOutput {
 }
 
 export const completeDeviceRegistration = (params: CompleteDeviceRegistration) =>
-    requestApi<CompleteDeviceRegistrationWithAuthTicketOutput>({
+    requestAppApi<CompleteDeviceRegistrationWithAuthTicketOutput>({
         path: 'authentication/CompleteDeviceRegistrationWithAuthTicket',
-        login: params.login,
         payload: {
             device: {
                 deviceName: 'Dashlane CLI',

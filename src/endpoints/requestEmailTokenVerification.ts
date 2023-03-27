@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface RequestEmailTokenVerificationParams {
     login: string;
@@ -10,8 +10,7 @@ type RequestEmailTokenVerificationResult = any;
 export type RequestEmailTokenVerificationError = 'TWOFA_EMAIL_TOKEN_NOT_ENABLED' | 'invalid_authentication';
 
 export const requestEmailTokenVerification = ({ login }: RequestEmailTokenVerificationParams) =>
-    requestApi<RequestEmailTokenVerificationResult>({
+    requestAppApi<RequestEmailTokenVerificationResult>({
         path: 'authentication/RequestEmailTokenVerification',
-        login,
         payload: { login },
     });

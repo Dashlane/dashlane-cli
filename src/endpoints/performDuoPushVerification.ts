@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface PerformDuoPushVerification {
     login: string;
@@ -12,8 +12,7 @@ export interface PerformDuoPushVerificationOutput {
 }
 
 export const performDuoPushVerification = (params: PerformDuoPushVerification) =>
-    requestApi<PerformDuoPushVerificationOutput>({
+    requestAppApi<PerformDuoPushVerificationOutput>({
         path: 'authentication/PerformDuoPushVerification',
-        login: params.login,
         payload: { login: params.login },
     });
