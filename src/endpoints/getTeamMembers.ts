@@ -5,6 +5,7 @@ interface GetTeamMembersParams {
     teamId: number;
     secrets: Secrets;
     page: number;
+    limit: number;
 }
 
 export const getTeamMembers = (params: GetTeamMembersParams) =>
@@ -19,7 +20,7 @@ export const getTeamMembers = (params: GetTeamMembersParams) =>
             teamId: params.teamId,
             orderBy: 'login',
             page: params.page,
-            limit: 100,
+            limit: params.limit,
         },
     });
 

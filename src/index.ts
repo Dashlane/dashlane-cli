@@ -125,9 +125,10 @@ teamGroup
     .alias('m')
     .description('List team members')
     .argument('[page]', 'Page number', '0')
-    .action(async (page: string) => {
+    .argument('[limit]', 'Limit of members per page', '0')
+    .action(async (page: string, limit: string) => {
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        await getTeamMembers({ secrets, page: parseInt(page) });
+        await getTeamMembers({ secrets, page: parseInt(page), limit: parseInt(limit) });
         db.close();
     });
 
