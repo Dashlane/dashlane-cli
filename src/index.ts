@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { program } from 'commander';
+import { Command } from 'commander';
 import winston from 'winston';
 import { Database } from 'better-sqlite3';
 import { connectAndPrepare } from './database/index';
@@ -27,6 +27,8 @@ winston.configure({
     format: winston.format.combine(winston.format.splat(), winston.format.cli()),
     transports: [new winston.transports.Console({ stderrLevels: ['error', 'debug', 'info'] })],
 });
+
+const program = new Command();
 
 program.name('dcli').description('Dashlane CLI').version(cliVersionToString(CLI_VERSION));
 
