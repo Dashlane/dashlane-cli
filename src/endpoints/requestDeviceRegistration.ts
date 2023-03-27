@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface RequestDeviceRegistration {
     login: string;
@@ -38,8 +38,7 @@ export interface RequestDeviceRegistrationOutput {
  * @deprecated Use getAuthenticationMethodsForDevice
  */
 export const requestDeviceRegistration = (params: RequestDeviceRegistration) =>
-    requestApi<RequestDeviceRegistrationOutput>({
+    requestAppApi<RequestDeviceRegistrationOutput>({
         path: 'authentication/RequestDeviceRegistration',
-        login: params.login,
         payload: { login: params.login, hasDashlaneAuthenticatorSupport: true },
     });

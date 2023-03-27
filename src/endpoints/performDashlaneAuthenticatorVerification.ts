@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface PerformDashlaneAuthenticatorVerification {
     login: string;
@@ -12,8 +12,7 @@ export interface PerformDashlaneAuthenticatorVerificationOutput {
 }
 
 export const performDashlaneAuthenticatorVerification = (params: PerformDashlaneAuthenticatorVerification) =>
-    requestApi<PerformDashlaneAuthenticatorVerificationOutput>({
+    requestAppApi<PerformDashlaneAuthenticatorVerificationOutput>({
         path: 'authentication/PerformDashlaneAuthenticatorVerification',
-        login: params.login,
         payload: { login: params.login },
     });

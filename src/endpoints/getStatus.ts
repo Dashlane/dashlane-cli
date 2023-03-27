@@ -1,12 +1,12 @@
 import { Secrets } from '../types';
-import { requestApi } from '../requestApi';
+import { requestUserApi } from '../requestApi';
 
 interface GetPremiumStatusParams {
     secrets: Secrets;
 }
 
 export const getPremiumStatus = (params: GetPremiumStatusParams) =>
-    requestApi<GetPremiumStatusOutput>({
+    requestUserApi<GetPremiumStatusOutput>({
         path: 'premium/GetPremiumStatus',
         login: params.secrets.login,
         deviceKeys: {

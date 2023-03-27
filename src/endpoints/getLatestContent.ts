@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestUserApi } from '../requestApi';
 import type { BackupEditTransaction, BackupRemoveTransaction, Secrets } from '../types';
 
 interface GetLatestContent {
@@ -65,7 +65,7 @@ export interface GetLatestContentOutput {
 }
 
 export const getLatestContent = (params: GetLatestContent) =>
-    requestApi<GetLatestContentOutput>({
+    requestUserApi<GetLatestContentOutput>({
         path: 'sync/GetLatestContent',
         login: params.login,
         deviceKeys: {

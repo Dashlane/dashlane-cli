@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 import { TwoFactorAuthenticationType } from '../types/two-factor-authentication';
 
 interface Get2FAStatusParams {
@@ -16,8 +16,7 @@ export interface Get2FAStatusOutput {
 }
 
 export const get2FAStatusUnauthenticated = ({ login }: Get2FAStatusParams) =>
-    requestApi<Get2FAStatusOutput>({
+    requestAppApi<Get2FAStatusOutput>({
         path: 'authentication/Get2FAStatusUnauthenticated',
-        login,
         payload: { login },
     });

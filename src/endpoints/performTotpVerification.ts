@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 interface PerformTotpVerification {
     login: string;
@@ -13,9 +13,8 @@ export interface PerformTotpVerificationOutput {
 }
 
 export const performTotpVerification = (params: PerformTotpVerification) =>
-    requestApi<PerformTotpVerificationOutput>({
+    requestAppApi<PerformTotpVerificationOutput>({
         path: 'authentication/PerformTotpVerification',
-        login: params.login,
         payload: {
             login: params.login,
             otp: params.otp,

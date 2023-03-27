@@ -1,5 +1,5 @@
 import { Secrets } from '../types';
-import { requestApi } from '../requestApi';
+import { requestUserApi } from '../requestApi';
 
 interface GetTeamMembersParams {
     teamId: number;
@@ -9,7 +9,7 @@ interface GetTeamMembersParams {
 }
 
 export const getTeamMembers = (params: GetTeamMembersParams) =>
-    requestApi<GetTeamMembersOutput>({
+    requestUserApi<GetTeamMembersOutput>({
         path: 'teams/GetTeamMembers',
         login: params.secrets.login,
         deviceKeys: {

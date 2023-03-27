@@ -1,4 +1,4 @@
-import { requestApi } from '../requestApi';
+import { requestAppApi } from '../requestApi';
 
 export interface CompleteLoginWithAuthTicketRequest {
     login: string;
@@ -23,9 +23,8 @@ export interface CompleteLoginWithAuthTicketOutput {
 }
 
 export const completeLoginWithAuthTicket = (params: CompleteLoginWithAuthTicketRequest) =>
-    requestApi<CompleteLoginWithAuthTicketOutput>({
+    requestAppApi<CompleteLoginWithAuthTicketOutput>({
         path: 'authentication/CompleteLoginWithAuthTicket',
-        login: params.login,
         payload: {
             login: params.login,
             authTicket: params.authTicket,
