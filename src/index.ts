@@ -4,7 +4,7 @@ import winston from 'winston';
 import { Database } from 'better-sqlite3';
 import { connectAndPrepare } from './database/index';
 import { askConfirmReset } from './utils/dialogs';
-import { parseBooleanString } from './utils';
+import { getTeamDeviceCredentialsFromEnv, parseBooleanString } from './utils';
 import { Secrets } from './types';
 import { connect } from './database/connect';
 import {
@@ -20,6 +20,9 @@ import {
     getAuditLogs,
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
+import { registerTeamDevice } from './endpoints/registerTeamDevice';
+
+const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
@@ -123,6 +126,15 @@ program
 
 const teamGroup = program.command('team').alias('t').description('Team related commands');
 
+if (!teamDeviceCredentials) {
+    teamGroup.addHelpText(
+        'before',
+        `/!\\ Commands in this section (except generate-credentials) require team credentials to be set in the environment.
+Use generate-credentials to generate some team credentials (requires to be a team administrator).
+`
+    );
+}
+
 teamGroup
     .command('members')
     .alias('m')
@@ -130,9 +142,34 @@ teamGroup
     .argument('[page]', 'Page number', '0')
     .argument('[limit]', 'Limit of members per page', '0')
     .action(async (page: string, limit: string) => {
+        if (!teamDeviceCredentials) {
+            throw new Error('Could not find team crendentials');
+        }
+        await getTeamMembers({ teamDeviceCredentials, page: parseInt(page), limit: parseInt(limit) });
+    });
+
+teamGroup
+    .command('generate-credentials')
+    .option('--json', 'Output in JSON format')
+    .description('Generate new team credentials')
+    .action(async (options: { json: boolean }) => {
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        await getTeamMembers({ secrets, page: parseInt(page), limit: parseInt(limit) });
+        const credentials = await registerTeamDevice({ secrets, deviceName: 'Dashlane CLI' });
         db.close();
+
+        if (options.json) {
+            console.log(
+                JSON.stringify({
+                    DASHLANE_TEAM_UUID: credentials.teamUuid,
+                    DASHLANE_TEAM_ACCESS_KEY: credentials.deviceAccessKey,
+                    DASHLANE_TEAM_SECRET_KEY: credentials.deviceSecretKey,
+                })
+            );
+        } else {
+            console.log(`export DASHLANE_TEAM_UUID=${credentials.teamUuid}`);
+            console.log(`export DASHLANE_TEAM_ACCESS_KEY=${credentials.deviceAccessKey}`);
+            console.log(`export DASHLANE_TEAM_SECRET_KEY=${credentials.deviceSecretKey}`);
+        }
     });
 
 teamGroup

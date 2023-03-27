@@ -18,6 +18,12 @@ export interface DeviceKeys {
     serverKeyEncrypted: string | null;
 }
 
+export interface TeamDeviceCredentials {
+    uuid: string;
+    accessKey: string;
+    secretKey: string;
+}
+
 export interface DeviceConfiguration extends DeviceKeys {
     login: string;
     version: string;

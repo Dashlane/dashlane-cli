@@ -1,23 +1,21 @@
-import { Secrets } from '../types';
-import { requestUserApi } from '../requestApi';
+import { TeamDeviceCredentials } from '../types';
+import { requestTeamApi } from '../requestApi';
 
 interface GetTeamMembersParams {
-    teamId: number;
-    secrets: Secrets;
+    teamDeviceCredentials: TeamDeviceCredentials;
     page: number;
     limit: number;
 }
 
 export const getTeamMembers = (params: GetTeamMembersParams) =>
-    requestUserApi<GetTeamMembersOutput>({
-        path: 'teams/GetTeamMembers',
-        login: params.secrets.login,
-        deviceKeys: {
-            accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey,
+    requestTeamApi<GetTeamMembersOutput>({
+        path: 'teams-teamdevice/GetTeamMembers',
+        teamUuid: params.teamDeviceCredentials.uuid,
+        teamDeviceKeys: {
+            accessKey: params.teamDeviceCredentials.accessKey,
+            secretKey: params.teamDeviceCredentials.secretKey,
         },
         payload: {
-            teamId: params.teamId,
             orderBy: 'login',
             page: params.page,
             limit: params.limit,
