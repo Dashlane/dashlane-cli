@@ -10,5 +10,6 @@ export const gotImplementation: apiconnect.RequestFunction<got.Response<string>>
         headers,
         json,
         retry: { limit: 3 },
+        throwHttpErrors: false,
     });
 };
