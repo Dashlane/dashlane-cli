@@ -1,4 +1,5 @@
 export * from './configure';
+export * from './getAuditLogs';
 export * from './getPasswords';
 export * from './getSecureNotes';
 export * from './getTeamMembers';

@@ -17,6 +17,7 @@ import {
     configureDisableAutoSync,
     configureSaveMasterPassword,
     reset,
+    getAuditLogs,
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 
@@ -131,6 +132,18 @@ teamGroup
     .action(async (page: string, limit: string) => {
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
         await getTeamMembers({ secrets, page: parseInt(page), limit: parseInt(limit) });
+        db.close();
+    });
+
+teamGroup
+    .command('logs')
+    .alias('l')
+    .description('List audit logs')
+    .argument('[page]', 'Page number', '1')
+    .argument('[limit]', 'Limit of logs per page', '1000')
+    .action(async (page: string, limit: string) => {
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
+        await getAuditLogs({ secrets, page: parseInt(page), limit: parseInt(limit) });
         db.close();
     });
 
