@@ -22,6 +22,7 @@ import {
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { registerTeamDevice } from './endpoints/registerTeamDevice';
+import { listAllDevices, removeAllDevices } from './command-handlers';
 
 const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
 
@@ -257,6 +258,17 @@ program
             db.close();
         }
     });
+
+const devicesGroup = program.command('devices').alias('d').description('Operations on devices');
+
+devicesGroup
+    .command('list')
+    .description('Lists all registered devices that can access to your account')
+    .action(listAllDevices);
+devicesGroup
+    .command('remove-all')
+    .description('Unregisters all devices that can access your account, including this one. This implies reset')
+    .action(removeAllDevices);
 
 program.parseAsync().catch((error: Error) => {
     console.error(`ERROR: ${error.message}`);
