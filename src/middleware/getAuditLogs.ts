@@ -16,5 +16,5 @@ export const getAuditLogs = async (params: GetTeamMembersParams) => {
         limit,
     });
 
-    console.log(JSON.stringify(response));
+    response.auditLogs.forEach((log) => console.log(log));
 };
