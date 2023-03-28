@@ -3,8 +3,8 @@ require "language/node"
 class DashlaneCli < Formula
   desc "Command-line interface for Dashlane"
   homepage "https://dashlane.com"
-  url "https://github.com/Dashlane/dashlane-cli/archive/refs/tags/v1.1.0.tar.gz"
-  sha256 "6345319412b5d224083bc032f4a1ba1890ace5ecf70a63f4e9930aa6537d1d49"
+  url "https://github.com/Dashlane/dashlane-cli/archive/refs/tags/v1.6.0.tar.gz"
+  sha256 "4d011b79195b28bb2d668504e94edc8b1f0db189e0a665a6279934a55a648eff"
   license "Apache-2.0"
 
   livecheck do
@@ -13,15 +13,15 @@ class DashlaneCli < Formula
   end
 
   depends_on "node@16"
+  depends_on "yarn"
 
   def install
     Language::Node.setup_npm_environment
     platform = OS.linux? ? "linux" : "macos"
     libc = OS.linux? ? "glibc" : "unknown"
     arch = `uname -m`
-    system "npm", "ci"
-    system "npm", "run", "build"
-    system "./prepare-pkg.sh", libc
+    system "yarn", "install"
+    system "yarn", "run", "build"
     system "npx", "pkg", ".", "-t", "node16-#{platform}-#{arch.chomp}", "-o", "dcli"
     bin.install "dcli"
   end
