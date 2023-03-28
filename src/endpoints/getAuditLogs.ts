@@ -8,7 +8,7 @@ interface GetTeamMembersParams {
 }
 
 export const getAuditLogs = (params: GetTeamMembersParams) => {
-    return requestUserApi<GetAuditLogsOutput[]>({
+    return requestUserApi<GetAuditLogsOutput>({
         path: 'teams/GetAuditLogs',
         login: params.secrets.login,
         deviceKeys: {
