@@ -8,3 +8,4 @@ export * from './performEmailTokenVerification';
 export * from './performTotpVerification';
 export * from './requestDeviceRegistration';
 export * from './getAuditLogs';
+export * from './getTeamReport';

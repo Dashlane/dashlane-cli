@@ -18,6 +18,7 @@ import {
     configureSaveMasterPassword,
     reset,
     getAuditLogs,
+    getTeamReport,
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { registerTeamDevice } from './endpoints/registerTeamDevice';
@@ -192,6 +193,17 @@ teamGroup
             logType: type,
             category,
         });
+        db.close();
+    });
+
+teamGroup
+    .command('report')
+    .alias('r')
+    .description('Get team report')
+    .argument('[days]', 'Number of days in history', '0')
+    .action(async (days: string) => {
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
+        await getTeamReport({ secrets, days: parseInt(days) });
         db.close();
     });
 
