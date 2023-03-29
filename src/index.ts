@@ -176,11 +176,22 @@ teamGroup
     .command('logs')
     .alias('l')
     .description('List audit logs')
-    .argument('[page]', 'Page number', '1')
-    .argument('[limit]', 'Limit of logs per page', '1000')
-    .action(async (page: string, limit: string) => {
+    .option('--start <start>', 'start timestamp', '0')
+    .option('--end <end>', 'end timestamp', 'now')
+    .option('--type <type>', 'log type')
+    .option('--category <category>', 'log category')
+    .action(async (options: { start: string, end: string, type: string, category: string }) => {
+        const { start, type, category } = options;
+        const end = options.end === 'now' ? Math.floor(Date.now() / 1000).toString() : options.end;
+
         const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        await getAuditLogs({ secrets, page: parseInt(page), limit: parseInt(limit) });
+        await getAuditLogs({
+            secrets,
+            startDateRangeUnix: parseInt(start),
+            endDateRangeUnix: parseInt(end),
+            logType: type,
+            category,
+        });
         db.close();
     });
 

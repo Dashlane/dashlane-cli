@@ -1,20 +1,37 @@
-import { getAuditLogs as getAuditLogsRequest } from '../endpoints';
-import { Secrets } from '../types';
+import winston from 'winston';
+import { getAuditLogQueryResults, startAuditLogsQuery, StartAuditLogsQueryParams } from '../endpoints';
 
-interface GetTeamMembersParams {
-    secrets: Secrets;
-    page: number;
-    limit: number;
-}
+const MAX_RESULT = 1000;
 
-export const getAuditLogs = async (params: GetTeamMembersParams) => {
-    const { secrets, page, limit } = params;
+export const getAuditLogs = async (params: StartAuditLogsQueryParams) => {
+    const { secrets } = params;
 
-    const response = await getAuditLogsRequest({
-        secrets,
-        page,
-        limit,
-    });
+    const { queryExecutionId } = await startAuditLogsQuery(params);
 
-    response.auditLogs.forEach((log) => console.log(log));
+    let result = await getAuditLogQueryResults({ secrets, queryExecutionId, maxResults: MAX_RESULT });
+    winston.debug(`Query state: ${result.state}`);
+
+    while (['QUEUED', 'RUNNING'].includes(result.state)) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        result = await getAuditLogQueryResults({ secrets, queryExecutionId, maxResults: MAX_RESULT });
+        winston.debug(`Query state: ${result.state}`);
+    }
+
+    if (result.state !== 'SUCCEEDED') {
+        throw new Error(`Query execution did not succeed: ${result.state}`);
+    }
+
+    let logs = result.results;
+    while (result.nextToken) {
+        result = await getAuditLogQueryResults({
+            secrets,
+            queryExecutionId,
+            maxResults: MAX_RESULT,
+            nextToken: result.nextToken,
+        });
+        winston.debug(`Query state: ${result.state}`);
+        logs = logs.concat(result.results);
+    }
+
+    logs.forEach((log) => console.log(log));
 };
