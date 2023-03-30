@@ -71,19 +71,6 @@ export const askConfirmReset = async () => {
     return response.confirmReset === 'Yes';
 };
 
-export const askConfirmRemoveAllDevices = async () => {
-    const response = await inquirer.prompt<{ confirmRemoveAllDevices: string }>([
-        {
-            type: 'list',
-            name: 'confirmRemoveAllDevices',
-            message:
-                'You could be locked out of your account if you forgot your OTP/contact email. Do you really want to remove all registered devices ?',
-            choices: ['Yes', 'No'],
-        },
-    ]);
-    return response.confirmRemoveAllDevices === 'Yes';
-};
-
 export const askCredentialChoice = async (params: { matchedCredentials: VaultCredential[]; hasFilters: boolean }) => {
     const message = params.hasFilters
         ? 'There are multiple results for your query, pick one:'

@@ -263,11 +263,15 @@ const devicesGroup = program.command('devices').alias('d').description('Operatio
 
 devicesGroup
     .command('list')
+    .option('--json', 'Output in JSON format')
     .description('Lists all registered devices that can access to your account')
     .action(listAllDevices);
 devicesGroup
-    .command('remove-all')
-    .description('Unregisters all devices that can access your account, including this one. This implies reset')
+    .command('remove')
+    .option('--all', 'remove all devices (dangerous)')
+    .option('--other', 'remove all other devices')
+    .argument('[device ids...]', 'ids of the devices to remove')
+    .description('Unregisters a list of devices. Unregistering the CLI will implies a reset')
     .action(removeAllDevices);
 
 program.parseAsync().catch((error: Error) => {

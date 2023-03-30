@@ -5,8 +5,14 @@ interface DeactivateDevicesParams {
     secrets: Secrets;
     login: string;
 
-    deviceIds: string[];
-    pairingGroupIds: string[];
+    /**
+     * List of deviceIds to deactivate
+     */
+    deviceIds?: string[];
+    /**
+     * List of pairingGroupIds to deactivate
+     */
+    pairingGroupIds?: string[];
 }
 
 export interface DeactivateDevicesOutput {}
