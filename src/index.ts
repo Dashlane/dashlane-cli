@@ -144,7 +144,7 @@ teamGroup
     .argument('[limit]', 'Limit of members per page', '0')
     .action(async (page: string, limit: string) => {
         if (!teamDeviceCredentials) {
-            throw new Error('Could not find team crendentials');
+            throw new Error('Could not find team credentials');
         }
         await getTeamMembers({ teamDeviceCredentials, page: parseInt(page), limit: parseInt(limit) });
     });
@@ -181,7 +181,7 @@ teamGroup
     .option('--end <end>', 'end timestamp', 'now')
     .option('--type <type>', 'log type')
     .option('--category <category>', 'log category')
-    .action(async (options: { start: string, end: string, type: string, category: string }) => {
+    .action(async (options: { start: string; end: string; type: string; category: string }) => {
         const { start, type, category } = options;
         const end = options.end === 'now' ? Math.floor(Date.now() / 1000).toString() : options.end;
 
