@@ -55,9 +55,9 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
     const existingDeviceIds = listDevicesResponse.devices.map((device) => device.deviceId);
 
     if (options.all) {
-        devices = existingDevices;
+        devices = existingDeviceIds;
     } else if (options.others) {
-        devices = existingDevices.filter((d) => d != secrets.accessKey);
+        devices = existingDeviceIds.filter((d) => d != secrets.accessKey);
     } else if (!devices) {
         // if there is no devices provided, well we will have an easy job
         // let's not fail
@@ -72,7 +72,7 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
             return;
         }
     }
-    const notFoundDevices = devices.filter((d) => !existingDevices.includes(d));
+    const notFoundDevices = devices.filter((d) => !existingDeviceIds.includes(d));
     if (notFoundDevices.length > 0) {
         throw new Error(`These devices do not exist: ${notFoundDevices.join('\t')}`);
     }
@@ -81,7 +81,6 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
         deviceIds: devices,
         login: deviceConfiguration.login,
         secrets,
-        pairingGroupIds: [],
     });
 
     if (shouldReset) {
