@@ -9,3 +9,5 @@ export * from './performTotpVerification';
 export * from './requestDeviceRegistration';
 export * from './getAuditLogs';
 export * from './getTeamReport';
+export * from './listDevices';
+export * from './deactivateDevices';

@@ -22,6 +22,7 @@ import {
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { registerTeamDevice } from './endpoints/registerTeamDevice';
+import { listAllDevices, removeAllDevices } from './command-handlers';
 
 const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
 
@@ -257,6 +258,21 @@ program
             db.close();
         }
     });
+
+const devicesGroup = program.command('devices').alias('d').description('Operations on devices');
+
+devicesGroup
+    .command('list')
+    .option('--json', 'Output in JSON format')
+    .description('Lists all registered devices that can access to your account')
+    .action(listAllDevices);
+devicesGroup
+    .command('remove')
+    .option('--all', 'remove all devices (dangerous)')
+    .option('--other', 'remove all other devices')
+    .argument('[device ids...]', 'ids of the devices to remove')
+    .description('Unregisters a list of devices. Unregistering the CLI will implies doing a "dcli reset"')
+    .action(removeAllDevices);
 
 program.parseAsync().catch((error: Error) => {
     console.error(`ERROR: ${error.message}`);
