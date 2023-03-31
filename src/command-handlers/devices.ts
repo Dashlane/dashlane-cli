@@ -14,7 +14,7 @@ export async function listAllDevices(options: { json: boolean }) {
     }
     const listDevicesResponse = await listDevices({ secrets, login: deviceConfiguration.login });
     const result: OutputDevice[] = listDevicesResponse.devices.map(
-        (c) => <OutputDevice>{ ...c, isCurrentDevice: c.deviceId === secrets.accessKey }
+        (device) => <OutputDevice>{ ...device, isCurrentDevice: device.deviceId === secrets.accessKey }
     );
 
     if (options.json) {
@@ -52,7 +52,7 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
         throw new Error('Requires to be connected');
     }
     const listDevicesResponse = await listDevices({ secrets, login: deviceConfiguration.login });
-    const existingDevices = listDevicesResponse.devices.map((d) => d.deviceId);
+    const existingDeviceIds = listDevicesResponse.devices.map((device) => device.deviceId);
 
     if (options.all) {
         devices = existingDevices;

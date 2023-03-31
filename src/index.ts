@@ -271,7 +271,7 @@ devicesGroup
     .option('--all', 'remove all devices (dangerous)')
     .option('--other', 'remove all other devices')
     .argument('[device ids...]', 'ids of the devices to remove')
-    .description('Unregisters a list of devices. Unregistering the CLI will implies a reset')
+    .description('Unregisters a list of devices. Unregistering the CLI will implies doing a "dcli reset"')
     .action(removeAllDevices);
 
 program.parseAsync().catch((error: Error) => {
