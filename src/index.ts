@@ -23,6 +23,7 @@ import {
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { registerTeamDevice } from './endpoints/registerTeamDevice';
 import { listAllDevices, removeAllDevices } from './command-handlers';
+import { deactivateTeamDevice } from './endpoints/deactivateTeamDevice';
 
 const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
 
@@ -172,6 +173,18 @@ teamGroup
             console.log(`export DASHLANE_TEAM_ACCESS_KEY=${credentials.deviceAccessKey}`);
             console.log(`export DASHLANE_TEAM_SECRET_KEY=${credentials.deviceSecretKey}`);
         }
+    });
+
+teamGroup
+    .command('revoke-credentials')
+    .description('Revoke credentials by access key')
+    .argument('<accessKey>', 'Access key of the credentials to revoke')
+    .action(async (accessKey: string) => {
+        const { db, secrets } = await connectAndPrepare({ autoSync: false });
+        await deactivateTeamDevice({ secrets, teamDeviceAccessKey: accessKey });
+        db.close();
+
+        console.log('The credentials have been revoked');
     });
 
 teamGroup
