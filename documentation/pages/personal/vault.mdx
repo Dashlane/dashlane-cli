@@ -1,0 +1,40 @@
+# Accessing your Vault
+
+## Get a password
+
+```sh
+dcli p mywebsite
+# will return any entry for which either the url or the title matches mywebsite
+
+dcli p id=xxxxxx
+# will return any entry for which the id matches xxxxxx
+
+dcli p url=someurl title=mytitle
+# will return any entry for which the url matches someurl, or the title matches mytitle
+
+dcli p url,title=mywebsite
+# will return any entry for which either the url or the title matches mywebsite
+```
+
+Note: You can select a different output for passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.
+
+## Generate an OTP code
+
+```sh
+dcli otp [filters]
+```
+
+## Get a secure note
+
+```sh
+dcli note [titleFilter]
+```
+
+## Options
+
+By default an automatic synchronization is performed once per hour.
+You can change this behavior with the following command:
+
+```sh
+dcli configure disable-auto-sync true
+```

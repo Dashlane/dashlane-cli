@@ -1,0 +1,16 @@
+.vscode
+node_modules
+dist
+bundle
+.DS_Store
+.next
+out
+
+# Yarn related files
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

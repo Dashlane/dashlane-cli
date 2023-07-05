@@ -1,0 +1,27 @@
+import { Callout } from 'nextra/components';
+
+# Authentication
+
+Authenticating to your personal vault requires your email.
+You will be then asked to validate a second factor to register the CLI to your account.
+
+<Callout type="warning" emoji="⚠️">
+    SSO authentication is not supported yet.
+</Callout>
+
+## Supported 2FA methods
+
+-   Email code validation (default)
+-   TOTP code validation (via an authenticator app)
+-   DUO push notification
+
+By completing the device registration process, you'll be now asked to enter your Master Password.
+
+## Options
+
+By default your Master Password will be saved locally in the OS keychain so you don't have to enter it every time.
+You can disable this behavior with the following command:
+
+```sh
+dcli configure save-master-password false
+```
