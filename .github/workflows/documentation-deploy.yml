@@ -1,0 +1,35 @@
+name: Documentation Website Deploy CI
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: 'documentation'
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 16
+                  cache: yarn
+                  cache-dependency-path: 'documentation/yarn.lock'
+
+            - name: Build
+              run: |
+                  yarn
+                  yarn next build
+                  yarn next export
+                  touch out/.nojekyll
+
+            - name: Deploy
+              uses: JamesIves/github-pages-deploy-action@v4
+              with:
+                  branch: gh-pages
+                  folder: documentation/out
