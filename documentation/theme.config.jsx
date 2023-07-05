@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useConfig } from 'nextra-theme-docs';
 
 export default {
     logo: <strong>Dashlane CLI</strong>,
@@ -19,8 +20,26 @@ export default {
         const { asPath } = useRouter();
         if (asPath !== '/') {
             return {
-                titleTemplate: '%s - Dashlane CLI'
+                titleTemplate: '%s - Dashlane CLI',
             };
         }
+    },
+    head: () => {
+        const { asPath, defaultLocale, locale } = useRouter();
+        const { frontMatter } = useConfig();
+        const url =
+            'https://dashlane.github.io/dashlane-cli' +
+            (defaultLocale === locale ? asPath : `/${locale}${asPath}`);
+
+        return (
+            <>
+                <meta property="og:url" content={url} />
+                <meta property="og:title" content={frontMatter.title || 'Dashlane CLI'} />
+                <meta
+                    property="og:description"
+                    content={frontMatter.description || 'Learn how to access your Dashlane vault and API endpoints from the command line.'}
+                />
+            </>
+        );
     }
 };
