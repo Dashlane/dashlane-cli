@@ -2,7 +2,7 @@ name: Documentation Website Deploy CI
 
 on:
     push:
-        branches: [main]
+        branches: [master]
 
 jobs:
     build:
