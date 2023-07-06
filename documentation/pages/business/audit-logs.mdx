@@ -1,3 +1,29 @@
 # Audit logs
 
-_coming soon_
+## Fetching the logs
+
+You can query the audit logs using the `logs` command. For example:
+
+```sh
+dcli t logs
+```
+
+The logs are output in JSON format, each line is a new log entry.
+
+```json
+{"uuid": "e2d9ce5b-[..redacted..]-b6de479b3483", "team_id": 1315574321, "category": "authentication", "log_type": "user_device_added", "date_time": 1688629046919, "properties": {"device_name": "Dashlane CLI", "author_login": "admin@something.io", "device_platform": "server_standalone"}, "author_user_id": 28080685, "schema_version": "1.0.0"}
+{"uuid": "d2f5db34-[..redacted..]-1dfcc3bdf911", "team_id": 1315574321, "category": "authentication", "log_type": "user_device_added", "date_time": 1688628172021, "properties": {"device_name": "Chrome - Mac OS", "author_login": "admin@something.io", "device_platform": "server_standalone"}, "author_user_id": 28080685, "schema_version": "1.0.0"}
+{"uuid": "4ca3bb56-[..redacted..]-66cbb387cb54", "team_id": 1315574321, "category": "authentication", "log_type": "user_device_added", "date_time": 1683303544898, "properties": {"device_name": "Firefox - Ubuntu", "author_login": "user@something.io", "device_platform": "server_standalone"}, "author_user_id": 28086620, "schema_version": "1.0.0"}
+{"uuid": "68e70f62-[..redacted..]-1bb9830f9f18", "team_id": 1315574321, "category": "team_settings_sso", "log_type": "sso_service_provider_url_set", "date_time": 1671629557924, "properties": {"author_login": "admin@something.io", "service_provider_url": "https://sso.nitro.dashlane.com"}, "author_user_id": 28080685, "schema_version": "1.0.0"}
+```
+
+## Filtering the logs
+
+With the following options you can filter the logs by start and end date, log type and category.
+
+```sh
+  --start <start>        start timestamp (default: "0")
+  --end <end>            end timestamp (default: "now")
+  --type <type>          log type
+  --category <category>  log category
+```

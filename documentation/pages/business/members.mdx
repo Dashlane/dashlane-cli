@@ -1,3 +1,13 @@
 # Listing members
 
-_coming soon_
+Listing team members allows you to access many information about them, such as their email, their role, their 2FA status, their security score, etc.
+
+```sh
+dcli t members
+```
+
+You can even pipe the output to `jq` to filter the results:
+
+```sh
+dcli t members | jq '.members[] | select(.isTeamCaptain == true)'
+```

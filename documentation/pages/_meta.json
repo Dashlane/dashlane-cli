@@ -1,5 +1,6 @@
 {
     "index": "Introduction",
     "personal": "Personal",
-    "business": "Business"
+    "business": "Business",
+    "reset": "Reset local data"
 }
