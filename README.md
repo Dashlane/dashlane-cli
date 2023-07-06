@@ -2,6 +2,8 @@
 
 ![GitHub](https://img.shields.io/github/license/Dashlane/dashlane-cli)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/Dashlane/dashlane-cli)
+[![Documentation Website](https://img.shields.io/badge/Documentation-Website)
+](https://dashlane.github.io/dashlane-cli)
 
 ![Dashlane CLI Demo](./demo.png)
 
