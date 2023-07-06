@@ -1,13 +1,64 @@
 # Listing members
 
+## Fetching the list of members
+
 Listing team members allows you to access many information about them, such as their email, their role, their 2FA status, their security score, etc.
 
 ```sh
 dcli t members
 ```
 
-You can even pipe the output to `jq` to filter the results:
+## Filtering the list of members
+
+You can pipe the output to `jq` to filter the results:
 
 ```sh
 dcli t members | jq '.members[] | select(.isTeamCaptain == true)'
 ```
+
+## Members interface
+
+| Property                                      | Type                                                                                        | Description                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `members`                                     | `Array` of `object`                                                                         | Array of team members                            |
+| `members.userId`                              | `number` \| `undefined`                                                                     | The user identifier of the user                  |
+| `members.login`                               | `string`                                                                                    | User login (usually email)                       |
+| `members.status`                              | `string`                                                                                    | Member status                                    |
+| `members.joinedDateUnix`                      | `number` \| `null`                                                                          | The join date of member in Unix time             |
+| `members.lastUpdateDateUnix`                  | `number` \| `null`                                                                          | Last updated date of member in Unix time         |
+| `members.isBillingAdmin`                      | `boolean`                                                                                   | True if user is a billing admin, false otherwise |
+| `members.isTeamCaptain`                       | `boolean`                                                                                   | True if user is a team captain, false otherwise  |
+| `members.isGroupManager`                      | `boolean`                                                                                   | True if user is a group manager, false otherwise |
+| `members.email`                               | `string` \| `undefined`                                                                     | The user's account email                         |
+| `members.isAccountCreated`                    | `boolean` \| `undefined`                                                                    | If user account is created                       |
+| `members.invitedDateUnix`                     | `number`                                                                                    | Date user was invited                            |
+| `members.token`                               | `object`                                                                                    | The user's invite token                          |
+| `members.token.userId`                        | `number` \| `undefined`                                                                     | User identifier associated with the token        |
+| `members.token.teamId`                        | `number` \| `undefined`                                                                     | Team identifier associated with the token        |
+| `members.token.token`                         | `string` \| `undefined`                                                                     | Value of the invite token                        |
+| `members.token.isFresh`                       | `boolean` \| `undefined`                                                                    | True if token is not used, false otherwise       |
+| `members.token.inviteUserId`                  | `number` \| `undefined`                                                                     | The user identifier of the inviter               |
+| `members.revokedDateUnix`                     | `number` \| `null`                                                                          | When user's account was revoked in Unix time     |
+| `members.language`                            | `string` \| `undefined`                                                                     | User's preferred language                        |
+| `members.nbrPasswords`                        | `number` \| `null`                                                                          | Number of passwords stored by user               |
+| `members.reused`                              | `number` \| `null`                                                                          | Number of reused passwords                       |
+| `members.reusedDistinct`                      | `number` \| `null`                                                                          | Number of distinct reused passwords              |
+| `members.weakPasswords`                       | `number` \| `null`                                                                          | Number of weak passwords                         |
+| `members.compromisedPasswords`                | `number` \| `null`                                                                          | Number of compromised passwords                  |
+| `members.averagePasswordStrength`             | `number` \| `null`                                                                          | Average password strength score                  |
+| `members.passwordStrength0_19Count`           | `number` \| `null`                                                                          | Number of passwords between 0 to 19 characters   |
+| `members.passwordStrength20_39Count`          | `number` \| `null`                                                                          | Number of passwords between 20 to 39 characters  |
+| `members.passwordStrength40_59Count`          | `number` \| `null`                                                                          | Number of passwords between 40 to 59 characters  |
+| `members.passwordStrength60_79Count`          | `number` \| `null`                                                                          | Number of passwords between 60 to 79 characters  |
+| `members.passwordStrength80_100Count`         | `number` \| `null`                                                                          | Number of passwords between 80 to 100 characters |
+| `members.safePasswords`                       | `number` \| `null`                                                                          | Number of passwords considered safe              |
+| `members.name`                                | `string` \| `null`                                                                          | User's name                                      |
+| `members.securityIndex`                       | `number` \| `null`                                                                          | Security index                                   |
+| `members.twoFAInformation`                    | `object`                                                                                    | 2FA information for the user                     |
+| `members.twoFAInformation.type`               | `'sso'` \| `'email_token'` \| `'totp_device_registration'` \| `'totp_login'` \| `undefined` | 2FA type                                         |
+| `members.twoFAInformation.phone`              | `string` \| `null`                                                                          | Phone number for 2FA                             |
+| `members.twoFAInformation.lastUpdateDateUnix` | `number` \| `null`                                                                          | Last updated date of 2FA in Unix time            |
+| `members.hasPublicKey`                        | `boolean`                                                                                   | True if user has a public key                    |
+| `billingAdmins`                               | `Array` of `string`                                                                         | Array of emails of billing admins                |
+| `page`                                        | `number`                                                                                    | Current page of results                          |
+| `pages`                                       | `number`                                                                                    | Total pages of results                           |
