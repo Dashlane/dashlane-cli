@@ -1,10 +1,14 @@
+import { Callout } from 'nextra/components';
+
 # Listing members
+
+<Callout emoji="💡">Needs team credentials to use this command.</Callout>
 
 ## Fetching the list of members
 
 Listing team members allows you to access many information about them, such as their email, their role, their 2FA status, their security score, etc.
 
-```sh
+```sh copy
 dcli t members
 ```
 
@@ -12,7 +16,7 @@ dcli t members
 
 You can pipe the output to `jq` to filter the results:
 
-```sh
+```sh copy
 dcli t members | jq '.members[] | select(.isTeamCaptain == true)'
 ```
 

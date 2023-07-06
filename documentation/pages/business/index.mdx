@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components';
+
 # Get started with Business Commands
 
 Commands related to business use a different authentication than your personal vault.
@@ -6,13 +8,15 @@ Commands are calling a server API to perform actions and retrieve data. The firs
 
 ## Generate credentials
 
-```sh
+<Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
+
+```sh copy
 dcli t generate-credentials
 ```
 
 You will be prompted with a list of variables to export in your environment.
 
-```sh
+```sh copy
 export DASHLANE_TEAM_UUID=08a48d4f-[..redacted..]-fba9193d968c
 export DASHLANE_TEAM_ACCESS_KEY=f56[..redacted..]56ce
 export DASHLANE_TEAM_SECRET_KEY=839c9[..redacted..]3ada5
@@ -20,6 +24,8 @@ export DASHLANE_TEAM_SECRET_KEY=839c9[..redacted..]3ada5
 
 ## Revoke credentials
 
-```sh
+<Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
+
+```sh copy
 dcli t revoke-credentials <DASHLANE_TEAM_ACCESS_KEY>
 ```

@@ -1,0 +1,54 @@
+import { Tab, Tabs } from 'nextra-theme-docs'
+ 
+# Install
+
+<Tabs items={['Homebrew', 'Manually with Yarn', 'Packaged Executables']}>
+    <Tab>
+    You can install the Dashlane CLI using [Homebrew](https://brew.sh/), a package manager for macOS. To install Homebrew, run the following command in your terminal:
+
+    ```sh copy
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ```
+
+    Then you need to download or git clone this repository and run the following command in the root directory of the repository:
+
+    ```sh copy
+    brew install --build-from-source dashlane-cli.rb
+    ```
+    </Tab>
+    <Tab>
+    First you need to download or git clone this repository and run the following commands in the root directory of the repository.
+
+    Install the dependencies:
+
+    ```sh copy
+    yarn
+    ```
+
+    In order to build:
+
+    ```sh copy
+    yarn run build
+    ```
+
+    In order to link:
+
+    ```sh copy
+    yarn link
+    ```
+    </Tab>
+    <Tab>
+    Head to the [releases page](https://github.com/Dashlane/dashlane-cli/releases) and download the latest version of the CLI for your platform.
+
+    Move the executable binary to the bin folder of your choice and add it to your PATH.
+
+    You may need to mark the binary as executable:
+
+    ```sh copy
+    chmod +x dcli-macos
+    ```
+
+    On macos, you may also need to allow the binary to run in your security settings. To do so, go to System Preferences > Security & Privacy > General and click on "Allow Anyway" next to the message "dcli-macos was blocked from use because it is not from an identified developer".
+    </Tab>
+
+</Tabs>
