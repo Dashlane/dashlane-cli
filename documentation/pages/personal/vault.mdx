@@ -1,4 +1,10 @@
+import { Callout } from 'nextra/components';
+
 # Accessing your Vault
+
+<Callout type="info" emoji="ℹ️">
+    For now accessing your vault is read only.
+</Callout>
 
 ## Get a password
 
@@ -20,13 +26,13 @@ Note: You can select a different output for passwords among `clipboard, password
 
 ## Generate an OTP code
 
-```sh
+```sh copy
 dcli otp [filters]
 ```
 
 ## Get a secure note
 
-```sh
+```sh copy
 dcli note [titleFilter]
 ```
 
@@ -35,6 +41,6 @@ dcli note [titleFilter]
 By default an automatic synchronization is performed once per hour.
 You can change this behavior with the following command:
 
-```sh
+```sh copy
 dcli configure disable-auto-sync true
 ```

@@ -1,12 +1,16 @@
+import { Callout } from 'nextra/components';
+
 # Reports
 
 You can get reports on your team about the number of seats provisioned, used and pending. You can also get reports on the aggregated password health history of your team.
+
+<Callout emoji="💡">Needs team credentials to use this command.</Callout>
 
 ## Fetch reports
 
 The following commands take in input the number of days to look back for the password health history. The default is 0 day.
 
-```sh
+```sh copy
 dcli t report 30
 ```
 
@@ -18,7 +22,7 @@ One way to consume password health history reports is to generate graphics from 
 
 The following Python script example will generate a graphic from the report.
 
-```python
+```python copy showLineNumbers filename="generate-graph.py"
 import matplotlib.pyplot as plt
 import numpy as np
 

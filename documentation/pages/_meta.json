@@ -1,5 +1,6 @@
 {
     "index": "Introduction",
+    "install": "Install",
     "personal": "Personal",
     "business": "Business",
     "reset": "Reset local data"
