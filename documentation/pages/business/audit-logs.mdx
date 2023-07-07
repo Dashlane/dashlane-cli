@@ -31,3 +31,82 @@ With the following options you can filter the logs by start and end date, log ty
   --type <type>          log type
   --category <category>  log category
 ```
+
+## Logs types (default)
+
+| Type                                           | Event message                                          |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| master_password_reset_accepted                 | Accepted an Account Recovery request from %(email)s    |
+| master_password_reset_refused                  | Denied an Account Recovery request from %(email)s      |
+| user_device_added                              | Added the device %(name)s                              |
+| user_device_removed                            | Removed the device %(name)s                            |
+| requested_account_recovery                     | Requested Account Recovery                             |
+| completed_account_recovery                     | Recovered their account through Account Recovery       |
+| dwm_email_added                                | Added %(email)s to Dark Web Monitoring                 |
+| dwm_email_removed                              | Removed %(email)s from Dark Web Monitoring             |
+| user_group_created                             | Created a group named %(groupName)s                    |
+| user_group_renamed                             | Renamed the %(oldGroupName)s group to %(newGroupName)s |
+| user_group_deleted                             | Deleted the %(groupName)s group                        |
+| user_joined_user_group                         | Joined the %(groupName)s group                         |
+| user_invited_to_user_group                     | Invited %(email)s to the %(groupName)s group           |
+| user_declined_invite_to_user_group             | Declined to join the %(groupName)s group               |
+| user_removed_from_user_group                   | Removed %(email)s from the %(groupName)s group         |
+| team_name_changed                              | Changed your company name to “%(name)s”                |
+| new_billing_period_created                     | Extended your account until %(date)s                   |
+| seats_added                                    | Added %(count)s seats to your account                  |
+| domain_requested                               | Added %(domain)s as an unverified domain               |
+| domain_validated                               | Verified the domain %(domain)s                         |
+| collect_sensitive_data_audit_logs_enabled      | (user) turned on unencrypted vault logs                |
+| collect_sensitive_data_audit_logs_disabled     | (user) turned off unencrypted vault logs               |
+| sso_idp_metadata_set                           | Updated SSO identity provider metadata                 |
+| sso_service_provider_url_set                   | Configured SSO service provider URL                    |
+| sso_enabled                                    | Enabled SSO                                            |
+| sso_disabled                                   | Disabled SSO                                           |
+| contact_email_changed                          | Changed contact email to %(email)s                     |
+| master_password_mobile_reset_enabled           | Turned on biometric recovery for %(deviceName)s        |
+| two_factor_authentication_login_method_added   | Activated a 2FA method                                 |
+| two_factor_authentication_login_method_removed | Removed a 2FA method                                   |
+| user_invited                                   | Invited %(email)s to your account                      |
+| user_removed                                   | Revoked %(email)s from your account                    |
+| team_captain_added                             | Changed %(email)s to admin rights                      |
+| team_captain_removed                           | Changed %(email)s to member rights                     |
+| group_manager_added                            | Changed %(email)s to group manager rights              |
+| group_manager_removed                          | Changed %(email)s to member rights                     |
+| user_reinvited                                 | Resent an invite to %(email)s                          |
+| billing_admin_added                            | Made %(name)s the billing contact                      |
+| billing_admin_removed                          | Revoked %(name)s as the billing contact                |
+
+## Logs types (sensitive)
+
+You can turn on logging sensitive actions in the Policies section of Settings in the Admin Console. Read more about it in our [dedicated Help Center article](https://support.dashlane.com/hc/en-us/articles/4414606120210).
+
+| Type                                       | Event message                                                   |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| collect_sensitive_data_audit_logs_enabled  | (user) turned on additional activity logs (unencrypted)         |
+| collect_sensitive_data_audit_logs_disabled | (user) turned off additional activity logs (unencrypted)        |
+| user_shared_credential_with_group          | (user) shared %(rights [limited/full]) rights to the %(domain)s |
+| user_shared_credential_with_email          | (user) shared %(rights [limited/full]) rights to the %(domain)s |
+| user_shared_credential_with_external       | (user) shared %(rights [limited/full]) rights to the %(domain)s |
+| user_accepted_sharing_invite_credential    | (user) accepted a sharing invitation for the %(domain)s         |
+| user_rejected_sharing_invite_credential    | (user) rejected a sharing invitation for the %(domain)s         |
+| user_revoked_shared_credential_group       | (user) revoked access to the %(domain)s login                   |
+| user_revoked_shared_credential_external    | (user) revoked access to the %(domain)s login                   |
+| user_revoked_shared_credential_email       | (user) revoked access to the %(domain)s login                   |
+| user_created_credential                    | (user) created a login for %(domain)s                           |
+| user_modified_credential                   | (user) modified the login for %(domain)s                        |
+| user_deleted_credential                    | (user) deleted the login for %(domain)s                         |
+
+## Logs categories
+
+| Category            |
+| ------------------- |
+| authentication      |
+| dark_web_monitoring |
+| groups              |
+| sharing             |
+| team_account        |
+| team_settings       |
+| team_settings_sso   |
+| users               |
+| user_settings       |
+| vault_passwords     |
