@@ -1,8 +1,8 @@
-import { requestUserApi } from '../requestApi';
-import { Secrets } from '../types';
+import { requestTeamApi } from '../requestApi';
+import { TeamDeviceCredentials } from '../types';
 
 export interface StartAuditLogsQueryParams {
-    secrets: Secrets;
+    teamDeviceCredentials: TeamDeviceCredentials;
 
     /**
      * The start of the date range to query audit logs by. The format is unix timestamp in seconds. Only the date is used, not the time.
@@ -49,20 +49,20 @@ export interface StartAuditLogsQueryOutput {
 }
 
 export const startAuditLogsQuery = (params: StartAuditLogsQueryParams) => {
-    const { secrets, ...payload } = params;
-    return requestUserApi<StartAuditLogsQueryOutput>({
-        path: 'teams/StartAuditLogsQuery',
-        login: secrets.login,
-        deviceKeys: {
-            accessKey: secrets.accessKey,
-            secretKey: secrets.secretKey,
+    const { teamDeviceCredentials, ...payload } = params;
+    return requestTeamApi<StartAuditLogsQueryOutput>({
+        path: 'auditlogs-teamdevice/StartAuditLogsQuery',
+        teamUuid: teamDeviceCredentials.uuid,
+        teamDeviceKeys: {
+            accessKey: teamDeviceCredentials.accessKey,
+            secretKey: teamDeviceCredentials.secretKey,
         },
         payload,
     });
 };
 
 export interface GetAuditLogQueryResultsParams {
-    secrets: Secrets;
+    teamDeviceCredentials: TeamDeviceCredentials;
 
     /**
      * The ID associated with the query executed by the RequestAuditLogs endpoint.
@@ -94,13 +94,13 @@ export interface GetAuditLogQueryResultsOutput {
 }
 
 export const getAuditLogQueryResults = (params: GetAuditLogQueryResultsParams) => {
-    const { secrets, ...payload } = params;
-    return requestUserApi<GetAuditLogQueryResultsOutput>({
-        path: 'teams/GetAuditLogQueryResults',
-        login: secrets.login,
-        deviceKeys: {
-            accessKey: secrets.accessKey,
-            secretKey: secrets.secretKey,
+    const { teamDeviceCredentials, ...payload } = params;
+    return requestTeamApi<GetAuditLogQueryResultsOutput>({
+        path: 'auditlogs-teamdevice/GetAuditLogQueryResults',
+        teamUuid: teamDeviceCredentials.uuid,
+        teamDeviceKeys: {
+            accessKey: teamDeviceCredentials.accessKey,
+            secretKey: teamDeviceCredentials.secretKey,
         },
         payload,
     });
