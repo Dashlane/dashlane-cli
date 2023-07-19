@@ -139,19 +139,6 @@ Use generate-credentials to generate some team credentials (requires to be a tea
 }
 
 teamGroup
-    .command('members')
-    .alias('m')
-    .description('List team members')
-    .argument('[page]', 'Page number', '0')
-    .argument('[limit]', 'Limit of members per page', '0')
-    .action(async (page: string, limit: string) => {
-        if (!teamDeviceCredentials) {
-            throw new Error('Could not find team credentials');
-        }
-        await getTeamMembers({ teamDeviceCredentials, page: parseInt(page), limit: parseInt(limit) });
-    });
-
-teamGroup
     .command('generate-credentials')
     .option('--json', 'Output in JSON format')
     .description('Generate new team credentials')
@@ -188,6 +175,19 @@ teamGroup
     });
 
 teamGroup
+    .command('members')
+    .alias('m')
+    .description('List team members')
+    .argument('[page]', 'Page number', '0')
+    .argument('[limit]', 'Limit of members per page', '0')
+    .action(async (page: string, limit: string) => {
+        if (!teamDeviceCredentials) {
+            throw new Error('Could not find team credentials');
+        }
+        await getTeamMembers({ teamDeviceCredentials, page: parseInt(page), limit: parseInt(limit) });
+    });
+
+teamGroup
     .command('logs')
     .alias('l')
     .description('List audit logs')
@@ -196,12 +196,16 @@ teamGroup
     .option('--type <type>', 'log type')
     .option('--category <category>', 'log category')
     .action(async (options: { start: string; end: string; type: string; category: string }) => {
+        if (!teamDeviceCredentials) {
+            throw new Error('Could not find team credentials');
+        }
+
         const { start, type, category } = options;
         const end = options.end === 'now' ? Math.floor(Date.now() / 1000).toString() : options.end;
 
-        const { db, secrets } = await connectAndPrepare({ autoSync: false });
+        const { db } = await connectAndPrepare({ autoSync: false });
         await getAuditLogs({
-            secrets,
+            teamDeviceCredentials,
             startDateRangeUnix: parseInt(start),
             endDateRangeUnix: parseInt(end),
             logType: type,
