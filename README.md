@@ -7,10 +7,10 @@
 
 ![Dashlane CLI Demo](./demo.png)
 
-## How to install with brew
+## How to install with homebrew
 
 ```sh
-brew install --build-from-source dashlane-cli.rb
+brew install dashlane/tap/dashlane-cli
 ```
 
 ## How to install (manually)
