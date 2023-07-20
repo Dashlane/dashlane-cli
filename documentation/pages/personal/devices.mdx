@@ -1,0 +1,51 @@
+import { Callout } from 'nextra/components';
+
+# Managing your devices
+
+## List your devices
+
+```sh copy
+dcli devices list
+```
+
+You'll get a list of all your devices, with their ID, name, and platform.
+
+```sh
+f6110572        Chrome - Linux    server_standalone       other
+e96c8942        Firefox - Ubuntu  server_standalone       other
+9d7fc86f        Chrome - Mac OS   server_standalone       other
+61e815b5        Dashlane CLI      server_standalone       current
+```
+
+You can also request the result in JSON format:
+
+```sh copy
+dcli devices list --json
+```
+
+## Remove devices from your account
+
+Devices that are removed from your account will need to re-authenticate to Dashlane again.
+This is useful if you want to remove a device that you no longer use, or you don't have access to anymore.
+
+### Remove specific devices
+
+```sh copy
+dcli devices remove <device-id-1> <device-id-2>
+```
+
+### Remove all devices except the current one
+
+```sh copy
+dcli devices remove --other
+```
+
+### Remove all devices including current CLI device
+
+```sh copy
+dcli devices remove --all
+```
+
+<Callout type="info" emoji="ℹ️">
+    If you remove the current CLI device, you will need to do a `dcli reset` in order to re-authenticate.
+</Callout>

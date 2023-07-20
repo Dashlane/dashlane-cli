@@ -1,5 +1,6 @@
 {
     "index": "Get Started",
     "authentication": "Authentication",
+    "devices": "Managing your Devices",
     "vault": "Accessing your Vault"
 }
