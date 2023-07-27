@@ -1,6 +1,5 @@
 import { requestAppApi } from '../requestApi';
-
-type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';
+import { SupportedAuthenticationMethod } from '../types';
 
 const defaultSupportedMethods: SupportedAuthenticationMethod[] = [
     'email_token',
@@ -26,6 +25,7 @@ interface GetAuthenticationMethodsForDeviceResult {
                   isNitroProvider?: boolean;
               };
           }
+        | Record<string, never>
         | {
               type: 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';
           }
@@ -39,6 +39,10 @@ interface GetAuthenticationMethodsForDeviceResult {
               }[];
           }
     )[];
+    /**
+     * Indicates the type of account the user owns
+     */
+    accountType: 'masterPassword' | 'invisibleMasterPassword';
 }
 
 // Unused for now

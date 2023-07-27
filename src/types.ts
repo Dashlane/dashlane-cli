@@ -201,3 +201,5 @@ export class PrintableVaultNote {
         return this.vaultNote.title.trim();
     }
 }
+
+export type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';

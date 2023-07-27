@@ -1,6 +1,13 @@
 import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
-import { PrintableVaultCredential, PrintableVaultNote, VaultCredential, VaultNote } from '../types';
+import { removeUnderscoresAndCapitalize } from './strings';
+import {
+    PrintableVaultCredential,
+    PrintableVaultNote,
+    SupportedAuthenticationMethod,
+    VaultCredential,
+    VaultNote,
+} from '../types';
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 export const prompt = inquirer.createPromptModule({ output: process.stderr });
@@ -137,4 +144,18 @@ export const askToken = async () => {
         },
     ]);
     return response.token;
+};
+
+export const askVerificationMethod = async (verificationMethods: SupportedAuthenticationMethod[]) => {
+    const response = await inquirer.prompt<{ verificationMethod: string }>([
+        {
+            type: 'list',
+            name: 'verificationMethod',
+            message: 'What second factor method would you like to use?',
+            choices: verificationMethods.map((method) => {
+                return { name: removeUnderscoresAndCapitalize(method), value: method };
+            }),
+        },
+    ]);
+    return response.verificationMethod;
 };

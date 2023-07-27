@@ -26,3 +26,11 @@ export const getTeamDeviceCredentialsFromEnv = (): TeamDeviceCredentials | null 
         return null;
     }
 };
+
+/** Remove underscores and capitalize string */
+export const removeUnderscoresAndCapitalize = (string: string): string => {
+    return string
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.slice(1))
+        .join(' ');
+};

@@ -7,9 +7,10 @@ import {
     performEmailTokenVerification,
     performTotpVerification,
 } from '../endpoints';
-import { askOtp, askToken } from '../utils';
+import { askOtp, askToken, askVerificationMethod } from '../utils';
 import { getAuthenticationMethodsForDevice } from '../endpoints/getAuthenticationMethodsForDevice';
 import { requestEmailTokenVerification } from '../endpoints/requestEmailTokenVerification';
+import { SupportedAuthenticationMethod } from '../types';
 
 interface RegisterDevice {
     login: string;
@@ -22,20 +23,31 @@ export const registerDevice = async (
     winston.debug('Registering the device...');
 
     // Log in via a compatible verification method
-    const { verifications } = await getAuthenticationMethodsForDevice({ login });
+    const { verifications, accountType } = await getAuthenticationMethodsForDevice({ login });
+
+    if (accountType === 'invisibleMasterPassword') {
+        throw new Error('Master password-less is currently not supported');
+    }
+
+    const selectedVerificationMethod =
+        verifications.length > 1
+            ? await askVerificationMethod(verifications.map((method) => method.type as SupportedAuthenticationMethod))
+            : verifications[0].type;
 
     let authTicket: string;
-    if (verifications.find((method) => method.type === 'duo_push')) {
+    if (selectedVerificationMethod === 'duo_push') {
+        winston.info('Please accept the Duo push notification on your phone');
         ({ authTicket } = await performDuoPushVerification({ login }));
-    } else if (verifications.find((method) => method.type === 'dashlane_authenticator')) {
+    } else if (selectedVerificationMethod === 'dashlane_authenticator') {
+        winston.info('Please accept the Dashlane Authenticator push notification on your phone');
         ({ authTicket } = await performDashlaneAuthenticatorVerification({ login }));
-    } else if (verifications.find((method) => method.type === 'totp')) {
+    } else if (selectedVerificationMethod === 'totp') {
         const otp = await askOtp();
         ({ authTicket } = await performTotpVerification({
             login,
             otp,
         }));
-    } else if (verifications.find((method) => method.type === 'email_token')) {
+    } else if (selectedVerificationMethod === 'email_token') {
         await requestEmailTokenVerification({ login });
 
         const token = await askToken();
