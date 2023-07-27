@@ -44,3 +44,32 @@ You can change this behavior with the following command:
 ```sh copy
 dcli configure disable-auto-sync true
 ```
+
+## Use cases
+
+### Use SSH Keys from your vault
+
+This use case shows you how to use Dashlane to store your SSH keys and use them to connect to your servers.
+This could be useful if you want to share SSH keys with your team.
+
+Let's say you have generated a new SSH key pair and you want to store it in Dashlane.
+
+```sh
+# this is an example, use the parameters you want
+ssh-keygen -t rsa -b 4096 -C "Dashlane SSH demo key"
+```
+
+Copy the private key to your clipboard and store it in a new secure note (named `SSH_DEMO_KEY` in our example) in Dashlane via the extension.
+It is important to include the headers of the key (`-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`) in the secure note.
+
+Now, make sure your CLI is synchronized:
+
+```sh copy
+dcli sync
+```
+
+Once done, you can retrieve the private key from your vault and inject it in your SSH agent:
+
+```sh copy
+dcli n SSH_DEMO_KEY | ssh-add -
+```
