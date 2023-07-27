@@ -64,7 +64,7 @@ export const askConfirmReset = async () => {
         {
             type: 'list',
             name: 'confirmReset',
-            message: 'Do you really want to delete all local data from this app?',
+            message: 'Do you really want to logout and delete all local data from this app?',
             choices: ['Yes', 'No'],
         },
     ]);
