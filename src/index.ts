@@ -139,7 +139,7 @@ devicesGroup
     .option('--all', 'remove all devices (dangerous)')
     .option('--other', 'remove all other devices')
     .argument('[device ids...]', 'ids of the devices to remove')
-    .description('Unregisters a list of devices. Unregistering the CLI will implies doing a "dcli reset"')
+    .description('De-registers a list of devices. De-registering the CLI will implies doing a "dcli logout"')
     .action(removeAllDevices);
 
 const teamGroup = program.command('team').alias('t').description('Team related commands');
@@ -266,8 +266,8 @@ configureGroup
     });
 
 program
-    .command('reset')
-    .description('Reset and clean your local database and OS keychain')
+    .command('logout')
+    .description('Logout and clean your local database and OS keychain')
     .action(async () => {
         const resetConfirmation = await askConfirmReset();
         if (resetConfirmation) {
@@ -280,13 +280,13 @@ program
                 if (error instanceof Error) {
                     errorMessage = error.message;
                 }
-                winston.debug(`Unable to read device configuration during reset: ${errorMessage}`);
+                winston.debug(`Unable to read device configuration during logout: ${errorMessage}`);
 
                 db = connect();
                 db.serialize();
             }
             reset({ db, secrets });
-            console.log('The local Dashlane local storage has been reset');
+            console.log('The local Dashlane local storage has been reset and you have been logged out');
             db.close();
         }
     });

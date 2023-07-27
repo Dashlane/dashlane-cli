@@ -3,5 +3,5 @@
     "install": "Install",
     "personal": "Personal",
     "business": "Business",
-    "reset": "Reset local data"
+    "logout": "Logout"
 }
