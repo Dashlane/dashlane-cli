@@ -12,6 +12,12 @@ You can query the audit logs using the `logs` command. For example:
 dcli t logs
 ```
 
+You can also save the logs to a file:
+
+```sh copy
+dcli t logs --start 0 --end now > logs.json
+```
+
 The logs are output in JSON format, each line is a new log entry.
 
 ```json
@@ -26,8 +32,8 @@ The logs are output in JSON format, each line is a new log entry.
 With the following options you can filter the logs by start and end date, log type and category.
 
 ```sh
-  --start <start>        start timestamp (default: "0")
-  --end <end>            end timestamp (default: "now")
+  --start <start>        start timestamp in ms (default: "0")
+  --end <end>            end timestamp in ms (default: "now")
   --type <type>          log type
   --category <category>  log category
 ```
@@ -110,3 +116,37 @@ You can turn on logging sensitive actions in the Policies section of Settings in
 | users               |
 | user_settings       |
 | vault_passwords     |
+
+## Use cases
+
+### Sending audit logs to a SIEM or log management solution
+
+If you want to send the logs to a SIEM for instance, you can pull the logs periodically and only get the new logs by using the `--start` option.
+
+Here is an example of a cron job that pulls the latest logs of the day and append them to a file:
+
+```sh
+#!/bin/bash
+
+# Create the cron job
+# crontab -e
+# 0 0 * * * /path/to/script.sh
+
+# Get the latest pull date
+if [ -f "last_pull_date" ]; then
+  last_pull_date=$(cat last_pull_date)
+else
+  last_pull_date=0
+fi
+
+# Save the latest pull date
+date +%s000 > last_pull_date
+
+# Pull the logs
+dcli t logs --start $last_pull_date >> logs.json
+```
+
+Make sure to replace `/path/to/script.sh` with the actual path to the script.
+The other paths in the script are only examples and may not reflect the permissions of your system, you can change them to your needs.
+
+Configure your SIEM agent to watch the `logs.json` file changes.

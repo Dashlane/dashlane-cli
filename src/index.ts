@@ -206,8 +206,8 @@ teamGroup
     .command('logs')
     .alias('l')
     .description('List audit logs')
-    .option('--start <start>', 'start timestamp', '0')
-    .option('--end <end>', 'end timestamp', 'now')
+    .option('--start <start>', 'start timestamp in ms', '0')
+    .option('--end <end>', 'end timestamp in ms (use "now" to get the current timestamp)', 'now')
     .option('--type <type>', 'log type')
     .option('--category <category>', 'log category')
     .action(async (options: { start: string; end: string; type: string; category: string }) => {
@@ -216,7 +216,7 @@ teamGroup
         }
 
         const { start, type, category } = options;
-        const end = options.end === 'now' ? Math.floor(Date.now() / 1000).toString() : options.end;
+        const end = options.end === 'now' ? Date.now().toString() : options.end;
 
         const { db } = await connectAndPrepare({ autoSync: false });
         await getAuditLogs({
