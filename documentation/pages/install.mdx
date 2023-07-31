@@ -2,9 +2,13 @@ import { Tab, Tabs } from 'nextra-theme-docs'
  
 # Install
 
-<Tabs items={['Homebrew', 'Manually with Yarn', 'Packaged Executables']}>
+The Dashlane CLI can be installed in multiple ways. You can either install it using [Homebrew](https://brew.sh/) on **macOS** and **Linux**, manually with [Yarn](https://yarnpkg.com/) or download the packaged executables for **Windows**, **macOS** and **Linux** on x64 architectures.
+
+<Tabs items={['Homebrew', 'Manually with Yarn', 'Packaged Executables (x64 only)']}>
     <Tab>
-    You can install the Dashlane CLI using [Homebrew](https://brew.sh/), a package manager for macOS. To install Homebrew, run the following command in your terminal:
+    You can install the Dashlane CLI using [Homebrew](https://brew.sh/), a package manager for __macOS__ and __Linux__.
+    
+    To install Homebrew, run the following command in your terminal:
 
     ```sh copy
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -15,9 +19,13 @@ import { Tab, Tabs } from 'nextra-theme-docs'
     ```sh copy
     brew install dashlane/tap/dashlane-cli
     ```
+
+    The CLI is now installed on your machine, it will be updated automatically when a new version is released.
     </Tab>
     <Tab>
-    First you need to download or git clone this repository and run the following commands in the root directory of the repository.
+    This method is available on every environment that supports [Node.js](https://nodejs.org/en/) and Yarn.
+
+    First you need to download or `git clone` this repository and run the following commands in the root directory of the repository.
 
     Install the dependencies:
 
@@ -36,19 +44,46 @@ import { Tab, Tabs } from 'nextra-theme-docs'
     ```sh copy
     yarn link
     ```
+
+    Make sure to pull the latest changes and rebuild the project to get the latest version of the CLI.
     </Tab>
     <Tab>
-    Head to the [releases page](https://github.com/Dashlane/dashlane-cli/releases) and download the latest version of the CLI for your platform.
+    Head to the [releases page](https://github.com/Dashlane/dashlane-cli/releases) and download the latest version of the CLI for your platform (Windows, macOS or Linux).
 
-    Move the executable binary to the bin folder of your choice and add it to your PATH.
-
-    You may need to mark the binary as executable:
+    You may need to mark the binary as executable (on macOS and Linux):
 
     ```sh copy
-    chmod +x dcli-macos
+    chmod +x dcli-macos-x64
     ```
 
-    On macos, you may also need to allow the binary to run in your security settings. To do so, go to System Preferences > Security & Privacy > General and click on "Allow Anyway" next to the message "dcli-macos was blocked from use because it is not from an identified developer".
+    You can now try to run the CLI from the current directory in a terminal (Shell, PowerShell, etc.):
+
+    ```sh copy
+    ./dcli-macos-x64
+    ```
+
+    Move the executable binary to the bin folder of your choice, for instance:
+
+    ```sh
+    # On macOS:
+    mv dcli-macos-x64 /usr/local/bin/dcli
+
+    # On Linux:
+    mv dcli-linux-x64 /usr/local/bin/dcli
+
+    # On Windows:
+    move dcli-win-x64.exe C:\Windows\System32\dcli.exe
+    ```
+
+    On macOS, you may also need to allow the binary to run in your security settings.
+    To do so, go to `System Preferences > Security & Privacy > General` and click on "Allow Anyway" next to the message "dcli-macos was blocked from use because it is not from an identified developer".
+
+    You will need to get the latest version of the CLI manually by downloading the latest release and replacing the binary in your bin folder.
     </Tab>
 
 </Tabs>
+
+## What's next?
+
+-   [Authenticate to your personal account](/personal)
+-   [Getting Started with Business Commands](/business)

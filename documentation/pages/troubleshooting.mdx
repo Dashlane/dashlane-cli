@@ -1,0 +1,49 @@
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+# Troubleshooting
+
+Here are a few common issues and how to fix them.
+
+### Mismatching signatures
+
+If you are using the CLI in multiple environments, and particularly in an IDE like WebStorm, they may use different
+OS keychain environments so the local keys may not match: the reason why signatures are invalid.
+
+To detect this problem you can, on Linux, install secret-tool: `sudo apt install libsecret-tools`, execute
+`secret-tool search service dashlane-cli` on every environment and check if the secrets match.
+
+If they don't, you can fix the error by manually editing what is stored in the OS keychain using this command:
+`secret-tool store --label "dashlane-cli@<dashlaneId>" service dashlane-cli account <dashlaneId>` in the
+failing environment with the secret from the healthy environment.
+
+### RequestError: unable to verify the first certificate
+
+In NodeJS the list of certificate authorities is hardcoded, read more here: [nodejs/node#4175](https://github.com/nodejs/node/issues/4175).
+You can use an environment variable to add custom certs ([see documentation](https://nodejs.org/docs/latest-v16.x/api/cli.html#node_extra_ca_certsfile)):
+
+<Tabs items={['Bash', 'Powershell', 'Batch']}>
+    <Tab>
+
+    ```sh copy
+    export NODE_EXTRA_CA_CERTS="/path/to/cert.pem"
+    ```
+
+    </Tab>
+    <Tab>
+
+    ```powershell copy
+    $Env:NODE_EXTRA_CA_CERTS="C:\certs\root.crt"
+    ```
+
+    </Tab>
+    <Tab>
+
+    ```batch copy
+    set NODE_EXTRA_CA_CERTS="C:\certs\root.crt"
+    ```
+
+    </Tab>
+
+</Tabs>
+
+See the issue [#46](https://github.com/Dashlane/dashlane-cli/issues/46).
