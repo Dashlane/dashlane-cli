@@ -3,5 +3,6 @@
     "install": "Install",
     "personal": "Personal",
     "business": "Business",
-    "logout": "Logout"
+    "logout": "Logout",
+    "troubleshooting": "Troubleshooting"
 }
