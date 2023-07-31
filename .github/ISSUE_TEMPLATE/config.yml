@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+questions:
+  - name: Start a discussion
+    url: https://github.com/Dashlane/dashlane-cli/discussions/new
+    about: We use Discussions for asking questions or getting help on your own projects and integration
