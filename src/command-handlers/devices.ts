@@ -1,7 +1,7 @@
 import { connectAndPrepare } from '../database';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints';
 import { reset } from '../middleware';
-import { askConfirmReset } from '../utils';
+import { askConfirmReset, unixTimestampToHumanReadable } from '../utils';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
     isCurrentDevice: boolean;
@@ -25,17 +25,17 @@ export async function listAllDevices(options: { json: boolean }) {
         // for human consumption
         result.sort((a, b) => a.lastActivityDateUnix - b.lastActivityDateUnix);
 
-        // print results
-        for (const device of result) {
-            console.log(
-                [
-                    device.deviceId,
-                    device.deviceName,
-                    device.devicePlatform,
-                    device.isCurrentDevice ? 'current' : 'other',
-                ].join('\t')
-            );
-        }
+        const printableResult = result.map((device) => {
+            return {
+                id: device.deviceId,
+                name: device.deviceName,
+                platform: device.devicePlatform,
+                lastActivity: unixTimestampToHumanReadable(device.lastActivityDateUnix),
+                current: device.isCurrentDevice,
+            };
+        });
+
+        console.table(printableResult);
     }
 }
 

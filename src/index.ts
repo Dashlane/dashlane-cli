@@ -22,7 +22,7 @@ import {
 } from './middleware';
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { registerTeamDevice } from './endpoints/registerTeamDevice';
-import { listAllDevices, removeAllDevices } from './command-handlers';
+import { listAllDevices, removeAllDevices, listAllTeamDevices } from './command-handlers';
 import { deactivateTeamDevice } from './endpoints/deactivateTeamDevice';
 
 const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
@@ -153,8 +153,10 @@ Use generate-credentials to generate some team credentials (requires to be a tea
     );
 }
 
-teamGroup
-    .command('generate-credentials')
+const teamCredentialsGroup = teamGroup.command('credentials').alias('c').description('Team credentials operations');
+
+teamCredentialsGroup
+    .command('generate')
     .option('--json', 'Output in JSON format')
     .description('Generate new team credentials')
     .action(async (options: { json: boolean }) => {
@@ -177,8 +179,14 @@ teamGroup
         }
     });
 
-teamGroup
-    .command('revoke-credentials')
+teamCredentialsGroup
+    .command('list')
+    .option('--json', 'Output in JSON format')
+    .description('List all team credentials')
+    .action(listAllTeamDevices);
+
+teamCredentialsGroup
+    .command('revoke')
     .description('Revoke credentials by access key')
     .argument('<accessKey>', 'Access key of the credentials to revoke')
     .action(async (accessKey: string) => {
