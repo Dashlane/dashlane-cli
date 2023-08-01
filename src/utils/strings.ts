@@ -34,3 +34,8 @@ export const removeUnderscoresAndCapitalize = (string: string): string => {
         .map((word) => word[0].toUpperCase() + word.slice(1))
         .join(' ');
 };
+
+/** Unix timestamp to human readable string */
+export const unixTimestampToHumanReadable = (timestamp: number | null): string => {
+    return timestamp ? new Date(timestamp * 1000).toLocaleString() : 'N/A';
+};
