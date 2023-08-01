@@ -1,3 +1,4 @@
+import os from 'os';
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 import { requestAppApi } from '../requestApi';
 
@@ -63,9 +64,9 @@ export const completeDeviceRegistration = (params: CompleteDeviceRegistration) =
         path: 'authentication/CompleteDeviceRegistrationWithAuthTicket',
         payload: {
             device: {
-                deviceName: 'Dashlane CLI',
-                appVersion: `${cliVersionToString(CLI_VERSION)}-cli`,
-                platform: 'server_standalone',
+                deviceName: `${os.hostname()} - ${os.platform()}-${os.arch()}`,
+                appVersion: `${cliVersionToString(CLI_VERSION)}`,
+                platform: 'server_cli',
                 osCountry: 'en_US',
                 osLanguage: 'en_US',
                 temporary: false,
