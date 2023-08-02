@@ -6,12 +6,11 @@ import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt'
 import { encryptAES } from './encrypt';
 import { sha512 } from './hash';
 import { EncryptedData } from './types';
-import { CLI_VERSION, cliVersionToString } from '../cliVersion';
-import { registerDevice } from '../middleware/registerDevice';
-import { DeviceConfiguration, Secrets } from '../types';
-import { askEmailAddress, askMasterPassword } from '../utils/dialogs';
-import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated';
-import { perform2FAVerification } from '../middleware/perform2FAVerification';
+import { CLI_VERSION, cliVersionToString } from '../../cliVersion';
+import { perform2FAVerification, registerDevice } from '../auth';
+import { DeviceConfiguration, Secrets } from '../../types';
+import { askEmailAddress, askMasterPassword } from '../../utils/dialogs';
+import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
 
 const SERVICE = 'dashlane-cli';
 

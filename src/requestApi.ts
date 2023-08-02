@@ -1,12 +1,12 @@
 import * as got from 'got';
-import * as apiconnect from './api-connect';
+import * as apiConnect from './modules/api-connect';
 import { CLI_VERSION, cliVersionToString } from './cliVersion';
 import { gotImplementation } from './utils/';
 
 interface RequestApi {
     payload: Dictionary<unknown>;
     path: string;
-    authentication: apiconnect.Authentication;
+    authentication: apiConnect.Authentication;
 }
 
 interface DashlaneApiErrorResponse {
@@ -37,7 +37,7 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
 
     let response;
     try {
-        response = await apiconnect.postRequestAPI<got.Response<string>>({
+        response = await apiConnect.postRequestAPI<got.Response<string>>({
             requestFunction: gotImplementation,
             authentication,
             path: 'v1/' + path,

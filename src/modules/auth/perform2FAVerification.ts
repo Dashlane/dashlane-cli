@@ -1,7 +1,7 @@
-import { performTotpVerification } from '../endpoints';
-import { completeLoginWithAuthTicket } from '../endpoints/completeLoginWithAuthTicket';
-import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated';
-import { askOtp } from '../utils';
+import { performTotpVerification } from '../../endpoints';
+import { completeLoginWithAuthTicket } from '../../endpoints/completeLoginWithAuthTicket';
+import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
+import { askOtp } from '../../utils';
 
 interface Params {
     login: string;

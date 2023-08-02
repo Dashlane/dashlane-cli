@@ -7,7 +7,7 @@ import zlib from 'zlib';
 import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
-import { BackupEditTransaction, Secrets, SymmetricKeyGetter, TransactionContent } from '../types';
+import { BackupEditTransaction, Secrets, SymmetricKeyGetter, TransactionContent } from '../../types';
 
 const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
     const combinedKey = sha512(originalKey);

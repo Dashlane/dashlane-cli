@@ -1,6 +1,5 @@
-import { connectAndPrepare } from '../database';
+import { connectAndPrepare, reset } from '../modules/database';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints';
-import { reset } from '../middleware';
 import { askConfirmReset, unixTimestampToHumanReadable } from '../utils';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
