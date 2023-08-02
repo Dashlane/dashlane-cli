@@ -136,8 +136,8 @@ devicesGroup
     .action(listAllDevices);
 devicesGroup
     .command('remove')
-    .option('--all', 'remove all devices (dangerous)')
-    .option('--other', 'remove all other devices')
+    .option('--all', 'remove all devices including this one (dangerous)')
+    .option('--others', 'remove all other devices')
     .argument('[device ids...]', 'ids of the devices to remove')
     .description('De-registers a list of devices. De-registering the CLI will implies doing a "dcli logout"')
     .action(removeAllDevices);
