@@ -24,6 +24,7 @@ import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { registerTeamDevice } from './endpoints/registerTeamDevice';
 import { listAllDevices, removeAllDevices, listAllTeamDevices } from './command-handlers';
 import { deactivateTeamDevice } from './endpoints/deactivateTeamDevice';
+import { CouldNotFindTeamCredentialsError } from './errors';
 
 const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
 
@@ -205,7 +206,7 @@ teamGroup
     .argument('[limit]', 'Limit of members per page', '0')
     .action(async (page: string, limit: string) => {
         if (!teamDeviceCredentials) {
-            throw new Error('Could not find team credentials');
+            throw new CouldNotFindTeamCredentialsError();
         }
         await getTeamMembers({ teamDeviceCredentials, page: parseInt(page), limit: parseInt(limit) });
     });
@@ -220,7 +221,7 @@ teamGroup
     .option('--category <category>', 'log category')
     .action(async (options: { start: string; end: string; type: string; category: string }) => {
         if (!teamDeviceCredentials) {
-            throw new Error('Could not find team credentials');
+            throw new CouldNotFindTeamCredentialsError();
         }
 
         const { start, type, category } = options;
@@ -243,8 +244,12 @@ teamGroup
     .description('Get team report')
     .argument('[days]', 'Number of days in history', '0')
     .action(async (days: string) => {
-        const { db, secrets } = await connectAndPrepare({ autoSync: false });
-        await getTeamReport({ secrets, days: parseInt(days) });
+        if (!teamDeviceCredentials) {
+            throw new CouldNotFindTeamCredentialsError();
+        }
+
+        const { db } = await connectAndPrepare({ autoSync: false });
+        await getTeamReport({ teamDeviceCredentials, days: parseInt(days) });
         db.close();
     });
 
@@ -300,6 +305,6 @@ program
     });
 
 program.parseAsync().catch((error: Error) => {
-    console.error(`ERROR: ${error.message}`);
+    console.error(`ERROR:`, error.message);
     process.exit(1);
 });
