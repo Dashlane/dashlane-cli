@@ -1,24 +1,15 @@
-import Database from 'better-sqlite3';
 import winston from 'winston';
-import { encryptAES } from '../crypto/encrypt';
-import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../crypto/keychainManager';
-import { Secrets } from '../types';
+import { encryptAES } from '../modules/crypto/encrypt';
+import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
+import { connectAndPrepare } from '../modules/database';
+import { parseBooleanString } from '../utils';
 
-interface ConfigureSaveMasterPassword {
-    db: Database.Database;
-    secrets: Secrets;
-    shouldNotSaveMasterPassword: boolean;
-}
-
-interface ConfigureDisableAutoSync {
-    db: Database.Database;
-    secrets: Secrets;
-    disableAutoSync: boolean;
-}
-
-export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword) => {
-    const { db, secrets } = params;
-    let shouldNotSaveMasterPassword = params.shouldNotSaveMasterPassword;
+export const configureSaveMasterPassword = async (boolean: string) => {
+    let shouldNotSaveMasterPassword = !parseBooleanString(boolean);
+    const { db, secrets } = await connectAndPrepare({
+        autoSync: false,
+        shouldNotSaveMasterPasswordIfNoDeviceKeys: shouldNotSaveMasterPassword,
+    });
 
     if (shouldNotSaveMasterPassword) {
         // Forget the local key stored in the OS keychain because the master password and the DB are enough to retrieve the
@@ -54,12 +45,17 @@ export const configureSaveMasterPassword = (params: ConfigureSaveMasterPassword)
     db.prepare('UPDATE device SET masterPasswordEncrypted = ?, shouldNotSaveMasterPassword = ? WHERE login = ?')
         .bind(masterPasswordEncrypted, shouldNotSaveMasterPassword ? 1 : 0, secrets.login)
         .run();
+
+    db.close();
 };
 
-export const configureDisableAutoSync = (params: ConfigureDisableAutoSync) => {
-    const { db, secrets, disableAutoSync } = params;
+export const configureDisableAutoSync = async (boolean: string) => {
+    const disableAutoSync = parseBooleanString(boolean);
+    const { db, secrets } = await connectAndPrepare({ autoSync: false });
 
     db.prepare('UPDATE device SET autoSync = ? WHERE login = ?')
         .bind(disableAutoSync ? 0 : 1, secrets.login)
         .run();
+
+    db.close();
 };

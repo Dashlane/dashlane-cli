@@ -1,4 +1,4 @@
-import { connectAndPrepare } from '../database';
+import { connectAndPrepare } from '../modules/database';
 import { listTeamDevices } from '../endpoints';
 import { unixTimestampToHumanReadable } from '../utils';
 
@@ -36,7 +36,6 @@ export async function listAllTeamDevices(options: { json: boolean }) {
                 };
             });
 
-        // print results
         console.table(result);
     }
 }

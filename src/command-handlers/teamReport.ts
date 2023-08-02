@@ -1,13 +1,13 @@
 import { getTeamReport as getTeamReportRequest } from '../endpoints';
-import { TeamDeviceCredentials } from '../types';
+import { getTeamDeviceCredentials } from '../utils';
 
 interface GetTeamMembersParams {
-    teamDeviceCredentials: TeamDeviceCredentials;
     days: number;
 }
 
-export const getTeamReport = async (params: GetTeamMembersParams) => {
-    const { teamDeviceCredentials, days } = params;
+export const runTeamReport = async (params: GetTeamMembersParams) => {
+    const { days } = params;
+    const teamDeviceCredentials = getTeamDeviceCredentials();
 
     const response = await getTeamReportRequest({
         teamDeviceCredentials,

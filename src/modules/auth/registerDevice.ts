@@ -6,11 +6,11 @@ import {
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
-} from '../endpoints';
-import { askOtp, askToken, askVerificationMethod } from '../utils';
-import { getAuthenticationMethodsForDevice } from '../endpoints/getAuthenticationMethodsForDevice';
-import { requestEmailTokenVerification } from '../endpoints/requestEmailTokenVerification';
-import { SupportedAuthenticationMethod } from '../types';
+} from '../../endpoints';
+import { askOtp, askToken, askVerificationMethod } from '../../utils';
+import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice';
+import { requestEmailTokenVerification } from '../../endpoints/requestEmailTokenVerification';
+import type { SupportedAuthenticationMethod } from '../../types';
 
 interface RegisterDevice {
     login: string;

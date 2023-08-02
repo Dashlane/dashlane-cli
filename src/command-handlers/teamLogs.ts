@@ -1,5 +1,24 @@
 import winston from 'winston';
-import { getAuditLogQueryResults, startAuditLogsQuery, StartAuditLogsQueryParams } from '../endpoints';
+import { connectAndPrepare } from '../modules/database';
+import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints';
+import { getTeamDeviceCredentials } from '../utils';
+
+export const runTeamLogs = async (options: { start: string; end: string; type: string; category: string }) => {
+    const teamDeviceCredentials = getTeamDeviceCredentials();
+
+    const { start, type, category } = options;
+    const end = options.end === 'now' ? Date.now().toString() : options.end;
+
+    const { db } = await connectAndPrepare({ autoSync: false });
+    await getAuditLogs({
+        teamDeviceCredentials,
+        startDateRangeUnix: parseInt(start),
+        endDateRangeUnix: parseInt(end),
+        logType: type,
+        category,
+    });
+    db.close();
+};
 
 const MAX_RESULT = 1000;
 

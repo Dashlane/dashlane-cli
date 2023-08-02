@@ -3,8 +3,47 @@ import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
-import { decryptTransaction } from '../crypto';
+import { decryptTransaction } from '../modules/crypto';
 import { askCredentialChoice } from '../utils';
+import { connectAndPrepare } from '../modules/database';
+
+export const runPassword = async (filters: string[] | null, options: { output: string | null }) => {
+    const { db, secrets } = await connectAndPrepare({});
+
+    if (options.output === 'json') {
+        console.log(
+            JSON.stringify(
+                await selectCredentials({
+                    filters,
+                    secrets,
+                    output: options.output,
+                    db,
+                }),
+                null,
+                4
+            )
+        );
+    } else {
+        await getPassword({
+            filters,
+            secrets,
+            output: options.output,
+            db,
+        });
+    }
+    db.close();
+};
+
+export const runOtp = async (filters: string[] | null, options: { print: boolean }) => {
+    const { db, secrets } = await connectAndPrepare({});
+    await getOtp({
+        filters,
+        secrets,
+        output: options.print ? 'otp' : 'clipboard',
+        db,
+    });
+    db.close();
+};
 
 interface GetCredential {
     filters: string[] | null;

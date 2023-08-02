@@ -1,12 +1,20 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-import { decrypt } from '../crypto/decrypt';
-import { encryptAES } from '../crypto/encrypt';
-import { replaceMasterPassword } from '../crypto/keychainManager';
+import { connectAndPrepare } from '../modules/database';
+import { decrypt } from '../modules/crypto/decrypt';
+import { encryptAES } from '../modules/crypto/encrypt';
+import { replaceMasterPassword } from '../modules/crypto/keychainManager';
 import { getLatestContent } from '../endpoints';
 import type { DeviceConfiguration, Secrets } from '../types';
 import { notEmpty } from '../utils';
 import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
+
+export const runSync = async () => {
+    const { db, secrets, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
+    await sync({ db, secrets, deviceConfiguration });
+    winston.info('Successfully synced');
+    db.close();
+};
 
 interface Sync {
     db: Database.Database;
