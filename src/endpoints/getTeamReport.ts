@@ -1,18 +1,18 @@
-import { Secrets } from '../types';
-import { requestUserApi } from '../requestApi';
+import { TeamDeviceCredentials } from '../types';
+import { requestTeamApi } from '../requestApi';
 
 interface GetTeamReportParams {
-    secrets: Secrets;
+    teamDeviceCredentials: TeamDeviceCredentials;
     days: number;
 }
 
 export const getTeamReport = (params: GetTeamReportParams) =>
-    requestUserApi<GetTeamReportOutput>({
-        path: 'teams/Report',
-        login: params.secrets.login,
-        deviceKeys: {
-            accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey,
+    requestTeamApi<GetTeamReportOutput>({
+        path: 'teams-teamdevice/Report',
+        teamUuid: params.teamDeviceCredentials.uuid,
+        teamDeviceKeys: {
+            accessKey: params.teamDeviceCredentials.accessKey,
+            secretKey: params.teamDeviceCredentials.secretKey,
         },
         payload: {
             numberOfDays: params.days,

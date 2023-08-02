@@ -1,16 +1,16 @@
 import { getTeamReport as getTeamReportRequest } from '../endpoints';
-import { Secrets } from '../types';
+import { TeamDeviceCredentials } from '../types';
 
 interface GetTeamMembersParams {
-    secrets: Secrets;
+    teamDeviceCredentials: TeamDeviceCredentials;
     days: number;
 }
 
 export const getTeamReport = async (params: GetTeamMembersParams) => {
-    const { secrets, days } = params;
+    const { teamDeviceCredentials, days } = params;
 
     const response = await getTeamReportRequest({
-        secrets,
+        teamDeviceCredentials,
         days,
     });
 
