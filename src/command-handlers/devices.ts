@@ -41,16 +41,17 @@ export async function listAllDevices(options: { json: boolean }) {
 
 export async function removeAllDevices(devices: string[] | null, options: { all: boolean; others: boolean }) {
     if (devices && devices.length > 0 && (options.all || options.others)) {
-        throw new Error('devices cannot be specified when you use --all or --others');
+        throw new Error('Devices cannot be specified when you use --all or --others');
     }
     if (options.all && options.others) {
-        throw new Error('Please use either --all, either --other, but not both');
+        throw new Error('Please use either --all, either --others, but not both');
     }
 
     const { secrets, deviceConfiguration, db } = await connectAndPrepare({ autoSync: false });
     if (!deviceConfiguration) {
         throw new Error('Requires to be connected');
     }
+
     const listDevicesResponse = await listDevices({ secrets, login: deviceConfiguration.login });
     const existingDeviceIds = listDevicesResponse.devices.map((device) => device.deviceId);
 
@@ -64,6 +65,11 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
         devices = [];
     }
 
+    const notFoundDevices = devices.filter((device) => !existingDeviceIds.includes(device));
+    if (notFoundDevices.length > 0) {
+        throw new Error(`These devices do not exist: ${notFoundDevices.join('\t')}`);
+    }
+
     const shouldReset = devices.includes(secrets.accessKey);
 
     if (shouldReset) {
@@ -71,10 +77,6 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
         if (!confirmation) {
             return;
         }
-    }
-    const notFoundDevices = devices.filter((d) => !existingDeviceIds.includes(d));
-    if (notFoundDevices.length > 0) {
-        throw new Error(`These devices do not exist: ${notFoundDevices.join('\t')}`);
     }
 
     await deactivateDevices({
