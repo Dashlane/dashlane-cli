@@ -5,7 +5,7 @@ import { Database } from 'better-sqlite3';
 import { connectAndPrepare } from './database/index';
 import { askConfirmReset } from './utils/dialogs';
 import { getTeamDeviceCredentialsFromEnv, parseBooleanString } from './utils';
-import { Secrets } from './types';
+import { DeviceConfiguration, Secrets } from './types';
 import { connect } from './database/connect';
 import {
     sync,
@@ -25,6 +25,7 @@ import { registerTeamDevice } from './endpoints/registerTeamDevice';
 import { listAllDevices, removeAllDevices, listAllTeamDevices } from './command-handlers';
 import { deactivateTeamDevice } from './endpoints/deactivateTeamDevice';
 import { CouldNotFindTeamCredentialsError } from './errors';
+import { deactivateDevices } from './endpoints';
 
 const teamDeviceCredentials = getTeamDeviceCredentialsFromEnv();
 
@@ -286,8 +287,9 @@ program
         if (resetConfirmation) {
             let db: Database;
             let secrets: Secrets | undefined;
+            let deviceConfiguration: DeviceConfiguration | null | undefined;
             try {
-                ({ db, secrets } = await connectAndPrepare({ autoSync: false, failIfNoDB: true }));
+                ({ db, secrets, deviceConfiguration } = await connectAndPrepare({ autoSync: false, failIfNoDB: true }));
             } catch (error) {
                 let errorMessage = 'unknown error';
                 if (error instanceof Error) {
@@ -297,6 +299,13 @@ program
 
                 db = connect();
                 db.serialize();
+            }
+            if (secrets && deviceConfiguration) {
+                await deactivateDevices({
+                    deviceIds: [deviceConfiguration.accessKey],
+                    login: deviceConfiguration.login,
+                    secrets,
+                });
             }
             reset({ db, secrets });
             console.log('The local Dashlane local storage has been reset and you have been logged out');
