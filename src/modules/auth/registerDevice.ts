@@ -14,12 +14,13 @@ import type { SupportedAuthenticationMethod } from '../../types';
 
 interface RegisterDevice {
     login: string;
+    deviceName: string;
 }
 
 export const registerDevice = async (
     params: RegisterDevice
 ): Promise<CompleteDeviceRegistrationWithAuthTicketOutput> => {
-    const { login } = params;
+    const { login, deviceName } = params;
     winston.debug('Registering the device...');
 
     // Log in via a compatible verification method
@@ -60,5 +61,5 @@ export const registerDevice = async (
     }
 
     // Complete the device registration and save the result
-    return completeDeviceRegistration({ login, authTicket });
+    return completeDeviceRegistration({ login, deviceName, authTicket });
 };

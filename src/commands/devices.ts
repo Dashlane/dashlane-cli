@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { listAllDevices, removeAllDevices } from '../command-handlers';
+import { listAllDevices, registerNonInteractiveDevice, removeAllDevices } from '../command-handlers';
 
 export const devicesCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -19,4 +19,11 @@ export const devicesCommands = (params: { program: Command }) => {
         .argument('[device ids...]', 'ids of the devices to remove')
         .description('De-registers a list of devices. De-registering the CLI will implies doing a "dcli logout"')
         .action(removeAllDevices);
+
+    devicesGroup
+        .command('register')
+        .description('Registers a new device to be used in non-interactive mode')
+        .argument('<device name>', 'name of the device to register')
+        .option('--json', 'Output in JSON format')
+        .action(registerNonInteractiveDevice);
 };

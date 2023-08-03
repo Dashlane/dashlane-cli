@@ -1,17 +1,22 @@
+import winston from 'winston';
 import { connectAndPrepare, reset } from '../modules/database';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints';
 import { askConfirmReset, epochTimestampToIso } from '../utils';
+import { registerDevice } from '../modules/auth';
+import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
     isCurrentDevice: boolean;
 };
 
 export async function listAllDevices(options: { json: boolean }) {
-    const { secrets, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
+    const { secrets, deviceConfiguration, db } = await connectAndPrepare({ autoSync: false });
     if (!deviceConfiguration) {
         throw new Error('Require to be connected');
     }
     const listDevicesResponse = await listDevices({ secrets, login: deviceConfiguration.login });
+    db.close();
+
     const result: OutputDevice[] = listDevicesResponse.devices.map(
         (device) => <OutputDevice>{ ...device, isCurrentDevice: device.deviceId === secrets.accessKey }
     );
@@ -89,3 +94,41 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
     }
     db.close();
 }
+
+export const registerNonInteractiveDevice = async (deviceName: string, options: { json: boolean }) => {
+    const {
+        secrets: { login },
+        db,
+    } = await connectAndPrepare({ autoSync: false });
+
+    const { type } = await get2FAStatusUnauthenticated({ login });
+
+    if (type === 'totp_login') {
+        throw new Error("You can't register a non-interactive device when you have OTP at each login enabled.");
+    }
+
+    if (type === 'sso') {
+        throw new Error("You can't register a non-interactive device when you are using SSO.");
+    }
+
+    const { deviceAccessKey, deviceSecretKey } = await registerDevice({
+        login,
+        deviceName: `Non-Interactive - ${deviceName}`,
+    });
+
+    if (options.json) {
+        console.log(
+            JSON.stringify({
+                DASHLANE_DEVICE_ACCESS_KEY: deviceAccessKey,
+                DASHLANE_DEVICE_SECRET_KEY: deviceSecretKey,
+            })
+        );
+    } else {
+        winston.info('The device credentials have been generated, save and run the following commands to export them:');
+        console.log(`export DASHLANE_DEVICE_ACCESS_KEY=${deviceAccessKey}`);
+        console.log(`export DASHLANE_DEVICE_SECRET_KEY=${deviceSecretKey}`);
+        console.log(`export DASHLANE_MASTER_PASSWORD=<insert your master password here>`);
+    }
+
+    db.close();
+};
