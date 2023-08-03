@@ -22,9 +22,22 @@ export const removeUnderscoresAndCapitalize = (string: string): string => {
         .join(' ');
 };
 
-/** Unix timestamp to human readable string */
-export const unixTimestampToHumanReadable = (timestamp: number | null): string => {
-    return timestamp ? new Date(timestamp * 1000).toLocaleString() : 'N/A';
+/** Epoch unix timestamp in seconds to ISO 8601 */
+export const epochTimestampToIso = (
+    timestamp: string | number | null | undefined,
+    inMilliseconds?: boolean
+): string => {
+    if (timestamp === null || timestamp === undefined) {
+        return '';
+    }
+
+    let timestampNumber = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
+
+    if (!inMilliseconds) {
+        timestampNumber *= 1000;
+    }
+
+    return new Date(timestampNumber).toISOString();
 };
 
 export const jsonToCsv = (json: Record<string, any>): string => {

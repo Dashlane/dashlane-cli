@@ -30,11 +30,13 @@ export const teamCommands = (params: { program: Command }) => {
         .argument('[page]', 'Page number', '0')
         .argument('[limit]', 'Limit of members per page', '0')
         .option('--csv', 'Output in CSV format')
-        .action(async (page: string, limit: string, options: { csv: boolean }) => {
+        .option('--human-readable', 'Output dates in human readable format')
+        .action(async (page: string, limit: string, options: { csv: boolean; humanReadable: boolean }) => {
             await runTeamMembers({
                 page: parseInt(page),
                 limit: parseInt(limit),
                 csv: options.csv,
+                humanReadable: options.humanReadable,
             });
         });
 
@@ -47,6 +49,7 @@ export const teamCommands = (params: { program: Command }) => {
         .option('--type <type>', 'log type')
         .option('--category <category>', 'log category')
         .option('--csv', 'Output in CSV format')
+        .option('--human-readable', 'Output dates in human readable format')
         .action(runTeamLogs);
 
     teamGroup

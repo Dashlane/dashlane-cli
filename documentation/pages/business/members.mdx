@@ -20,7 +20,9 @@ You can pipe the output to `jq` to filter the results:
 dcli t members | jq '.members[] | select(.isTeamCaptain == true)'
 ```
 
-## Exporting the list as a CSV
+## Options
+
+### Exporting the list as a CSV
 
 You can use the `--csv` flag to export the list as a CSV file:
 
@@ -29,6 +31,18 @@ dcli t members --csv > members.csv
 ```
 
 This allows you to open the file in a spreadsheet editor such as Excel or Google Sheets.
+
+### Human Readable dates
+
+You can use the `--human-readable` option to output the logs with human readable dates.
+
+```sh copy
+dcli t members --human-readable
+```
+
+The dates will be displayed in the ISO 8601 format.
+
+Note that keys ending with `Unix` will be converted to human readable dates and renamed to remove the `Unix` suffix.
 
 ## Members interface
 

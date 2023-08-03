@@ -1,6 +1,6 @@
 import { connectAndPrepare, reset } from '../modules/database';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints';
-import { askConfirmReset, unixTimestampToHumanReadable } from '../utils';
+import { askConfirmReset, epochTimestampToIso } from '../utils';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
     isCurrentDevice: boolean;
@@ -29,7 +29,7 @@ export async function listAllDevices(options: { json: boolean }) {
                 id: device.deviceId,
                 name: device.deviceName,
                 platform: device.devicePlatform,
-                lastActivity: unixTimestampToHumanReadable(device.lastActivityDateUnix),
+                lastActivity: epochTimestampToIso(device.lastActivityDateUnix),
                 current: device.isCurrentDevice,
             };
         });
