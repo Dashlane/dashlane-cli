@@ -11,10 +11,10 @@ Commands are calling a server API to perform actions and retrieve data. The firs
 <Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
 
 ```sh copy
-dcli t generate-credentials
+dcli t credentials generate
 ```
 
-You will be prompted with a list of variables to export in your environment.
+You will be prompted with a list of variables to export in your environment. Simply copy/paste them in your terminal.
 
 ```sh copy
 export DASHLANE_TEAM_UUID=08a48d4f-[..redacted..]-fba9193d968c
@@ -22,12 +22,28 @@ export DASHLANE_TEAM_ACCESS_KEY=f56[..redacted..]56ce
 export DASHLANE_TEAM_SECRET_KEY=839c9[..redacted..]3ada5
 ```
 
+On Windows, you can use the `set` command instead of `export`.
+
+```sh copy
+set DASHLANE_TEAM_UUID=08a48d4f-[..redacted..]-fba9193d968c
+set DASHLANE_TEAM_ACCESS_KEY=f56[..redacted..]56ce
+set DASHLANE_TEAM_SECRET_KEY=839c9[..redacted..]3ada5
+```
+
 Make sure you save them in a safe place (use a secure note for instance 😉).
+
+## List credentials
+
+<Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
+
+```sh copy
+dcli t credentials list
+```
 
 ## Revoke credentials
 
 <Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
 
 ```sh copy
-dcli t revoke-credentials <DASHLANE_TEAM_ACCESS_KEY>
+dcli t credentials revoke <DASHLANE_TEAM_ACCESS_KEY>
 ```

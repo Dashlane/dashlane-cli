@@ -1,3 +1,4 @@
+import winston from 'winston';
 import { Command } from 'commander';
 import { listAllTeamDevices } from '../../command-handlers';
 import { connectAndPrepare } from '../../modules/database';
@@ -26,6 +27,7 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
                     })
                 );
             } else {
+                winston.info('The credentials have been generated, run the following commands to export them:');
                 console.log(`export DASHLANE_TEAM_UUID=${credentials.teamUuid}`);
                 console.log(`export DASHLANE_TEAM_ACCESS_KEY=${credentials.deviceAccessKey}`);
                 console.log(`export DASHLANE_TEAM_SECRET_KEY=${credentials.deviceSecretKey}`);
