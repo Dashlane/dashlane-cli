@@ -1,16 +1,22 @@
 import winston from 'winston';
 import { connectAndPrepare } from '../modules/database';
 import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints';
-import { getTeamDeviceCredentials } from '../utils';
+import { getTeamDeviceCredentials, jsonToCsv } from '../utils';
 
-export const runTeamLogs = async (options: { start: string; end: string; type: string; category: string }) => {
+export const runTeamLogs = async (options: {
+    start: string;
+    end: string;
+    type: string;
+    category: string;
+    csv: boolean;
+}) => {
     const teamDeviceCredentials = getTeamDeviceCredentials();
 
     const { start, type, category } = options;
     const end = options.end === 'now' ? Date.now().toString() : options.end;
 
     const { db } = await connectAndPrepare({ autoSync: false });
-    await getAuditLogs({
+    const logs = await getAuditLogs({
         teamDeviceCredentials,
         startDateRangeUnix: parseInt(start),
         endDateRangeUnix: parseInt(end),
@@ -18,11 +24,18 @@ export const runTeamLogs = async (options: { start: string; end: string; type: s
         category,
     });
     db.close();
+
+    if (options.csv) {
+        console.log(jsonToCsv(logs.map((log) => JSON.parse(log) as object)));
+        return;
+    }
+
+    logs.forEach((log) => console.log(log));
 };
 
 const MAX_RESULT = 1000;
 
-export const getAuditLogs = async (params: StartAuditLogsQueryParams) => {
+export const getAuditLogs = async (params: StartAuditLogsQueryParams): Promise<string[]> => {
     const { teamDeviceCredentials } = params;
 
     const { queryExecutionId } = await startAuditLogsQuery(params);
@@ -52,5 +65,5 @@ export const getAuditLogs = async (params: StartAuditLogsQueryParams) => {
         logs = logs.concat(result.results);
     }
 
-    logs.forEach((log) => console.log(log));
+    return logs;
 };

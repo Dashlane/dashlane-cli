@@ -20,6 +20,16 @@ You can pipe the output to `jq` to filter the results:
 dcli t members | jq '.members[] | select(.isTeamCaptain == true)'
 ```
 
+## Exporting the list as a CSV
+
+You can use the `--csv` flag to export the list as a CSV file:
+
+```sh copy
+dcli t members --csv > members.csv
+```
+
+This allows you to open the file in a spreadsheet editor such as Excel or Google Sheets.
+
 ## Members interface
 
 | Property                                      | Type                                                                                        | Description                                      |

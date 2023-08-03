@@ -16,7 +16,7 @@ export const teamCommands = (params: { program: Command }) => {
             teamGroup.addHelpText(
                 'before',
                 '/!\\ Commands in this section (except credentials) require team credentials to be set in the environment.\n' +
-                    'Use generate-credentials to generate some team credentials (requires to be a team administrator).\n'
+                    'Use `dcli team credentials generate` to generate some team credentials (requires to be a team administrator).\n'
             );
         }
     }
@@ -29,10 +29,12 @@ export const teamCommands = (params: { program: Command }) => {
         .description('List team members')
         .argument('[page]', 'Page number', '0')
         .argument('[limit]', 'Limit of members per page', '0')
-        .action(async (page: string, limit: string) => {
+        .option('--csv', 'Output in CSV format')
+        .action(async (page: string, limit: string, options: { csv: boolean }) => {
             await runTeamMembers({
                 page: parseInt(page),
                 limit: parseInt(limit),
+                csv: options.csv,
             });
         });
 
@@ -44,6 +46,7 @@ export const teamCommands = (params: { program: Command }) => {
         .option('--end <end>', 'end timestamp in ms (use "now" to get the current timestamp)', 'now')
         .option('--type <type>', 'log type')
         .option('--category <category>', 'log category')
+        .option('--csv', 'Output in CSV format')
         .action(runTeamLogs);
 
     teamGroup

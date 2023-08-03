@@ -38,6 +38,49 @@ With the following options you can filter the logs by start and end date, log ty
   --category <category>  log category
 ```
 
+### Filtering by date
+
+We use epoch timestamps in milliseconds, so you can use the `date` command to get the timestamp of a specific date:
+
+```sh
+# On Linux and Windows
+date -d "2021-09-01" +%s000
+
+# On macOS
+date -j -f "%Y-%m-%d" "2021-09-01" +%s000
+```
+
+The final command would look like this using `date`:
+
+```sh copy
+# On Linux and Windows
+dcli t logs --start $(date -d "2021-09-01" +%s000) --end $(date -d "2021-09-02" +%s000)
+
+# On macOS
+dcli t logs --start $(date -j -f "%Y-%m-%d" "2021-09-01" +%s000) --end $(date -j -f "%Y-%m-%d" "2021-09-02" +%s000)
+```
+
+In the output logs timestamps are in milliseconds, so you can use the `date` command to convert them to a human readable format:
+
+```sh
+# On Linux and Windows
+date -d @1688629046919
+
+# On macOS
+date -r 1688629046919
+```
+
+## Export the logs as CSV
+
+You can export the logs as CSV using the `--csv` option.
+
+```sh copy
+dcli t logs --csv --start 0 --end now > logs.csv
+```
+
+This allows you to open the logs in a spreadsheet editor like Excel or Google Sheets.
+Note that the `properties` field is kept as a JSON string in the CSV file because its content varies depending on the log type.
+
 ## Logs types (default)
 
 | Type                                           | Event message                                          |

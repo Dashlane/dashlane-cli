@@ -22,20 +22,21 @@ export async function listAllTeamDevices(options: { json: boolean }) {
         });
 
         console.log(JSON.stringify(result));
-    } else {
-        const result = listTeamDevicesResponse.teamDevices
-            .sort((a, b) => a.creationDateUnix - b.creationDateUnix)
-            .map((device) => {
-                return {
-                    accessKey: device.accessKey,
-                    name: device.deviceName,
-                    platform: device.platform,
-                    creationDate: unixTimestampToHumanReadable(device.creationDateUnix),
-                    updateDate: unixTimestampToHumanReadable(device.updateDateUnix),
-                    lastActivityDate: unixTimestampToHumanReadable(device.lastActivityDateUnix),
-                };
-            });
-
-        console.table(result);
+        return;
     }
+
+    const result = listTeamDevicesResponse.teamDevices
+        .sort((a, b) => a.creationDateUnix - b.creationDateUnix)
+        .map((device) => {
+            return {
+                accessKey: device.accessKey,
+                name: device.deviceName,
+                platform: device.platform,
+                creationDate: unixTimestampToHumanReadable(device.creationDateUnix),
+                updateDate: unixTimestampToHumanReadable(device.updateDateUnix),
+                lastActivityDate: unixTimestampToHumanReadable(device.lastActivityDateUnix),
+            };
+        });
+
+    console.table(result);
 }
