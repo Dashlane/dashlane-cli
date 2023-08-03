@@ -1,6 +1,7 @@
 import { Database } from 'better-sqlite3';
 import { Entry } from '@napi-rs/keyring';
 import winston from 'winston';
+import os from 'os';
 import crypto from 'crypto';
 import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
 import { encryptAES } from './encrypt';
@@ -85,7 +86,10 @@ const getSecretsWithoutDB = async (
     const localKey = generateLocalKey();
 
     // Register the user's device
-    const { deviceAccessKey, deviceSecretKey, serverKey } = await registerDevice({ login });
+    const { deviceAccessKey, deviceSecretKey, serverKey } = await registerDevice({
+        login,
+        deviceName: `${os.hostname()} - ${os.platform()}-${os.arch()}`,
+    });
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
     const { type } = await get2FAStatusUnauthenticated({ login });

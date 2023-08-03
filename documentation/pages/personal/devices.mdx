@@ -49,3 +49,32 @@ dcli devices remove --all
 <Callout type="info" emoji="ℹ️">
     If you remove the current CLI device, you will need to do a `dcli logout` in order to re-authenticate.
 </Callout>
+
+## Register a new non-interactive device
+
+In case you want to access your vault in non-interactive environment like CIs or servers, you can register a new device with the `register` command.
+
+```sh copy
+dcli devices register "my_server"
+```
+
+Note that you will be prompted to validate the registration with a second factor authentication.
+
+This will create a new device named `my_server` and will print the device credentials.
+Save them in a safe place (like in a secure note), as you won't be able to retrieve them later.
+Run the suggested commands on your target device (your server or CI) to set the device credentials as environment variables.
+
+```sh
+export DASHLANE_DEVICE_ACCESS_KEY=bdd5[..redacted..]6eb
+export DASHLANE_DEVICE_SECRET_KEY=99f7d9bd547c0[..redacted..]c93fa2118cdf7e3d0
+export DASHLANE_MASTER_PASSWORD=<insert your master password here>
+```
+
+Please, replace `<insert your master password here>` with your actual master password.
+
+<Callout type="warning" emoji="⚠️">
+    OTP at each login and SSO are not supported for non-interactive devices. We recommend creating a dedicated Dashlane
+    account for your non-interactive devices.
+</Callout>
+
+Once you've set the environment variables, you can use the CLI to retrieve passwords, otp and notes and no interactive prompts will be shown.

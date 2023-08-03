@@ -1,10 +1,10 @@
-import os from 'os';
 import { CLI_VERSION, cliVersionToString } from '../cliVersion';
 import { requestAppApi } from '../requestApi';
 
 interface CompleteDeviceRegistration {
     login: string;
     authTicket: string;
+    deviceName: string;
 }
 
 export interface CompleteDeviceRegistrationWithAuthTicketOutput {
@@ -64,7 +64,7 @@ export const completeDeviceRegistration = (params: CompleteDeviceRegistration) =
         path: 'authentication/CompleteDeviceRegistrationWithAuthTicket',
         payload: {
             device: {
-                deviceName: `${os.hostname()} - ${os.platform()}-${os.arch()}`,
+                deviceName: params.deviceName,
                 appVersion: `${cliVersionToString(CLI_VERSION)}`,
                 platform: 'server_cli',
                 osCountry: 'en_US',
