@@ -70,7 +70,9 @@ date -d @1688629046919
 date -r 1688629046919
 ```
 
-## Export the logs as CSV
+## Options
+
+### Export as CSV
 
 You can export the logs as CSV using the `--csv` option.
 
@@ -81,7 +83,21 @@ dcli t logs --csv --start 0 --end now > logs.csv
 This allows you to open the logs in a spreadsheet editor like Excel or Google Sheets.
 Note that the `properties` field is kept as a JSON string in the CSV file because its content varies depending on the log type.
 
-## Logs types (default)
+### Human Readable dates
+
+You can use the `--human-readable` option to output the logs with human readable dates.
+
+```sh copy
+dcli t logs --human-readable
+```
+
+The date will be displayed in the ISO 8601 format.
+
+Note that a new key named `date_time_iso` will be added to the logs.
+
+## Logs types
+
+### Default types
 
 | Type                                           | Event message                                          |
 | ---------------------------------------------- | ------------------------------------------------------ |
@@ -125,7 +141,7 @@ Note that the `properties` field is kept as a JSON string in the CSV file becaus
 | billing_admin_added                            | Made %(name)s the billing contact                      |
 | billing_admin_removed                          | Revoked %(name)s as the billing contact                |
 
-## Logs types (sensitive)
+### Sensitive types
 
 You can turn on logging sensitive actions in the Policies section of Settings in the Admin Console. Read more about it in our [dedicated Help Center article](https://support.dashlane.com/hc/en-us/articles/4414606120210).
 

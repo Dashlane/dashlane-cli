@@ -1,10 +1,11 @@
 import { getTeamMembers as getTeamMembersRequest } from '../endpoints';
-import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv } from '../utils';
+import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv, epochTimestampToIso } from '../utils';
 
 interface GetTeamMembersParams {
     page: number;
     limit: number;
     csv: boolean;
+    humanReadable: boolean;
 }
 
 export const runTeamMembers = async (params: GetTeamMembersParams) => {
@@ -16,6 +17,25 @@ export const runTeamMembers = async (params: GetTeamMembersParams) => {
         page,
         limit,
     });
+
+    if (params.humanReadable) {
+        response.members = response.members.map((member) => {
+            const memberWithHumanReadableDates = {
+                ...member,
+                joinedDate: epochTimestampToIso(member.joinedDateUnix),
+                invitedDate: epochTimestampToIso(member.invitedDateUnix),
+                revokedDate: epochTimestampToIso(member.revokedDateUnix),
+                lastUpdateDate: epochTimestampToIso(member.lastUpdateDateUnix),
+            };
+
+            delete memberWithHumanReadableDates.joinedDateUnix;
+            delete memberWithHumanReadableDates.invitedDateUnix;
+            delete memberWithHumanReadableDates.revokedDateUnix;
+            delete memberWithHumanReadableDates.lastUpdateDateUnix;
+
+            return memberWithHumanReadableDates;
+        });
+    }
 
     if (params.csv) {
         if (response.pages) {

@@ -1,6 +1,6 @@
 import { connectAndPrepare } from '../modules/database';
 import { listTeamDevices } from '../endpoints';
-import { unixTimestampToHumanReadable } from '../utils';
+import { epochTimestampToIso } from '../utils';
 
 export async function listAllTeamDevices(options: { json: boolean }) {
     const { db, secrets } = await connectAndPrepare({ autoSync: false });
@@ -32,9 +32,9 @@ export async function listAllTeamDevices(options: { json: boolean }) {
                 accessKey: device.accessKey,
                 name: device.deviceName,
                 platform: device.platform,
-                creationDate: unixTimestampToHumanReadable(device.creationDateUnix),
-                updateDate: unixTimestampToHumanReadable(device.updateDateUnix),
-                lastActivityDate: unixTimestampToHumanReadable(device.lastActivityDateUnix),
+                creationDate: epochTimestampToIso(device.creationDateUnix),
+                updateDate: epochTimestampToIso(device.updateDateUnix),
+                lastActivityDate: epochTimestampToIso(device.lastActivityDateUnix),
             };
         });
 

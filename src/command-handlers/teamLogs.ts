@@ -1,7 +1,8 @@
 import winston from 'winston';
 import { connectAndPrepare } from '../modules/database';
 import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints';
-import { getTeamDeviceCredentials, jsonToCsv } from '../utils';
+import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../utils';
+import { GenericLog } from '../types/logs';
 
 export const runTeamLogs = async (options: {
     start: string;
@@ -9,6 +10,7 @@ export const runTeamLogs = async (options: {
     type: string;
     category: string;
     csv: boolean;
+    humanReadable: boolean;
 }) => {
     const teamDeviceCredentials = getTeamDeviceCredentials();
 
@@ -16,7 +18,7 @@ export const runTeamLogs = async (options: {
     const end = options.end === 'now' ? Date.now().toString() : options.end;
 
     const { db } = await connectAndPrepare({ autoSync: false });
-    const logs = await getAuditLogs({
+    let logs = await getAuditLogs({
         teamDeviceCredentials,
         startDateRangeUnix: parseInt(start),
         endDateRangeUnix: parseInt(end),
@@ -25,17 +27,26 @@ export const runTeamLogs = async (options: {
     });
     db.close();
 
+    if (options.humanReadable) {
+        logs = logs.map((log) => {
+            return {
+                ...log,
+                date_time_iso: epochTimestampToIso(log.date_time, true),
+            };
+        });
+    }
+
     if (options.csv) {
-        console.log(jsonToCsv(logs.map((log) => JSON.parse(log) as object)));
+        console.log(jsonToCsv(logs));
         return;
     }
 
-    logs.forEach((log) => console.log(log));
+    logs.forEach((log) => console.log(JSON.stringify(log)));
 };
 
 const MAX_RESULT = 1000;
 
-export const getAuditLogs = async (params: StartAuditLogsQueryParams): Promise<string[]> => {
+export const getAuditLogs = async (params: StartAuditLogsQueryParams): Promise<GenericLog[]> => {
     const { teamDeviceCredentials } = params;
 
     const { queryExecutionId } = await startAuditLogsQuery(params);
@@ -65,5 +76,5 @@ export const getAuditLogs = async (params: StartAuditLogsQueryParams): Promise<s
         logs = logs.concat(result.results);
     }
 
-    return logs;
+    return logs.map((log) => JSON.parse(log) as GenericLog);
 };
