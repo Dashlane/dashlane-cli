@@ -1,3 +1,4 @@
+export * from './deviceCredentials';
 export * from './dialogs';
 export * from './gotImplementation';
 export * from './strings';

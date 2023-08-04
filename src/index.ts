@@ -4,7 +4,7 @@ import winston from 'winston';
 
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { rootCommands } from './commands';
-import { initTeamDeviceCredentials } from './utils';
+import { initDeviceCredentials, initTeamDeviceCredentials } from './utils';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
@@ -15,6 +15,7 @@ winston.configure({
 });
 
 initTeamDeviceCredentials();
+initDeviceCredentials();
 
 const program = new Command();
 

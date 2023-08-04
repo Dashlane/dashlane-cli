@@ -24,6 +24,13 @@ export interface TeamDeviceCredentials {
     secretKey: string;
 }
 
+export interface DeviceCredentials {
+    login: string;
+    accessKey: string;
+    secretKey: string;
+    masterPassword: string;
+}
+
 export interface DeviceConfiguration extends DeviceKeys {
     login: string;
     version: string;

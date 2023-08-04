@@ -12,6 +12,7 @@ import { perform2FAVerification, registerDevice } from '../auth';
 import { DeviceConfiguration, Secrets } from '../../types';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
+import { getDeviceCredentials } from '../../utils';
 
 const SERVICE = 'dashlane-cli';
 
@@ -86,10 +87,17 @@ const getSecretsWithoutDB = async (
     const localKey = generateLocalKey();
 
     // Register the user's device
-    const { deviceAccessKey, deviceSecretKey, serverKey } = await registerDevice({
-        login,
-        deviceName: `${os.hostname()} - ${os.platform()}-${os.arch()}`,
-    });
+    const deviceCredentials = getDeviceCredentials();
+    const { deviceAccessKey, deviceSecretKey, serverKey } = deviceCredentials
+        ? {
+              deviceAccessKey: deviceCredentials.accessKey,
+              deviceSecretKey: deviceCredentials.secretKey,
+              serverKey: undefined,
+          }
+        : await registerDevice({
+              login,
+              deviceName: `${os.hostname()} - ${os.platform()}-${os.arch()}`,
+          });
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
     const { type } = await get2FAStatusUnauthenticated({ login });

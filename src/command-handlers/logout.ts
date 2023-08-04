@@ -34,7 +34,7 @@ export const runLogout = async () => {
             deviceIds: [deviceConfiguration.accessKey],
             login: deviceConfiguration.login,
             secrets,
-        });
+        }).catch((error) => console.error('Unable to deactivate the device', error));
     }
     reset({ db, secrets });
     console.log('The local Dashlane local storage has been reset and you have been logged out');
