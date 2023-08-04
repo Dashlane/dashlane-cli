@@ -38,7 +38,7 @@ export default {
                     property="og:description"
                     content={frontMatter.description || 'Learn how to access your Dashlane vault and API endpoints from the command line.'}
                 />
-                <link rel="icon" href="/favicon.png" type="image/png" />
+                <link rel="icon" href="/dashlane-cli/favicon.png" type="image/png" />
             </>
         );
     }

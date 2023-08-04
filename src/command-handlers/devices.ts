@@ -127,6 +127,7 @@ export const registerNonInteractiveDevice = async (deviceName: string, options: 
         winston.info('The device credentials have been generated, save and run the following commands to export them:');
         console.log(`export DASHLANE_DEVICE_ACCESS_KEY=${deviceAccessKey}`);
         console.log(`export DASHLANE_DEVICE_SECRET_KEY=${deviceSecretKey}`);
+        console.log(`export DASHLANE_LOGIN=${login}`);
         console.log(`export DASHLANE_MASTER_PASSWORD=<insert your master password here>`);
     }
 

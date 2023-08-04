@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
 import { removeUnderscoresAndCapitalize } from './strings';
+import { getDeviceCredentials } from './deviceCredentials';
 import {
     PrintableVaultCredential,
     PrintableVaultNote,
@@ -14,6 +15,11 @@ export const prompt = inquirer.createPromptModule({ output: process.stderr });
 prompt.registerPrompt('search-list', inquirerSearchList as PromptConstructor);
 
 export const askMasterPassword = async (): Promise<string> => {
+    const deviceCredentials = getDeviceCredentials();
+    if (deviceCredentials !== null) {
+        return deviceCredentials.masterPassword;
+    }
+
     const response = await prompt<{ masterPassword: string }>([
         {
             type: 'password',
@@ -53,6 +59,11 @@ export const askIgnoreBreakingChanges = async () => {
 };
 
 export const askEmailAddress = async (): Promise<string> => {
+    const deviceCredentials = getDeviceCredentials();
+    if (deviceCredentials !== null) {
+        return deviceCredentials.login;
+    }
+
     const response = await prompt<{ login: string }>([
         {
             type: 'input',
