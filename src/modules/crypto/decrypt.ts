@@ -7,7 +7,7 @@ import zlib from 'zlib';
 import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
-import { BackupEditTransaction, Secrets, SymmetricKeyGetter, TransactionContent } from '../../types';
+import { BackupEditTransaction, Secrets, SymmetricKeyGetter } from '../../types';
 
 const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
     const combinedKey = sha512(originalKey);
@@ -52,7 +52,7 @@ export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: Sym
     return decryptCipherData(encryptedData.cipherData, symmetricKey);
 };
 
-export const decryptTransaction = async (
+export const decryptTransaction = async <TransactionContent>(
     encryptedTransaction: BackupEditTransaction,
     secrets: Secrets
 ): Promise<TransactionContent> => {
@@ -63,6 +63,12 @@ export const decryptTransaction = async (
     const xmlContent = zlib.inflateRawSync(decryptedTransactionContent.slice(6)).toString();
     return JSON.parse(xmlJs.xml2json(xmlContent, { compact: true })) as TransactionContent;
 };
+
+export const decryptTransactions = async <TransactionContent>(
+    transactions: BackupEditTransaction[],
+    secrets: Secrets
+): Promise<TransactionContent[]> =>
+    Promise.all(transactions.map((transaction) => decryptTransaction<TransactionContent>(transaction, secrets)));
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
 

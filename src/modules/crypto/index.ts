@@ -1,2 +1,2 @@
-export { decryptTransaction } from './decrypt';
+export { decryptTransaction, decryptTransactions } from './decrypt';
 export { getSecrets } from './keychainManager';

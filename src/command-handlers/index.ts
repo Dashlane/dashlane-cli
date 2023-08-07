@@ -2,6 +2,7 @@ export * from './configure';
 export * from './devices';
 export * from './logout';
 export * from './passwords';
+export * from './read';
 export * from './secureNotes';
 export * from './sync';
 export * from './teamDevices';
