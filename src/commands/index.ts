@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { devicesCommands } from './devices';
 import { teamCommands } from './team';
 import { configureCommands } from './configure';
-import { runSync, runOtp, runPassword, runSecureNote, runLogout } from '../command-handlers';
+import { runSync, runOtp, runPassword, runSecureNote, runLogout, runRead } from '../command-handlers';
 
 export const rootCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -12,6 +12,13 @@ export const rootCommands = (params: { program: Command }) => {
         .alias('s')
         .description('Manually synchronize the local vault with Dashlane')
         .action(runSync);
+
+    program
+        .command('read')
+        .alias('r')
+        .description('Retrieve a credential from the local vault via its path')
+        .argument('<path>', 'Path to the credential (dl://<title>/<field> or dl://<id>/<field>)')
+        .action(runRead);
 
     program
         .command('password')

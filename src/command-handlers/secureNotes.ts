@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
 import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
-import { decryptTransaction } from '../modules/crypto';
+import { decryptTransactions } from '../modules/crypto';
 import { askSecureNoteChoice } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
@@ -21,32 +21,16 @@ interface GetSecureNote {
     db: Database.Database;
 }
 
-const decryptSecureNotesTransactions = async (
-    db: Database.Database,
-    transactions: BackupEditTransaction[],
-    secrets: Secrets
-): Promise<SecureNoteTransactionContent[] | null> => {
-    const secureNotesTransactions = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
-
-    const secureNotesDecrypted = await Promise.all(
-        secureNotesTransactions.map(
-            (transaction) => decryptTransaction(transaction, secrets) as Promise<SecureNoteTransactionContent>
-        )
-    );
-
-    return secureNotesDecrypted;
-};
-
 export const getNote = async (params: GetSecureNote): Promise<void> => {
     const { secrets, titleFilter, db } = params;
 
     winston.debug(`Retrieving: ${titleFilter || ''}`);
     const transactions = db
-        .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
+        .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'SECURENOTE' AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)
         .all() as BackupEditTransaction[];
 
-    const notesDecrypted = await decryptSecureNotesTransactions(db, transactions, secrets);
+    const notesDecrypted = await decryptTransactions<SecureNoteTransactionContent>(transactions, secrets);
 
     // transform entries [{_attributes: {key: xx}, _cdata: ww}] into an easier-to-use object
     const beautifiedNotes = notesDecrypted?.map(

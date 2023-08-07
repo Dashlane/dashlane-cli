@@ -3,7 +3,7 @@ import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
 import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
-import { decryptTransaction } from '../modules/crypto';
+import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
@@ -52,32 +52,16 @@ interface GetCredential {
     db: Database.Database;
 }
 
-const decryptPasswordTransactions = async (
-    db: Database.Database,
-    transactions: BackupEditTransaction[],
-    secrets: Secrets
-): Promise<AuthentifiantTransactionContent[]> => {
-    const authentifiantTransactions = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
-
-    const passwordsDecrypted = await Promise.all(
-        authentifiantTransactions.map(
-            (transaction) => decryptTransaction(transaction, secrets) as Promise<AuthentifiantTransactionContent>
-        )
-    );
-
-    return passwordsDecrypted;
-};
-
 export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
     const { secrets, filters, db } = params;
 
     winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
-        .prepare(`SELECT * FROM transactions WHERE login = ? AND action = 'BACKUP_EDIT'`)
+        .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'AUTHENTIFIANT' AND action = 'BACKUP_EDIT'`)
         .bind(secrets.login)
         .all() as BackupEditTransaction[];
 
-    const credentialsDecrypted = await decryptPasswordTransactions(db, transactions, secrets);
+    const credentialsDecrypted = await decryptTransactions<AuthentifiantTransactionContent>(transactions, secrets);
 
     // transform entries [{_attributes: {key:xx}, _cdata: ww}] into an easier-to-use object
     const beautifiedCredentials = credentialsDecrypted.map(

@@ -40,6 +40,12 @@ export const epochTimestampToIso = (
     return new Date(timestampNumber).toISOString();
 };
 
+export const isUuid = (uuid: string): boolean => {
+    const uuidRegex = new RegExp('^[0-9A-F]{8}-[0-9A-F]{4}-[0-5][0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$');
+
+    return uuidRegex.test(uuid);
+};
+
 export const jsonToCsv = (json: Record<string, any>): string => {
     const parser = new Parser();
     const csv = parser.parse(json);
