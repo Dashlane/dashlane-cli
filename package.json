@@ -9,7 +9,11 @@
     },
     "pkg": {
         "assets": [
-            "node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+            "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+            "node_modules/@json2csv/plainjs/dist/**/*",
+            "node_modules/@json2csv/formatters/dist/**/*",
+            "node_modules/@json2csv/transforms/dist/**/*",
+            "node_modules/@streamparser/json/dist/**/*"
         ]
     },
     "scripts": {
