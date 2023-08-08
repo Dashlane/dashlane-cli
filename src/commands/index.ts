@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import { devicesCommands } from './devices';
 import { teamCommands } from './team';
 import { configureCommands } from './configure';
@@ -24,10 +24,13 @@ export const rootCommands = (params: { program: Command }) => {
         .command('password')
         .alias('p')
         .description('Retrieve a password from the local vault and copy it to the clipboard')
-        .option(
-            '-o, --output <type>',
-            'How to print the passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials',
-            'clipboard'
+        .addOption(
+            new Option(
+                '-o, --output <type>',
+                'How to print the passwords. The JSON option outputs all the matching credentials'
+            )
+                .choices(['clipboard', 'password', 'json'])
+                .default('clipboard')
         )
         .argument(
             '[filters...]',

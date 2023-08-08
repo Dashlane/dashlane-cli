@@ -6,6 +6,11 @@ import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { rootCommands } from './commands';
 import { initDeviceCredentials, initTeamDeviceCredentials } from './utils';
 
+const errorColor = (str: string) => {
+    // Add ANSI escape codes to display text in red.
+    return `\x1b[31m${str}\x1b[0m`;
+};
+
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
 winston.configure({
@@ -21,11 +26,15 @@ const program = new Command();
 
 program.name('dcli').description('Dashlane CLI').version(cliVersionToString(CLI_VERSION));
 
+program.configureOutput({
+    outputError: (str, write) => write(errorColor(str)),
+});
+
 program.option('--debug', 'Print debug messages');
 
 rootCommands({ program });
 
 program.parseAsync().catch((error: Error) => {
-    console.error(`ERROR:`, error.message);
+    console.error(errorColor(`error: ${error.message}`));
     process.exit(1);
 });
