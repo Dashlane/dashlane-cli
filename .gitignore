@@ -12,3 +12,7 @@ bundle
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Testing files
+template.txt
+output.txt

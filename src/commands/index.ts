@@ -2,7 +2,7 @@ import { Command, Option } from 'commander';
 import { devicesCommands } from './devices';
 import { teamCommands } from './team';
 import { configureCommands } from './configure';
-import { runSync, runOtp, runPassword, runSecureNote, runLogout, runRead } from '../command-handlers';
+import { runSync, runOtp, runPassword, runSecureNote, runLogout, runRead, runInject } from '../command-handlers';
 
 export const rootCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -15,10 +15,16 @@ export const rootCommands = (params: { program: Command }) => {
 
     program
         .command('read')
-        .alias('r')
         .description('Retrieve a credential from the local vault via its path')
         .argument('<path>', 'Path to the credential (dl://<title>/<field> or dl://<id>/<field>)')
         .action(runRead);
+
+    program
+        .command('inject')
+        .description('Inject secrets into a templated string or file (uses stdin and stdout by default)')
+        .option('-i, --in <input_file>', 'Input file of a template to inject the credential into')
+        .option('-o, --out <output_file>', 'Output file to write the injected template to')
+        .action(runInject);
 
     program
         .command('password')
