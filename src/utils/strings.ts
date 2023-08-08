@@ -1,3 +1,4 @@
+import commander from 'commander';
 import { Parser } from '@json2csv/plainjs';
 import { flatten } from '@json2csv/transforms';
 
@@ -12,6 +13,15 @@ export const parseBooleanString = (booleanString: string): boolean => {
         return false;
     }
     throw new Error("The provided boolean variable should be either 'true' or 'false'");
+};
+
+export const customParseInt = (value: string, _dummyPrevious: unknown) => {
+    // parseInt takes a string and a radix
+    const parsedValue = parseInt(value, 10);
+    if (isNaN(parsedValue)) {
+        throw new commander.InvalidArgumentError('Not a number.');
+    }
+    return parsedValue;
 };
 
 /** Remove underscores and capitalize string */

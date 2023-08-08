@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { teamCredentialsCommands } from './credentials';
 import { CouldNotFindTeamCredentialsError } from '../../errors';
 import { runTeamLogs, runTeamMembers, runTeamReport } from '../../command-handlers';
-import { getTeamDeviceCredentials } from '../../utils';
+import { customParseInt, getTeamDeviceCredentials } from '../../utils';
 
 export const teamCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -27,18 +27,11 @@ export const teamCommands = (params: { program: Command }) => {
         .command('members')
         .alias('m')
         .description('List team members')
-        .argument('[page]', 'Page number', '0')
-        .argument('[limit]', 'Limit of members per page', '0')
+        .argument('[page]', 'Page number', customParseInt, 0)
+        .argument('[limit]', 'Limit of members per page', customParseInt, 0)
         .option('--csv', 'Output in CSV format')
         .option('--human-readable', 'Output dates in human readable format')
-        .action(async (page: string, limit: string, options: { csv: boolean; humanReadable: boolean }) => {
-            await runTeamMembers({
-                page: parseInt(page),
-                limit: parseInt(limit),
-                csv: options.csv,
-                humanReadable: options.humanReadable,
-            });
-        });
+        .action(runTeamMembers);
 
     teamGroup
         .command('logs')
@@ -56,8 +49,6 @@ export const teamCommands = (params: { program: Command }) => {
         .command('report')
         .alias('r')
         .description('Get team report')
-        .argument('[days]', 'Number of days in history', '0')
-        .action(async (days: string) => {
-            await runTeamReport({ days: parseInt(days) });
-        });
+        .argument('[days]', 'Number of days in history', customParseInt, 0)
+        .action(runTeamReport);
 };

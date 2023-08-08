@@ -1,15 +1,12 @@
 import { getTeamMembers as getTeamMembersRequest } from '../endpoints';
 import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv, epochTimestampToIso } from '../utils';
 
-interface GetTeamMembersParams {
-    page: number;
-    limit: number;
+interface GetTeamMembersOpts {
     csv: boolean;
     humanReadable: boolean;
 }
 
-export const runTeamMembers = async (params: GetTeamMembersParams) => {
-    const { page, limit } = params;
+export const runTeamMembers = async (page: number, limit: number, options: GetTeamMembersOpts) => {
     const teamDeviceCredentials = getTeamDeviceCredentials();
 
     const response = await getTeamMembersRequest({
@@ -18,7 +15,7 @@ export const runTeamMembers = async (params: GetTeamMembersParams) => {
         limit,
     });
 
-    if (params.humanReadable) {
+    if (options.humanReadable) {
         response.members = response.members.map((member) => {
             const memberWithHumanReadableDates = {
                 ...member,
@@ -37,7 +34,7 @@ export const runTeamMembers = async (params: GetTeamMembersParams) => {
         });
     }
 
-    if (params.csv) {
+    if (options.csv) {
         if (response.pages) {
             console.log(`Page ${response.page + 1} of ${response.pages}`);
         }
