@@ -1,5 +1,6 @@
 export * from './configure';
 export * from './devices';
+export * from './exec';
 export * from './inject';
 export * from './logout';
 export * from './passwords';

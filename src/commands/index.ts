@@ -2,7 +2,16 @@ import { Command, Option } from 'commander';
 import { devicesCommands } from './devices';
 import { teamCommands } from './team';
 import { configureCommands } from './configure';
-import { runSync, runOtp, runPassword, runSecureNote, runLogout, runRead, runInject } from '../command-handlers';
+import {
+    runSync,
+    runOtp,
+    runPassword,
+    runSecureNote,
+    runLogout,
+    runRead,
+    runInject,
+    runExec,
+} from '../command-handlers';
 
 export const rootCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -15,9 +24,14 @@ export const rootCommands = (params: { program: Command }) => {
 
     program
         .command('read')
-        .description('Retrieve a credential from the local vault via its path')
-        .argument('<path>', 'Path to the credential (dl://<title>/<field> or dl://<id>/<field>)')
+        .description('Retrieve a secret from the local vault via its path')
+        .argument('<path>', 'Path to the secret (dl://<title>/<field> or dl://<id>/<field>)')
         .action(runRead);
+
+    program
+        .command('exec')
+        .description('Execute a command with secrets injected into the environment variables (-- <command>)')
+        .action(runExec);
 
     program
         .command('inject')
