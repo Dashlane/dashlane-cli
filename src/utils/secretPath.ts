@@ -1,14 +1,15 @@
 import { isUuid } from './strings';
+import { ParsedPath } from '../types';
 
 /**
  * Function to parse a custom Dashlane path and return the query parameters for the vault lookup
  * First we check if the path is a valid Dashlane path, should start with dl://
  * Then we check if the path is a valid Dashlane vault id, should be a 32 character UUID string (ie: 11111111-1111-1111-1111-111111111111)
- * Otherwise, we assume the path is a valid Dashlane title, should be a string
- * Finally, we check if the next chunk of the path is a valid Dashlane field, should be a string
+ * Otherwise, we assume the path is a valid Dashlane title
+ * Finally, we check if the next chunk of the path is a valid Dashlane field
  * @param path
  */
-export const parsePath = (path: string): { secretId?: string; title?: string; field?: string } => {
+export const parsePath = (path: string): ParsedPath => {
     if (!path.startsWith('dl://')) {
         throw new Error('Invalid Dashlane path');
     }

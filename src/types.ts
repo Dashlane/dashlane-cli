@@ -209,4 +209,15 @@ export class PrintableVaultNote {
     }
 }
 
+export interface VaultSecrets {
+    credentials: VaultCredential[];
+    notes: VaultNote[];
+}
+
 export type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';
+
+export interface ParsedPath {
+    secretId?: string;
+    title?: string;
+    field?: string;
+}

@@ -1,5 +1,5 @@
 import { decryptTransactions } from '../modules/crypto';
-import { connectAndPrepare } from '../modules/database';
+import { connectAndPrepare, findVaultSecret } from '../modules/database';
 import { AuthentifiantTransactionContent, BackupEditTransaction, SecureNoteTransactionContent } from '../types';
 import { beautifySecrets, parsePath } from '../utils';
 
@@ -48,26 +48,5 @@ export const runRead = async (path: string) => {
 
     const secretsDecrypted = beautifySecrets({ credentials: decryptedCredentials, notes: decryptedNotes });
 
-    if (parsedPath.title) {
-        secretsDecrypted.credentials = secretsDecrypted.credentials.filter(
-            (credential) => credential.title === parsedPath.title
-        );
-        secretsDecrypted.notes = secretsDecrypted.notes.filter((note) => note.title === parsedPath.title);
-    }
-
-    if (secretsDecrypted.credentials.length === 0 && secretsDecrypted.notes.length === 0) {
-        throw new Error('No matching secret found');
-    }
-
-    const secretToRender: Record<string, any> =
-        secretsDecrypted.credentials.length > 0 ? secretsDecrypted.credentials[0] : secretsDecrypted.notes[0];
-
-    if (parsedPath.field) {
-        if (!secretToRender[parsedPath.field]) {
-            throw new Error('No matching field found');
-        }
-        return console.log(secretToRender[parsedPath.field]);
-    }
-
-    console.log(JSON.stringify(secretToRender, null, 4));
+    console.log(findVaultSecret(secretsDecrypted, parsedPath));
 };
