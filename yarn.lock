@@ -122,6 +122,7 @@ __metadata:
     husky: ^8.0.3
     inquirer: ^8.2.5
     inquirer-search-list: ^1.2.6
+    jsonpath-plus: ^7.2.0
     mocha: ^10.2.0
     otplib: ^12.0.1
     pkg: ^5.8.1
@@ -3429,6 +3430,13 @@ __metadata:
     graceful-fs:
       optional: true
   checksum: 7af3b8e1ac8fe7f1eccc6263c6ca14e1966fcbc74b618d3c78a0a2075579487547b94f72b7a1114e844a1e15bb00d440e5d1720bfc4612d790a6f285d5ea8354
+  languageName: node
+  linkType: hard
+
+"jsonpath-plus@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "jsonpath-plus@npm:7.2.0"
+  checksum: 05f447339d29be861e307d6e812aec1b9b88a3ba6bba286966a4e8bed3e752bee3d715eabfc21dce968be85ccb48bf79d2c1af78da7b9b74cd1b446d4d5d02f5
   languageName: node
   linkType: hard
 
