@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { doSSOVerification } from './sso/sso';
 import {
     CompleteDeviceRegistrationWithAuthTicketOutput,
     completeDeviceRegistration,
@@ -33,7 +34,7 @@ export const registerDevice = async (
     const selectedVerificationMethod =
         verifications.length > 1
             ? await askVerificationMethod(verifications.map((method) => method.type as SupportedAuthenticationMethod))
-            : verifications[0].type;
+            : verifications[0];
 
     let authTicket: string;
     if (selectedVerificationMethod === 'duo_push') {
@@ -56,6 +57,13 @@ export const registerDevice = async (
             login,
             token,
         }));
+        // Following if should be reworked, but the types used above are not handy
+    } else if (verifications[0].type === 'sso') {
+        await doSSOVerification({
+            requestedLogin: login,
+            serviceProviderURL: verifications[0].ssoInfo.serviceProviderUrl,
+        });
+        // To be continue
     } else {
         throw new Error('Auth verification method not supported: ' + verifications[0].type);
     }
