@@ -1,5 +1,5 @@
 import { isUuid } from './strings';
-import { transformOtp } from './secretTransformation';
+import { transformJsonPath, transformOtp } from './secretTransformation';
 import { ParsedPath } from '../types';
 import { InvalidDashlanePathError } from '../errors';
 
@@ -17,12 +17,10 @@ export const parsePath = (path: string): ParsedPath => {
         throw new InvalidDashlanePathError();
     }
 
-    const queryParams = path.split('?');
-    if (queryParams.length > 2) {
-        throw new InvalidDashlanePathError();
-    }
+    const [, ...queryParamsSplitted] = path.split('?');
+    const queryParams = queryParamsSplitted.join('?');
 
-    const cleanPath = path.slice(5, path.length - (queryParams.length === 2 ? queryParams[1].length + 1 : 0));
+    const cleanPath = path.slice(5, path.length - (queryParams.length > 0 ? queryParams.length + 1 : 0));
 
     const pathChunks = cleanPath.split('/');
 
@@ -46,18 +44,16 @@ export const parsePath = (path: string): ParsedPath => {
 
     let transformation = undefined;
 
-    if (queryParams.length === 2) {
-        const queryParamChunks = queryParams[1].split('=');
-        if (queryParamChunks.length > 2) {
-            throw new InvalidDashlanePathError();
-        }
-
-        const queryParamKey = queryParamChunks[0];
-        // const queryParamValue = queryParamChunks[1];
+    if (queryParams.length) {
+        const [queryParamKey, ...queryParamChunks] = queryParams.split('=');
+        const queryParamValue = queryParamChunks.join('=');
 
         switch (queryParamKey) {
             case 'otp':
                 transformation = transformOtp;
+                break;
+            case 'json':
+                transformation = (json: string) => transformJsonPath(json, queryParamValue);
                 break;
             default:
                 throw new InvalidDashlanePathError();
