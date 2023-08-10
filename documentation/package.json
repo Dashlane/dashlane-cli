@@ -2,9 +2,9 @@
     "name": "@dashlane/cli-documentation",
     "packageManager": "yarn@3.4.1",
     "dependencies": {
-        "next": "^13.4.8",
-        "nextra": "^2.8.0",
-        "nextra-theme-docs": "^2.8.0",
+        "next": "^13.4.13",
+        "nextra": "^2.10.0",
+        "nextra-theme-docs": "^2.10.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
     }
