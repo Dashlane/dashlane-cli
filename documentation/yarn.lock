@@ -25,9 +25,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@dashlane/cli-documentation@workspace:."
   dependencies:
-    next: ^13.4.8
-    nextra: ^2.8.0
-    nextra-theme-docs: ^2.8.0
+    next: ^13.4.13
+    nextra: ^2.10.0
+    nextra-theme-docs: ^2.10.0
     react: ^18.2.0
     react-dom: ^18.2.0
   languageName: unknown
@@ -201,72 +201,72 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/env@npm:13.4.8"
-  checksum: 24e8966c9963879e7f9bab09248bebb89d8615b740dad286e0eb5f92909dddfc30e80ef9df29da757dbf50dcdf483037e65521fc9ea68582fb78d752273d4ba6
+"@next/env@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/env@npm:13.4.13"
+  checksum: 94935ff1730de9fe00be238256ad1af3e5da7ae737e6ce5d261404ccc9245f2a18fee24afa7f3b27d7f7d1c16e2715c8eccb70260ab0c0a08e7bbaa95ed36211
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-darwin-arm64@npm:13.4.8"
+"@next/swc-darwin-arm64@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-darwin-arm64@npm:13.4.13"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-darwin-x64@npm:13.4.8"
+"@next/swc-darwin-x64@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-darwin-x64@npm:13.4.13"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-arm64-gnu@npm:13.4.8"
+"@next/swc-linux-arm64-gnu@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-linux-arm64-gnu@npm:13.4.13"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-arm64-musl@npm:13.4.8"
+"@next/swc-linux-arm64-musl@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-linux-arm64-musl@npm:13.4.13"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-x64-gnu@npm:13.4.8"
+"@next/swc-linux-x64-gnu@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-linux-x64-gnu@npm:13.4.13"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-linux-x64-musl@npm:13.4.8"
+"@next/swc-linux-x64-musl@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-linux-x64-musl@npm:13.4.13"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-win32-arm64-msvc@npm:13.4.8"
+"@next/swc-win32-arm64-msvc@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-win32-arm64-msvc@npm:13.4.13"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-ia32-msvc@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-win32-ia32-msvc@npm:13.4.8"
+"@next/swc-win32-ia32-msvc@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-win32-ia32-msvc@npm:13.4.13"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:13.4.8":
-  version: 13.4.8
-  resolution: "@next/swc-win32-x64-msvc@npm:13.4.8"
+"@next/swc-win32-x64-msvc@npm:13.4.13":
+  version: 13.4.13
+  resolution: "@next/swc-win32-x64-msvc@npm:13.4.13"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -287,15 +287,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@theguild/remark-mermaid@npm:^0.0.3":
-  version: 0.0.3
-  resolution: "@theguild/remark-mermaid@npm:0.0.3"
+"@theguild/remark-mermaid@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "@theguild/remark-mermaid@npm:0.0.4"
   dependencies:
     mermaid: ^10.2.2
-    unist-util-visit: ^4.1.2
+    unist-util-visit: ^5.0.0
   peerDependencies:
     react: ^18.2.0
-  checksum: 31cbb688fa6f9ad3cacb6ec9910e2c0df438d4f578ed6422be81d8b3ff8002dd7e5d88f2490b48ba5a1703f0b86b62459a598966e32a07644261e517a3570219
+  checksum: a00d29530552ef8729a2da455c7681cf1830f22388c66f4c92b34e371bbcc2604be6bc68ebadad2e1f78ef7b235b2e3887530bbf6ae9f73eef47d87114cab8fc
+  languageName: node
+  linkType: hard
+
+"@theguild/remark-npm2yarn@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@theguild/remark-npm2yarn@npm:0.1.1"
+  dependencies:
+    npm-to-yarn: ^2.0.0
+    unist-util-visit: ^5.0.0
+  checksum: 3533d1f06e8e9623c0c2ef9d7bb31fc2d025989df71682479b64bc5ad27acffe0cd4d354f5b68ae53ed5517110080ae77256032fdafdc36fb189d8ef6339e928
   languageName: node
   linkType: hard
 
@@ -415,6 +425,13 @@ __metadata:
   version: 2.0.6
   resolution: "@types/unist@npm:2.0.6"
   checksum: 25cb860ff10dde48b54622d58b23e66214211a61c84c0f15f88d38b61aa1b53d4d46e42b557924a93178c501c166aa37e28d7f6d994aba13d24685326272d5db
+  languageName: node
+  linkType: hard
+
+"@types/unist@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@types/unist@npm:3.0.0"
+  checksum: e9d21a8fb5e332be0acef29192d82632875b2ef3e700f1bc64fdfc1520189542de85c3d4f3bcfbc2f4afdb210f4c23f68061f3fbf10744e920d4f18430d19f49
   languageName: node
   linkType: hard
 
@@ -2494,20 +2511,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:^13.4.8":
-  version: 13.4.8
-  resolution: "next@npm:13.4.8"
+"next@npm:^13.4.13":
+  version: 13.4.13
+  resolution: "next@npm:13.4.13"
   dependencies:
-    "@next/env": 13.4.8
-    "@next/swc-darwin-arm64": 13.4.8
-    "@next/swc-darwin-x64": 13.4.8
-    "@next/swc-linux-arm64-gnu": 13.4.8
-    "@next/swc-linux-arm64-musl": 13.4.8
-    "@next/swc-linux-x64-gnu": 13.4.8
-    "@next/swc-linux-x64-musl": 13.4.8
-    "@next/swc-win32-arm64-msvc": 13.4.8
-    "@next/swc-win32-ia32-msvc": 13.4.8
-    "@next/swc-win32-x64-msvc": 13.4.8
+    "@next/env": 13.4.13
+    "@next/swc-darwin-arm64": 13.4.13
+    "@next/swc-darwin-x64": 13.4.13
+    "@next/swc-linux-arm64-gnu": 13.4.13
+    "@next/swc-linux-arm64-musl": 13.4.13
+    "@next/swc-linux-x64-gnu": 13.4.13
+    "@next/swc-linux-x64-musl": 13.4.13
+    "@next/swc-win32-arm64-msvc": 13.4.13
+    "@next/swc-win32-ia32-msvc": 13.4.13
+    "@next/swc-win32-x64-msvc": 13.4.13
     "@swc/helpers": 0.5.1
     busboy: 1.6.0
     caniuse-lite: ^1.0.30001406
@@ -2517,7 +2534,6 @@ __metadata:
     zod: 3.21.4
   peerDependencies:
     "@opentelemetry/api": ^1.1.0
-    fibers: ">= 3.1.0"
     react: ^18.2.0
     react-dom: ^18.2.0
     sass: ^1.3.0
@@ -2543,19 +2559,17 @@ __metadata:
   peerDependenciesMeta:
     "@opentelemetry/api":
       optional: true
-    fibers:
-      optional: true
     sass:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 9af39db490707b93f7354457400997423655c59af3888f4a2db15a562711adadd83c17fba562f56341e4e020b43569d86b0a5630c0811c1a97c68f01b647dfc6
+  checksum: 49c161ffafa0f63ee07d37720431aa92dd95b1f593519d729116904b1d61e8fd2b51ed97546f9ac4406132f74198010277022948fa27cac1c82571abeba2a6cd
   languageName: node
   linkType: hard
 
-"nextra-theme-docs@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "nextra-theme-docs@npm:2.8.0"
+"nextra-theme-docs@npm:^2.10.0":
+  version: 2.10.0
+  resolution: "nextra-theme-docs@npm:2.10.0"
   dependencies:
     "@headlessui/react": ^1.7.10
     "@popperjs/core": ^2.11.6
@@ -2571,21 +2585,23 @@ __metadata:
     zod: ^3.20.2
   peerDependencies:
     next: ">=9.5.3"
-    nextra: 2.8.0
+    nextra: 2.10.0
     react: ">=16.13.1"
     react-dom: ">=16.13.1"
-  checksum: e2784c23d17773714b9c0c9ec08b6e91ec38b6abf9003c55f6481cef03dabac382863c80891268d93eea903a6209a63b48c2e4c439f48bbc3f2518ac0c9a0cd8
+  checksum: 82d6c981eee33398148b5f53ab82915867eec7c8d70a39c851f3e34becc504dffe6b1d7f1f81ed053388fdbebe56905ac795b947886ae924144e3cad2452f941
   languageName: node
   linkType: hard
 
-"nextra@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "nextra@npm:2.8.0"
+"nextra@npm:^2.10.0":
+  version: 2.10.0
+  resolution: "nextra@npm:2.10.0"
   dependencies:
+    "@headlessui/react": ^1.7.10
     "@mdx-js/mdx": ^2.3.0
     "@mdx-js/react": ^2.3.0
     "@napi-rs/simple-git": ^0.1.8
-    "@theguild/remark-mermaid": ^0.0.3
+    "@theguild/remark-mermaid": ^0.0.4
+    "@theguild/remark-npm2yarn": ^0.1.1
     clsx: ^1.2.1
     github-slugger: ^2.0.0
     graceful-fs: ^4.2.11
@@ -2595,21 +2611,21 @@ __metadata:
     next-mdx-remote: ^4.2.1
     p-limit: ^3.1.0
     rehype-katex: ^6.0.3
-    rehype-pretty-code: 0.9.9
+    rehype-pretty-code: 0.9.11
     remark-gfm: ^3.0.1
     remark-math: ^5.1.1
     remark-reading-time: ^2.0.1
     shiki: ^0.14.2
     slash: ^3.0.0
     title: ^3.5.3
-    unist-util-remove: ^3.1.1
-    unist-util-visit: ^4.1.1
+    unist-util-remove: ^4.0.0
+    unist-util-visit: ^5.0.0
     zod: ^3.20.2
   peerDependencies:
     next: ">=9.5.3"
     react: ">=16.13.1"
     react-dom: ">=16.13.1"
-  checksum: d19e3ba78c4b392c4296f250e3a6ef74bb9766e9a21b2388243c391c5a74f41d1889c3e2875c3cd26aa78fa3bd7689c14d076217097b757c545a6e804a22142d
+  checksum: 796aa475c60aa8c4ce7f3d9da9b74e43e67cb9be0ed0b10dcf62eb94be1607e0604d38daaeb88742e963b0d1ff61185aa79b992fb8f7a67020c4bb6b9d518c6d
   languageName: node
   linkType: hard
 
@@ -2626,6 +2642,13 @@ __metadata:
   dependencies:
     path-key: ^2.0.0
   checksum: acd5ad81648ba4588ba5a8effb1d98d2b339d31be16826a118d50f182a134ac523172101b82eab1d01cb4c2ba358e857d54cfafd8163a1ffe7bd52100b741125
+  languageName: node
+  linkType: hard
+
+"npm-to-yarn@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "npm-to-yarn@npm:2.0.0"
+  checksum: 9da0e88edf00843cdc37481c89e64b2bc4a3468919221f39b57856b04913e55d59fd91004f6e8a85013b3d1eac0c884f60d81a2504a33e48d785eaae8cb484ab
   languageName: node
   linkType: hard
 
@@ -2801,16 +2824,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rehype-pretty-code@npm:0.9.9":
-  version: 0.9.9
-  resolution: "rehype-pretty-code@npm:0.9.9"
+"rehype-pretty-code@npm:0.9.11":
+  version: 0.9.11
+  resolution: "rehype-pretty-code@npm:0.9.11"
   dependencies:
     "@types/hast": ^2.0.0
     hash-obj: ^4.0.0
     parse-numeric-range: ^1.3.0
   peerDependencies:
     shiki: "*"
-  checksum: 9efb91afd46c1d4291e806a531363ad8e45fe8edd0b8ac8872d093a881ee91373825f89481cb0791ca935ead0d74ef0de58a0032ffffa455d5ff805a5868d6dc
+  checksum: 1905c8f9ba76859af38559329eaabc8e1a8615d59eb4d22ba13c85a23aefc9711ee8afe93894582462f02af872b496ce105254d0ba42b8c3c0fa3aadca90cfed
   languageName: node
   linkType: hard
 
@@ -3196,6 +3219,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unist-util-is@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "unist-util-is@npm:6.0.0"
+  dependencies:
+    "@types/unist": ^3.0.0
+  checksum: f630a925126594af9993b091cf807b86811371e465b5049a6283e08537d3e6ba0f7e248e1e7dab52cfe33f9002606acef093441137181b327f6fe504884b20e2
+  languageName: node
+  linkType: hard
+
 "unist-util-position-from-estree@npm:^1.0.0, unist-util-position-from-estree@npm:^1.1.0":
   version: 1.1.2
   resolution: "unist-util-position-from-estree@npm:1.1.2"
@@ -3224,14 +3256,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-remove@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "unist-util-remove@npm:3.1.1"
+"unist-util-remove@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "unist-util-remove@npm:4.0.0"
   dependencies:
-    "@types/unist": ^2.0.0
-    unist-util-is: ^5.0.0
-    unist-util-visit-parents: ^5.0.0
-  checksum: ed7c762941e6a9b6db230e9417697c8eb7d36093240b6f6d4ec265c4237d33e332a96a18307c8fb322a1842e3feb2a7564b032b5535fa0634eb1e075a6e344cb
+    "@types/unist": ^3.0.0
+    unist-util-is: ^6.0.0
+    unist-util-visit-parents: ^6.0.0
+  checksum: 684db988a486782ae3e721d03bd502f9aaa5ef9d55c688da7cdc777864210faa02552d8a40def856d7c31c281816cdd8b9562ea86d4eec9f122c6aaf5a799f26
   languageName: node
   linkType: hard
 
@@ -3264,6 +3296,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unist-util-visit-parents@npm:^6.0.0":
+  version: 6.0.1
+  resolution: "unist-util-visit-parents@npm:6.0.1"
+  dependencies:
+    "@types/unist": ^3.0.0
+    unist-util-is: ^6.0.0
+  checksum: 08927647c579f63b91aafcbec9966dc4a7d0af1e5e26fc69f4e3e6a01215084835a2321b06f3cbe7bf7914a852830fc1439f0fc3d7153d8804ac3ef851ddfa20
+  languageName: node
+  linkType: hard
+
 "unist-util-visit@npm:^3.1.0":
   version: 3.1.0
   resolution: "unist-util-visit@npm:3.1.0"
@@ -3275,7 +3317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-visit@npm:^4.0.0, unist-util-visit@npm:^4.1.1, unist-util-visit@npm:^4.1.2":
+"unist-util-visit@npm:^4.0.0":
   version: 4.1.2
   resolution: "unist-util-visit@npm:4.1.2"
   dependencies:
@@ -3283,6 +3325,17 @@ __metadata:
     unist-util-is: ^5.0.0
     unist-util-visit-parents: ^5.1.1
   checksum: 95a34e3f7b5b2d4b68fd722b6229972099eb97b6df18913eda44a5c11df8b1e27efe7206dd7b88c4ed244a48c474a5b2e2629ab79558ff9eb936840295549cee
+  languageName: node
+  linkType: hard
+
+"unist-util-visit@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "unist-util-visit@npm:5.0.0"
+  dependencies:
+    "@types/unist": ^3.0.0
+    unist-util-is: ^6.0.0
+    unist-util-visit-parents: ^6.0.0
+  checksum: 9ec42e618e7e5d0202f3c191cd30791b51641285732767ee2e6bcd035931032e3c1b29093f4d7fd0c79175bbc1f26f24f26ee49770d32be76f8730a652a857e6
   languageName: node
   linkType: hard
 
