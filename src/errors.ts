@@ -3,3 +3,9 @@ export class CouldNotFindTeamCredentialsError extends Error {
         super('Could not find team credentials');
     }
 }
+
+export class InvalidDashlanePathError extends Error {
+    constructor() {
+        super('Invalid Dashlane path');
+    }
+}
