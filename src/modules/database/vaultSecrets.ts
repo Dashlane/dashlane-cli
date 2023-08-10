@@ -57,6 +57,13 @@ export const findVaultSecret = (vaultSecrets: VaultSecrets, parsedPath: ParsedPa
         vaultSecrets.notes = vaultSecrets.notes.filter((note) => note.title === parsedPath.title);
     }
 
+    if (parsedPath.secretId) {
+        vaultSecrets.credentials = vaultSecrets.credentials.filter(
+            (credential) => credential.id === parsedPath.secretId
+        );
+        vaultSecrets.notes = vaultSecrets.notes.filter((note) => note.id === parsedPath.secretId);
+    }
+
     if (vaultSecrets.credentials.length === 0 && vaultSecrets.notes.length === 0) {
         throw new Error(`No matching secret found for "${parsedPath.secretId ?? parsedPath.title ?? ''}"`);
     }
@@ -72,7 +79,12 @@ export const findVaultSecret = (vaultSecrets: VaultSecrets, parsedPath: ParsedPa
                 }"`
             );
         }
-        return String(secretToRender[parsedPath.field]);
+
+        const fieldContent = String(secretToRender[parsedPath.field]);
+        if (parsedPath.transformation) {
+            return parsedPath.transformation(fieldContent);
+        }
+        return fieldContent;
     }
 
     return JSON.stringify(secretToRender);

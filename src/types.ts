@@ -220,4 +220,5 @@ export interface ParsedPath {
     secretId?: string;
     title?: string;
     field?: string;
+    transformation?: (field: string) => string;
 }
