@@ -11,3 +11,4 @@ export * from './teamDevices';
 export * from './teamLogs';
 export * from './teamMembers';
 export * from './teamReport';
+export * from './whoami';
