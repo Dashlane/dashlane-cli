@@ -2,6 +2,7 @@ import { Command, Option } from 'commander';
 import { devicesCommands } from './devices';
 import { teamCommands } from './team';
 import { configureCommands } from './configure';
+import { accountsCommands } from './accounts';
 import {
     runSync,
     runOtp,
@@ -75,6 +76,8 @@ export const rootCommands = (params: { program: Command }) => {
         .description('Retrieve a secure note from the local vault and open it')
         .argument('[filter]', 'Filter notes based on their title')
         .action(runSecureNote);
+
+    accountsCommands({ program });
 
     devicesCommands({ program });
 
