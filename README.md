@@ -79,7 +79,7 @@ You can use `--debug` to see all the debug logs of the CLI.
 
 ## How private data is stored on the computer
 
-See [src/crypto/README.md](src/crypto/README.md).
+See [src/modules/crypto/README.md](src/modules/crypto/README.md).
 
 ## Contributing
 
