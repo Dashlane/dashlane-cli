@@ -126,6 +126,7 @@ __metadata:
     mocha: ^10.2.0
     otplib: ^12.0.1
     pkg: ^5.8.1
+    playwright: ^1.37.0
     prettier: ^2.8.8
     ts-node: ^10.9.1
     typescript: ^4.9.5
@@ -4254,6 +4255,26 @@ __metadata:
   bin:
     pkg: lib-es5/bin.js
   checksum: 5e750e716c3426706ea1fbd26832faf6a3ab8376b99f20aeb9c40fd48ad48e7b51375cd077b77669f3bfbefee69cc8111f49e0ca39e353fd0fc2dff95a57f822
+  languageName: node
+  linkType: hard
+
+"playwright-core@npm:1.37.0":
+  version: 1.37.0
+  resolution: "playwright-core@npm:1.37.0"
+  bin:
+    playwright-core: cli.js
+  checksum: be91857b1bb56890b3929ed8cd529f5f5abe4b748f709abc8dbe5b0ee4c0e158247c3958fbccec6a52394dafe4619bc0e69c93d1b129a71b31ab3697771e4c5a
+  languageName: node
+  linkType: hard
+
+"playwright@npm:^1.37.0":
+  version: 1.37.0
+  resolution: "playwright@npm:1.37.0"
+  dependencies:
+    playwright-core: 1.37.0
+  bin:
+    playwright: cli.js
+  checksum: f07d1d69e4a13db428cb45af0e2cd5697cb490c7139e399adfc5702b547f741b6411b6442a9c91c0b39f374e0cb466b742de0b15490872a771ab8bdc68e767c5
   languageName: node
   linkType: hard
 

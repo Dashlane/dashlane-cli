@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import winston from 'winston';
 import { connectAndPrepare } from '../modules/database';
 import { decrypt } from '../modules/crypto/decrypt';
-import { encryptAES } from '../modules/crypto/encrypt';
+import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
 import { replaceMasterPassword } from '../modules/crypto/keychainManager';
 import { getLatestContent } from '../endpoints';
 import type { DeviceConfiguration, Secrets } from '../types';
@@ -73,7 +73,7 @@ export const sync = async (params: Sync) => {
                         }
                         return null;
                     }
-                    const encryptedTransactionContent = encryptAES(secrets.localKey, transactionContent);
+                    const encryptedTransactionContent = encryptAesCbcHmac256(secrets.localKey, transactionContent);
                     return [
                         secrets.login,
                         transac.identifier,

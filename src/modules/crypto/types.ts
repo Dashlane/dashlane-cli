@@ -64,3 +64,9 @@ export interface EncryptedData {
     cipherConfig: SymmetricCipherConfig;
     cipherData: CipherData;
 }
+
+export interface RemoteKey {
+    uuid: string;
+    key: string;
+    type: 'sso' | 'master_password';
+}

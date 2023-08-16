@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { encryptAES } from '../modules/crypto/encrypt';
+import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
 import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
 import { connectAndPrepare } from '../modules/database';
 import { parseBooleanString } from '../utils';
@@ -31,7 +31,7 @@ export const configureSaveMasterPassword = async (boolean: string) => {
         masterPasswordEncrypted = null;
     } else {
         // Set encrypted master password in the DB
-        masterPasswordEncrypted = encryptAES(secrets.localKey, Buffer.from(secrets.masterPassword));
+        masterPasswordEncrypted = encryptAesCbcHmac256(secrets.localKey, Buffer.from(secrets.masterPassword));
 
         if (!shouldNotSaveMasterPassword) {
             // Set local key in the OS keychain

@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import * as crypto from 'crypto';
 import { decrypt } from './decrypt';
-import { encryptAES } from './encrypt';
+import { encryptAesCbcHmac256 } from './encrypt';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
 
 describe('Encrypt and decrypt using random symmetric key', () => {
     it('ciphering params parsed after encryption are correct', () => {
         const input = 'The input string I want to encrypt';
         const key = crypto.randomBytes(32);
-        const encryptedInput = encryptAES(key, Buffer.from(input));
+        const encryptedInput = encryptAesCbcHmac256(key, Buffer.from(input));
 
         const buffer = Buffer.from(encryptedInput, 'base64');
         const decodedBase64 = buffer.toString('ascii');
@@ -26,7 +26,7 @@ describe('Encrypt and decrypt using random symmetric key', () => {
     it('decryption of encryption should successfully return the input', async () => {
         const input = 'The input string I want to encrypt';
         const key = crypto.randomBytes(32);
-        const encryptedInput = encryptAES(key, Buffer.from(input));
+        const encryptedInput = encryptAesCbcHmac256(key, Buffer.from(input));
         const decryptedInput = await decrypt(encryptedInput, { type: 'alreadyComputed', symmetricKey: key });
         expect(input).to.equal(decryptedInput.toString());
     });

@@ -128,7 +128,7 @@ const deserializeSymmetricCipherConfig = (
 
     const mode = extractNextEncryptedDataStringComponent(encryptedDataString.substring(cursor));
     cursor += mode.cursorAfter;
-    if (mode.component !== 'cbchmac') {
+    if (mode.component !== 'cbchmac' && mode.component !== 'cbchmac64') {
         throw new Error(`Unrecognized cipher mode: ${mode.component}`);
     }
 

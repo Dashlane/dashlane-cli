@@ -3,7 +3,7 @@ import { serializeEncryptedData } from './encryptedDataSerialization';
 import { hmacSha256, sha512 } from './hash';
 import { EncryptedData } from './types';
 
-export const encryptAES = (originalKey: Buffer, content: Buffer): string => {
+export const encryptAesCbcHmac256 = (originalKey: Buffer, content: Buffer): string => {
     const combinedKey = sha512(originalKey);
     const cipheringKey = combinedKey.slice(0, 32);
     const macKey = combinedKey.slice(32);

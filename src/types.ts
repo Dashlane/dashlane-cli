@@ -4,6 +4,7 @@ export interface Secrets {
     login: string;
     masterPassword: string;
     shouldNotSaveMasterPassword: boolean;
+    isSSO: boolean;
     localKey: Buffer;
     accessKey: string;
     secretKey: string;
@@ -214,7 +215,7 @@ export interface VaultSecrets {
     notes: VaultNote[];
 }
 
-export type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator';
+export type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator' | 'sso';
 
 export interface ParsedPath {
     secretId?: string;
