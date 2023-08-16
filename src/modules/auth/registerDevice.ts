@@ -1,6 +1,6 @@
 import winston from 'winston';
+import { doSSOVerification } from './sso';
 import {
-    CompleteDeviceRegistrationWithAuthTicketOutput,
     completeDeviceRegistration,
     performDashlaneAuthenticatorVerification,
     performDuoPushVerification,
@@ -10,16 +10,13 @@ import {
 import { askOtp, askToken, askVerificationMethod } from '../../utils';
 import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice';
 import { requestEmailTokenVerification } from '../../endpoints/requestEmailTokenVerification';
-import type { SupportedAuthenticationMethod } from '../../types';
 
 interface RegisterDevice {
     login: string;
     deviceName: string;
 }
 
-export const registerDevice = async (
-    params: RegisterDevice
-): Promise<CompleteDeviceRegistrationWithAuthTicketOutput> => {
+export const registerDevice = async (params: RegisterDevice) => {
     const { login, deviceName } = params;
     winston.debug('Registering the device...');
 
@@ -30,25 +27,32 @@ export const registerDevice = async (
         throw new Error('Master password-less is currently not supported');
     }
 
+    const nonEmptyVerifications = verifications.filter((method) => method.type);
+
     const selectedVerificationMethod =
-        verifications.length > 1
-            ? await askVerificationMethod(verifications.map((method) => method.type as SupportedAuthenticationMethod))
-            : verifications[0].type;
+        nonEmptyVerifications.length > 1
+            ? await askVerificationMethod(nonEmptyVerifications)
+            : nonEmptyVerifications[0];
 
     let authTicket: string;
-    if (selectedVerificationMethod === 'duo_push') {
+    let ssoSpKey: string | null = null;
+    if (!selectedVerificationMethod || Object.keys(selectedVerificationMethod).length === 0) {
+        throw new Error('No verification method selected');
+    }
+
+    if (selectedVerificationMethod.type === 'duo_push') {
         winston.info('Please accept the Duo push notification on your phone');
         ({ authTicket } = await performDuoPushVerification({ login }));
-    } else if (selectedVerificationMethod === 'dashlane_authenticator') {
+    } else if (selectedVerificationMethod.type === 'dashlane_authenticator') {
         winston.info('Please accept the Dashlane Authenticator push notification on your phone');
         ({ authTicket } = await performDashlaneAuthenticatorVerification({ login }));
-    } else if (selectedVerificationMethod === 'totp') {
+    } else if (selectedVerificationMethod.type === 'totp') {
         const otp = await askOtp();
         ({ authTicket } = await performTotpVerification({
             login,
             otp,
         }));
-    } else if (selectedVerificationMethod === 'email_token') {
+    } else if (selectedVerificationMethod.type === 'email_token') {
         await requestEmailTokenVerification({ login });
 
         const token = await askToken();
@@ -56,10 +60,21 @@ export const registerDevice = async (
             login,
             token,
         }));
+    } else if (selectedVerificationMethod.type === 'sso') {
+        if (selectedVerificationMethod.ssoInfo.isNitroProvider) {
+            throw new Error('Confidential SSO is currently not supported');
+        }
+
+        ({ authTicket, ssoSpKey } = await doSSOVerification({
+            requestedLogin: login,
+            serviceProviderURL: selectedVerificationMethod.ssoInfo.serviceProviderUrl,
+        }));
     } else {
-        throw new Error('Auth verification method not supported: ' + verifications[0].type);
+        throw new Error('Auth verification method not supported: ' + selectedVerificationMethod.type);
     }
 
     // Complete the device registration and save the result
-    return completeDeviceRegistration({ login, deviceName, authTicket });
+    const completeDeviceRegistrationResponse = await completeDeviceRegistration({ login, deviceName, authTicket });
+
+    return { ...completeDeviceRegistrationResponse, ssoSpKey };
 };

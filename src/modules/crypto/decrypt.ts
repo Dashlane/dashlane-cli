@@ -9,8 +9,31 @@ import { hmacSha256, sha512 } from './hash';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
 import { BackupEditTransaction, Secrets, SymmetricKeyGetter } from '../../types';
 
-const decryptCipherData = (cipherData: CipherData, originalKey: Buffer): Buffer => {
-    const combinedKey = sha512(originalKey);
+interface DecryptAesCbcHmac256Params {
+    /** The cipher data to decrypt */
+    cipherData: CipherData;
+    /** The original key used to encrypt the cipher data */
+    originalKey: Buffer;
+    /** If `true`, the originalKey is already inflated (should be 64 bytes long)
+     *
+     * If `false`, the originalKey is inflated using sha512
+     */
+    inflatedKey?: boolean;
+}
+
+export const decryptAesCbcHmac256 = (params: DecryptAesCbcHmac256Params): Buffer => {
+    const { cipherData, originalKey, inflatedKey } = params;
+
+    let combinedKey: Buffer;
+    if (inflatedKey) {
+        if (originalKey.length !== 64) {
+            throw new Error(`crypto key must be 64 bytes long but is ${originalKey.length} bytes long`);
+        }
+        combinedKey = originalKey;
+    } else {
+        combinedKey = sha512(originalKey);
+    }
+
     const cipheringKey = combinedKey.slice(0, 32);
     const macKey = combinedKey.slice(32);
 
@@ -31,6 +54,7 @@ export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: Sym
     const { encryptedData, derivationMethodBytes } = deserializeEncryptedData(decodedBase64, buffer);
 
     let symmetricKey: Buffer | undefined;
+
     switch (symmetricKeyGetter.type) {
         case 'alreadyComputed':
             symmetricKey = symmetricKeyGetter.symmetricKey;
@@ -49,7 +73,11 @@ export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: Sym
         }
     }
 
-    return decryptCipherData(encryptedData.cipherData, symmetricKey);
+    return decryptAesCbcHmac256({
+        cipherData: encryptedData.cipherData,
+        originalKey: symmetricKey,
+        inflatedKey: encryptedData.cipherConfig.cipherMode === 'cbchmac64',
+    });
 };
 
 export const decryptTransaction = async <TransactionContent>(
@@ -95,9 +123,9 @@ export const getDerivateUsingParametersFromEncryptedData = async (
                 32,
                 cipheringMethod.keyDerivation.hashMethod
             );
+        case 'noderivation':
+            return Promise.resolve(Buffer.from(masterPassword, 'base64'));
         default:
-            throw new Error(
-                `Impossible to compute derivate with derivation method '${cipheringMethod.keyDerivation.algo}'`
-            );
+            throw new Error('Impossible to compute derivate with derivation method');
     }
 };

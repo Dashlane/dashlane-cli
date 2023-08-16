@@ -4,9 +4,10 @@ import winston from 'winston';
 import os from 'os';
 import crypto from 'crypto';
 import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
-import { encryptAES } from './encrypt';
+import { encryptAesCbcHmac256 } from './encrypt';
 import { sha512 } from './hash';
 import { EncryptedData } from './types';
+import { decryptSsoRemoteKey } from './buildSsoRemoteKey';
 import { CLI_VERSION, cliVersionToString } from '../../cliVersion';
 import { perform2FAVerification, registerDevice } from '../auth';
 import { DeviceConfiguration, Secrets } from '../../types';
@@ -88,11 +89,14 @@ const getSecretsWithoutDB = async (
 
     // Register the user's device
     const deviceCredentials = getDeviceCredentials();
-    const { deviceAccessKey, deviceSecretKey, serverKey } = deviceCredentials
+    const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys } = deviceCredentials
         ? {
               deviceAccessKey: deviceCredentials.accessKey,
               deviceSecretKey: deviceCredentials.secretKey,
               serverKey: undefined,
+              ssoServerKey: undefined,
+              ssoSpKey: undefined,
+              remoteKeys: [],
           }
         : await registerDevice({
               login,
@@ -102,13 +106,21 @@ const getSecretsWithoutDB = async (
     // Get the authentication type (mainly to identify if the user is with OTP2)
     const { type } = await get2FAStatusUnauthenticated({ login });
 
-    let masterPassword = await askMasterPassword();
-
-    // In case of OTP2
+    let masterPassword = '';
     let serverKeyEncrypted = null;
-    if (type === 'totp_login' && serverKey) {
-        serverKeyEncrypted = encryptAES(localKey, Buffer.from(serverKey));
-        masterPassword = serverKey + masterPassword;
+    const isSSO = type === 'sso';
+
+    // In case of SSO
+    if (isSSO) {
+        masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
+    } else {
+        masterPassword = await askMasterPassword();
+
+        // In case of OTP2
+        if (type === 'totp_login' && serverKey) {
+            serverKeyEncrypted = encryptAesCbcHmac256(localKey, Buffer.from(serverKey));
+            masterPassword = serverKey + masterPassword;
+        }
     }
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
@@ -116,11 +128,12 @@ const getSecretsWithoutDB = async (
         getDerivationParametersForLocalKey(login)
     );
 
-    const deviceSecretKeyEncrypted = encryptAES(localKey, Buffer.from(deviceSecretKey, 'hex'));
-    const masterPasswordEncrypted = encryptAES(localKey, Buffer.from(masterPassword));
-    const localKeyEncrypted = encryptAES(derivate, localKey);
+    const deviceSecretKeyEncrypted = encryptAesCbcHmac256(localKey, Buffer.from(deviceSecretKey, 'hex'));
+    const masterPasswordEncrypted = encryptAesCbcHmac256(localKey, Buffer.from(masterPassword));
+    const localKeyEncrypted = encryptAesCbcHmac256(derivate, localKey);
 
-    if (!shouldNotSaveMasterPassword) {
+    const shouldSaveMasterPassword = !shouldNotSaveMasterPassword || isSSO;
+    if (shouldSaveMasterPassword) {
         setLocalKey(login, localKey, (errorMessage) => {
             warnUnreachableKeychainDisabled(errorMessage);
             shouldNotSaveMasterPassword = true;
@@ -133,8 +146,8 @@ const getSecretsWithoutDB = async (
             cliVersionToString(CLI_VERSION),
             deviceAccessKey,
             deviceSecretKeyEncrypted,
-            shouldNotSaveMasterPassword ? null : masterPasswordEncrypted,
-            shouldNotSaveMasterPassword ? 1 : 0,
+            shouldSaveMasterPassword ? masterPasswordEncrypted : null,
+            shouldSaveMasterPassword ? 0 : 1,
             localKeyEncrypted,
             1,
             type,
@@ -146,6 +159,7 @@ const getSecretsWithoutDB = async (
         login,
         masterPassword,
         shouldNotSaveMasterPassword,
+        isSSO,
         localKey,
         accessKey: deviceAccessKey,
         secretKey: deviceSecretKey,
@@ -153,8 +167,13 @@ const getSecretsWithoutDB = async (
 };
 
 const getSecretsWithoutKeychain = async (login: string, deviceConfiguration: DeviceConfiguration): Promise<Secrets> => {
-    let serverKey;
+    if (deviceConfiguration.authenticationMode === 'sso') {
+        throw new Error('SSO is currently not supported without the keychain');
+    }
+
+    /** The master password is a utf-8 string and in case it comes from a remote key with no derivation encoded in base64 */
     let masterPassword = '';
+    let serverKey: string | undefined;
     if (deviceConfiguration.authenticationMode === 'totp_login') {
         serverKey = await perform2FAVerification({ login, deviceAccessKey: deviceConfiguration.accessKey });
         masterPassword = serverKey ?? '';
@@ -186,6 +205,7 @@ Install it or disable its usage via \`dcli configure save-master-password false\
         login,
         masterPassword,
         shouldNotSaveMasterPassword: deviceConfiguration.shouldNotSaveMasterPassword,
+        isSSO: false,
         localKey,
         accessKey: deviceConfiguration.accessKey,
         secretKey,
@@ -197,6 +217,10 @@ export const replaceMasterPassword = async (
     secrets: Secrets,
     deviceConfiguration: DeviceConfiguration | null
 ): Promise<Secrets> => {
+    if (deviceConfiguration && deviceConfiguration.authenticationMode === 'sso') {
+        throw new Error("You can't replace the master password of an SSO account");
+    }
+
     const { localKey, login, accessKey, secretKey, shouldNotSaveMasterPassword } = secrets;
 
     let newMasterPassword = '';
@@ -206,7 +230,7 @@ export const replaceMasterPassword = async (
     if (deviceConfiguration && deviceConfiguration.authenticationMode === 'totp_login') {
         serverKey = await perform2FAVerification({ login, deviceAccessKey: deviceConfiguration.accessKey });
         newMasterPassword = serverKey ?? '';
-        serverKeyEncrypted = encryptAES(secrets.localKey, Buffer.from(serverKey ?? ''));
+        serverKeyEncrypted = encryptAesCbcHmac256(secrets.localKey, Buffer.from(serverKey ?? ''));
     }
 
     newMasterPassword += await askMasterPassword();
@@ -216,8 +240,8 @@ export const replaceMasterPassword = async (
         getDerivationParametersForLocalKey(login)
     );
 
-    const masterPasswordEncrypted = encryptAES(secrets.localKey, Buffer.from(newMasterPassword));
-    const localKeyEncrypted = encryptAES(derivate, localKey);
+    const masterPasswordEncrypted = encryptAesCbcHmac256(secrets.localKey, Buffer.from(newMasterPassword));
+    const localKeyEncrypted = encryptAesCbcHmac256(derivate, localKey);
 
     db.prepare(
         'UPDATE device SET localKeyEncrypted = ?, masterPasswordEncrypted = ?, serverKeyEncrypted = ? WHERE login = ?'
@@ -234,6 +258,7 @@ export const replaceMasterPassword = async (
         login,
         masterPassword: newMasterPassword,
         shouldNotSaveMasterPassword,
+        isSSO: false,
         localKey,
         accessKey,
         secretKey,
@@ -282,6 +307,7 @@ export const getSecrets = async (
         login,
         masterPassword,
         shouldNotSaveMasterPassword: deviceConfiguration.shouldNotSaveMasterPassword,
+        isSSO: deviceConfiguration.authenticationMode === 'sso',
         localKey,
         accessKey: deviceConfiguration.accessKey,
         secretKey,

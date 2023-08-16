@@ -13,7 +13,7 @@ interface GetAuthenticationMethodsForDeviceParams {
     supportedMethods?: SupportedAuthenticationMethod[];
 }
 
-interface GetAuthenticationMethodsForDeviceResult {
+export interface GetAuthenticationMethodsForDeviceResult {
     /** The authentication methods available for the user */
     verifications: (
         | {

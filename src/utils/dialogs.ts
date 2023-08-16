@@ -2,13 +2,8 @@ import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
 import { removeUnderscoresAndCapitalize } from './strings';
 import { getDeviceCredentials } from './deviceCredentials';
-import {
-    PrintableVaultCredential,
-    PrintableVaultNote,
-    SupportedAuthenticationMethod,
-    VaultCredential,
-    VaultNote,
-} from '../types';
+import { PrintableVaultCredential, PrintableVaultNote, VaultCredential, VaultNote } from '../types';
+import { GetAuthenticationMethodsForDeviceResult } from '../endpoints/getAuthenticationMethodsForDevice';
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 export const prompt = inquirer.createPromptModule({ output: process.stderr });
@@ -157,14 +152,18 @@ export const askToken = async () => {
     return response.token;
 };
 
-export const askVerificationMethod = async (verificationMethods: SupportedAuthenticationMethod[]) => {
-    const response = await inquirer.prompt<{ verificationMethod: string }>([
+export const askVerificationMethod = async (
+    verificationMethods: GetAuthenticationMethodsForDeviceResult['verifications']
+) => {
+    const response = await inquirer.prompt<{
+        verificationMethod: GetAuthenticationMethodsForDeviceResult['verifications'][0];
+    }>([
         {
             type: 'list',
             name: 'verificationMethod',
             message: 'What second factor method would you like to use?',
             choices: verificationMethods.map((method) => {
-                return { name: removeUnderscoresAndCapitalize(method), value: method };
+                return { name: removeUnderscoresAndCapitalize(method.type), value: method };
             }),
         },
     ]);
