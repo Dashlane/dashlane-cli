@@ -1,0 +1,20 @@
+# Backup your local Vault
+
+By using the `backup` command, you can backup your local vault to a given directory and filename.
+The command will perform a sync prior to the backup to ensure that the latest data is pulled from the Dashlane servers.
+
+The backup is a [sqlite3](https://www.sqlite.org/index.html) database file containing all your secrets encrypted by your master password.
+
+```bash
+# By default the backup file is stored in the current directory and named dashlane-backup-<timestamp>.db
+dcli backup
+
+# You can specify the directory and filename
+dcli backup --filename <filename> --directory <directory>
+```
+
+The database is composed of 3 tables:
+
+-   `device`: contains the current device information and configuration (including your device secrets)
+-   `transactions`: contains all the transactions that composed your vault (the type determines if the transaction is a password, a note, a credit card, etc.)
+-   `syncUpdates`: contains the sync updates when the data was pulled from the Dashlane servers
