@@ -75,7 +75,15 @@ export const rootCommands = (params: { program: Command }) => {
         .command('note')
         .alias('n')
         .description('Retrieve a secure note from the local vault and open it')
-        .argument('[filter]', 'Filter notes based on their title')
+        .addOption(
+            new Option('-o, --output <type>', 'How to print the notes. The JSON option outputs all the matching notes')
+                .choices(['text', 'json'])
+                .default('text')
+        )
+        .argument(
+            '[filters...]',
+            'Filter notes based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
+        )
         .action(runSecureNote);
 
     accountsCommands({ program });
