@@ -1,5 +1,5 @@
 import { isUuid } from './strings';
-import { transformJsonPath, transformOtp } from './secretTransformation';
+import { transformJsonPath, transformOtp, transformOtpAndExpiry } from './secretTransformation';
 import { ParsedPath } from '../types';
 import { InvalidDashlanePathError } from '../errors';
 
@@ -51,6 +51,9 @@ export const parsePath = (path: string): ParsedPath => {
         switch (queryParamKey) {
             case 'otp':
                 transformation = transformOtp;
+                break;
+            case 'otp+expiry':
+                transformation = transformOtpAndExpiry;
                 break;
             case 'json':
                 transformation = (json: string) => transformJsonPath(json, queryParamValue);
