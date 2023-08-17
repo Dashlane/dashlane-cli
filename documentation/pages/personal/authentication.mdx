@@ -11,9 +11,24 @@ dcli sync
 Authenticating to your personal vault requires your email.
 You will be then asked to validate a second factor to register the CLI to your account.
 
+## Supported primary authentication methods
+
+-   Master Password
+-   SSO (self-hosted only)
+
 <Callout type="warning" emoji="⚠️">
-    SSO authentication is not supported yet.
+    Confidential SSO (using Nitro Enclaves) and Password-Less authentication are not supported yet.
 </Callout>
+
+### Requirements for SSO authentication
+
+You must have:
+
+-   the [latest Chrome browser](https://support.google.com/chrome/answer/95346) installed on your machine
+-   a visual interface to be able to authenticate in the browser
+-   a machine that has a keychain (macOS, Windows, Linux with libsecret installed for instance)
+
+The CLI will open a new **incognito** tab to authenticate you to your SSO provider.
 
 ## Supported 2FA methods
 
