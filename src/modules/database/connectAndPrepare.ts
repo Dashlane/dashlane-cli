@@ -23,6 +23,9 @@ export interface ConnectAndPrepareParams {
     shouldNotSaveMasterPasswordIfNoDeviceKeys?: boolean;
 
     failIfNoDB?: true;
+
+    /* Force the synchronization of the vault */
+    forceSync?: boolean;
 }
 
 export const connectAndPrepare = async (
@@ -32,7 +35,7 @@ export const connectAndPrepare = async (
     secrets: Secrets;
     deviceConfiguration: DeviceConfiguration | null;
 }> => {
-    const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB } = params;
+    const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB, forceSync } = params;
     const db = connect();
     db.serialize();
 
@@ -72,7 +75,10 @@ export const connectAndPrepare = async (
             .run();
     }
 
-    if (deviceConfiguration && ((autoSync === undefined && deviceConfiguration?.autoSync !== 0) || autoSync)) {
+    if (
+        (deviceConfiguration && ((autoSync === undefined && deviceConfiguration?.autoSync !== 0) || autoSync)) ||
+        forceSync
+    ) {
         const lastClientSyncTimestamp =
             (
                 db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
@@ -81,7 +87,7 @@ export const connectAndPrepare = async (
             )?.lastClientSyncTimestamp || 0;
 
         // If there were no updates during last hour, synchronize the vault
-        if (Date.now() / 1000 - lastClientSyncTimestamp > 3600) {
+        if (Date.now() / 1000 - lastClientSyncTimestamp > 3600 || forceSync) {
             await sync({ db, secrets, deviceConfiguration });
         }
     }

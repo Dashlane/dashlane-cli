@@ -12,6 +12,7 @@ import {
     runRead,
     runInject,
     runExec,
+    runBackup,
 } from '../command-handlers';
 
 export const rootCommands = (params: { program: Command }) => {
@@ -84,6 +85,13 @@ export const rootCommands = (params: { program: Command }) => {
     teamCommands({ program });
 
     configureCommands({ program });
+
+    program
+        .command('backup')
+        .option('--directory <directory>', 'Output directory of the backup ("." by default)')
+        .option('--filename <filename>', 'Filename of the backup ("dashlane-backup-<unix_timestamp>.db by default")')
+        .description('Backup your local vault (will use the current directory by default)')
+        .action(runBackup);
 
     program.command('logout').description('Logout and clean your local database and OS keychain').action(runLogout);
 };

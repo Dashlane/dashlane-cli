@@ -10,13 +10,17 @@ const USER_DATA_PATH =
         : (process.env.HOME as string) + '/.local/share');
 const DB_PATH = USER_DATA_PATH + '/dashlane-cli';
 
+export const getDatabasePath = () => {
+    return DB_PATH + '/userdata.db';
+};
+
 export const connect = () => {
     // create the data folder if it doesn't exist
     if (!fs.existsSync(DB_PATH)) {
         fs.mkdirSync(DB_PATH, { recursive: true });
     }
 
-    const db = new Database(DB_PATH + '/userdata.db');
+    const db = new Database(getDatabasePath());
     winston.debug('Connected to database.');
 
     return db;
