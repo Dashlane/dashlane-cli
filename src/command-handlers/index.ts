@@ -1,3 +1,4 @@
+export * from './backup';
 export * from './configure';
 export * from './devices';
 export * from './exec';
