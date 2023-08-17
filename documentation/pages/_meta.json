@@ -12,6 +12,9 @@
     "install": {
         "title": "Install"
     },
+    "guides": {
+        "title": "Guides"
+    },
     "---1": {
         "type": "separator"
     },
