@@ -40,10 +40,14 @@ dcli otp [filters]
 
 <YoutubePlayer videoId="n8OxYRfrgfk" />
 
-Getting a secure note is very simple, just use the `note` or `n` command and filter by title:
+In order to get a secure note, just use the `note` or `n` command and define some filters (similarly to the password command).
+You can also select a different output for notes among `text, json`. The JSON option outputs all the matching notes.
 
 ```sh copy
-dcli note [titleFilter]
+dcli note [filters]
+
+# Example with a JSON output
+dcli note tilte=sample.md -o json
 ```
 
 ## Options

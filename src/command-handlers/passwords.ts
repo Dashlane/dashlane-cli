@@ -4,51 +4,72 @@ import { authenticator } from 'otplib';
 import winston from 'winston';
 import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
 import { decryptTransactions } from '../modules/crypto';
-import { askCredentialChoice } from '../utils';
+import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
-export const runPassword = async (filters: string[] | null, options: { output: string | null }) => {
+export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'password' }) => {
+    const { output } = options;
     const { db, secrets } = await connectAndPrepare({});
 
-    if (options.output === 'json') {
-        console.log(
-            JSON.stringify(
-                await selectCredentials({
-                    filters,
-                    secrets,
-                    output: options.output,
-                    db,
-                }),
-                null,
-                4
-            )
-        );
-    } else {
-        await getPassword({
-            filters,
-            secrets,
-            output: options.output,
-            db,
-        });
+    const clipboard = new Clipboard();
+    const selectedCredential = await selectCredential({ filters, secrets, db });
+
+    switch (output) {
+        case 'clipboard':
+            clipboard.setText(selectedCredential.password);
+            console.log(
+                `🔓 Password for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
+            );
+
+            if (selectedCredential.otpSecret) {
+                const token = authenticator.generate(selectedCredential.otpSecret);
+                const timeRemaining = authenticator.timeRemaining();
+                console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+            }
+            break;
+        case 'password':
+            console.log(selectedCredential.password);
+            break;
+        case 'json':
+            console.log(JSON.stringify(selectedCredential, null, 4));
+            break;
+        default:
+            throw new Error('Unable to recognize the output mode.');
     }
+
     db.close();
 };
 
 export const runOtp = async (filters: string[] | null, options: { print: boolean }) => {
     const { db, secrets } = await connectAndPrepare({});
-    await getOtp({
-        filters,
-        secrets,
-        output: options.print ? 'otp' : 'clipboard',
-        db,
-    });
+
+    const clipboard = new Clipboard();
+    const selectedCredential = await selectCredential({ db, filters, secrets }, true);
+
+    const output = options.print ? 'otp' : 'clipboard';
+
+    // otpSecret can't be null because onlyOtpCredentials is set to true above
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const token = authenticator.generate(selectedCredential.otpSecret!);
+    const timeRemaining = authenticator.timeRemaining();
+    switch (output) {
+        case 'clipboard':
+            clipboard.setText(token);
+            console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+            break;
+        case 'otp':
+            console.log(token);
+            break;
+        default:
+            throw new Error('Unable to recognize the output mode.');
+    }
+
     db.close();
 };
 
 interface GetCredential {
     filters: string[] | null;
     secrets: Secrets;
-    output: string | null;
     db: Database.Database;
 }
 
@@ -74,39 +95,7 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
             ) as unknown as VaultCredential
     );
 
-    let matchedCredentials = beautifiedCredentials;
-    if (filters?.length) {
-        interface ItemFilter {
-            keys: string[];
-            value: string;
-        }
-        const parsedFilters: ItemFilter[] = [];
-
-        filters.forEach((filter) => {
-            const [splitFilterKey, ...splitFilterValues] = filter.split('=');
-
-            const filterValue = splitFilterValues.join('=') || splitFilterKey;
-            const filterKeys = splitFilterValues.length > 0 ? splitFilterKey.split(',') : ['url', 'title'];
-
-            const canonicalFilterValue = filterValue.toLowerCase();
-
-            parsedFilters.push({
-                keys: filterKeys,
-                value: canonicalFilterValue,
-            });
-        });
-
-        matchedCredentials = matchedCredentials?.filter((item) =>
-            parsedFilters
-                .map((filter) =>
-                    filter.keys.map((key) => item[key as keyof VaultCredential]?.toLowerCase().includes(filter.value))
-                )
-                .flat()
-                .some((b) => b)
-        );
-    }
-
-    return matchedCredentials;
+    return filterMatches<VaultCredential>(beautifiedCredentials, filters);
 };
 
 export const selectCredential = async (params: GetCredential, onlyOtpCredentials = false): Promise<VaultCredential> => {
@@ -123,50 +112,4 @@ export const selectCredential = async (params: GetCredential, onlyOtpCredentials
     }
 
     return askCredentialChoice({ matchedCredentials, hasFilters: Boolean(params.filters?.length) });
-};
-
-export const getPassword = async (params: GetCredential): Promise<void> => {
-    const clipboard = new Clipboard();
-    const selectedCredential = await selectCredential(params);
-
-    switch (params.output || 'clipboard') {
-        case 'clipboard':
-            clipboard.setText(selectedCredential.password);
-            console.log(
-                `🔓 Password for "${selectedCredential.title || selectedCredential.url || 'N\\C'}" copied to clipboard!`
-            );
-
-            if (selectedCredential.otpSecret) {
-                const token = authenticator.generate(selectedCredential.otpSecret);
-                const timeRemaining = authenticator.timeRemaining();
-                console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
-            }
-            break;
-        case 'password':
-            console.log(selectedCredential.password);
-            break;
-        default:
-            throw new Error('Unable to recognize the output mode.');
-    }
-};
-
-export const getOtp = async (params: GetCredential): Promise<void> => {
-    const clipboard = new Clipboard();
-    const selectedCredential = await selectCredential(params, true);
-
-    // otpSecret can't be null because onlyOtpCredentials is set to true above
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const token = authenticator.generate(selectedCredential.otpSecret!);
-    const timeRemaining = authenticator.timeRemaining();
-    switch (params.output || 'clipboard') {
-        case 'clipboard':
-            clipboard.setText(token);
-            console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
-            break;
-        case 'otp':
-            console.log(token);
-            break;
-        default:
-            throw new Error('Unable to recognize the output mode.');
-    }
 };

@@ -1,5 +1,6 @@
 export * from './deviceCredentials';
 export * from './dialogs';
+export * from './filterCredentials';
 export * from './gotImplementation';
 export * from './secretParser';
 export * from './secretPath';

@@ -64,11 +64,11 @@ dcli p url=someurl title=mytitle
 dcli p url,title=mywebsite
 # will return any entry for which either the url or the title matches mywebsite
 
-dcli note [titleFilter]
-# will return any secure note for which the title matches titleFilter
+dcli note title=sample.md
+# will return any secure note which matches the filters (similar to password filters)
 
 dcli otp [filters]
-# will return any otp for which the title matches titleFilter
+# will return any otp which matches the filters (similar to password filters)
 ```
 
 Note: You can select a different output for passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.
