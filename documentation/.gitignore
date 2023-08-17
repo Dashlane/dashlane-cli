@@ -5,6 +5,7 @@ bundle
 .DS_Store
 .next
 out
+components/*.js
 
 # Yarn related files
 .pnp.*

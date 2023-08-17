@@ -1,4 +1,5 @@
 import { Callout } from 'nextra/components';
+import { YoutubePlayer } from '../../components/player';
 
 # Accessing your Vault
 
@@ -7,6 +8,8 @@ import { Callout } from 'nextra/components';
 </Callout>
 
 ## Get a password
+
+<YoutubePlayer videoId="dMII21YI5s4" />
 
 ```sh
 dcli p mywebsite
@@ -26,11 +29,18 @@ Note: You can select a different output for passwords among `clipboard, password
 
 ## Generate an OTP code
 
+You can get an OTP code from your vault as well as the remaining time before it expires.
+Just use the `otp` or `o` command and filter similarly to the password command:
+
 ```sh copy
 dcli otp [filters]
 ```
 
 ## Get a secure note
+
+<YoutubePlayer videoId="n8OxYRfrgfk" />
+
+Getting a secure note is very simple, just use the `note` or `n` command and filter by title:
 
 ```sh copy
 dcli note [titleFilter]
