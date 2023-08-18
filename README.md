@@ -5,7 +5,7 @@
 [![Documentation Website](https://img.shields.io/badge/Documentation-Website)
 ](https://dashlane.github.io/dashlane-cli)
 
-![Dashlane CLI Demo](./documentation/public/demo.png)
+![Dashlane CLI Demo](./documentation/public/main.png)
 
 ## How to install with homebrew
 
