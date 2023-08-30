@@ -1,5 +1,4 @@
 import winston from 'winston';
-import { connectAndPrepare } from '../modules/database';
 import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints';
 import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../utils';
 import { GenericLog } from '../types/logs';
@@ -17,7 +16,6 @@ export const runTeamLogs = async (options: {
     const { start, type, category } = options;
     const end = options.end === 'now' ? Date.now().toString() : options.end;
 
-    const { db } = await connectAndPrepare({ autoSync: false });
     let logs = await getAuditLogs({
         teamDeviceCredentials,
         startDateRangeUnix: parseInt(start),
@@ -25,7 +23,6 @@ export const runTeamLogs = async (options: {
         logType: type,
         category,
     });
-    db.close();
 
     if (options.humanReadable) {
         logs = logs.map((log) => {
