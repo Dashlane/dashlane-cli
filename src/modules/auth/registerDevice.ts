@@ -9,7 +9,6 @@ import {
 } from '../../endpoints';
 import { askOtp, askToken, askVerificationMethod } from '../../utils';
 import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice';
-import { requestEmailTokenVerification } from '../../endpoints/requestEmailTokenVerification';
 
 interface RegisterDevice {
     login: string;
@@ -53,8 +52,9 @@ export const registerDevice = async (params: RegisterDevice) => {
             otp,
         }));
     } else if (selectedVerificationMethod.type === 'email_token') {
-        await requestEmailTokenVerification({ login });
-
+        winston.info(
+            `Please open the following URL in your browser: https://www.dashlane.com/cli-device-registration?login=${login}`
+        );
         const token = await askToken();
         ({ authTicket } = await performEmailTokenVerification({
             login,

@@ -13,5 +13,4 @@ export * from './performDashlaneAuthenticatorVerification';
 export * from './performDuoPushVerification';
 export * from './performEmailTokenVerification';
 export * from './performTotpVerification';
-export * from './requestDeviceRegistration';
 export * from './registerTeamDevice';
