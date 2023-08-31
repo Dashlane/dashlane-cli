@@ -18,25 +18,25 @@ brew install dashlane/tap/dashlane-cli
 Install the dependencies:
 
 ```sh
-yarn
+pnpm
 ```
 
 In order to build:
 
 ```sh
-yarn run build
+pnpm run build
 ```
 
 In order to link:
 
 ```sh
-yarn link
+pnpm link
 ```
 
 In order to bundle for Linux-x64, macOS-x64 and Windows-x64:
 
 ```sh
-yarn run pkg
+pnpm pkg
 ```
 
 It outputs in `bundle` directory. Be aware you must use the same Node version as the target.

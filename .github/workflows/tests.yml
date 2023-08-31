@@ -11,6 +11,6 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: 16.x
-            - run: yarn
-            - run: yarn run lint
-            - run: yarn run test
+            - run: pnpm i
+            - run: pnpm lint
+            - run: pnpm test

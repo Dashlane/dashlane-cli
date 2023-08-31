@@ -2,9 +2,10 @@ import { Tab, Tabs } from 'nextra-theme-docs'
  
 # Install
 
-The Dashlane CLI can be installed in multiple ways. You can either install it using [Homebrew](https://brew.sh/) on **macOS** and **Linux**, manually with [Yarn](https://yarnpkg.com/) or download the packaged executables for **Windows**, **macOS** and **Linux** on x64 architectures.
+The Dashlane CLI can be installed in multiple ways. You can either install it using [Homebrew](https://brew.sh/) on **macOS** and **Linux**,
+manually with PNPM or download the packaged executables for **Windows**, **macOS** and **Linux** on x64 architectures.
 
-<Tabs items={['Homebrew', 'Manually with Yarn', 'Packaged Executables (x64 only)']}>
+<Tabs items={['Homebrew', 'Manually with PNPM', 'Packaged Executables (x64 only)']}>
     <Tab>
     You can install the Dashlane CLI using [Homebrew](https://brew.sh/), a package manager for __macOS__ and __Linux__.
     
@@ -23,26 +24,26 @@ The Dashlane CLI can be installed in multiple ways. You can either install it us
     The CLI is now installed on your machine, it will be updated automatically when a new version is released.
     </Tab>
     <Tab>
-    This method is available on every environment that supports [Node.js](https://nodejs.org/en/) and Yarn.
+    This method is available on every environment that supports [Node.js](https://nodejs.org/en/) and PNPM.
 
     First you need to download or `git clone` this repository and run the following commands in the root directory of the repository.
 
     Install the dependencies:
 
     ```sh copy
-    yarn
+    pnpm i
     ```
 
     In order to build:
 
     ```sh copy
-    yarn run build
+    pnpm build
     ```
 
     In order to link:
 
     ```sh copy
-    yarn link
+    pnpm link
     ```
 
     Make sure to pull the latest changes and rebuild the project to get the latest version of the CLI.

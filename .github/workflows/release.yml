@@ -26,13 +26,13 @@ jobs:
               with:
                   node-version: 16.x
 
-            - run: yarn
-            - run: yarn run build
+            - run: pnpm i
+            - run: pnpm build
             # remove dev dependencies before packaging
-            - run: yarn workspaces focus --all --production
+            - run: pnpm prune --prod
             # package final binaries
             - run: |
-                  yarn dlx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
+                  pnpx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
 
             - name: Archive binary artifact
               uses: actions/upload-artifact@v3

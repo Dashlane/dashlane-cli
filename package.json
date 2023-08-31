@@ -26,7 +26,7 @@
         "pkg:macos": "pkg . -t node16-macos-x64 -o bundle/dcli-macos",
         "pkg:macos-arm": "pkg . -t node16-macos-arm64 -o bundle/dcli-macos-arm",
         "pkg:win": "pkg . -t node16-win-x64 -o bundle/dcli-win.exe",
-        "pkg": "yarn run build && yarn run pkg:linux && yarn run pkg:macos && yarn run pkg:win",
+        "pkg": "pnpm build && pnpm pkg:linux && pnpm pkg:macos && pnpm pkg:win",
         "prepare": "husky install",
         "test": "mocha"
     },
@@ -90,7 +90,7 @@
     },
     "engines": {
         "node": ">=16",
-        "yarn": ">=3.4.0"
+        "pnpm": ">=8"
     },
-    "packageManager": "yarn@3.4.1"
+    "packageManager": "pnpm@8.7.0"
 }
