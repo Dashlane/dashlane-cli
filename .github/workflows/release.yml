@@ -32,7 +32,7 @@ jobs:
             - run: pnpm i
             - run: pnpm build
             # remove dev dependencies before packaging
-            - run: pnpm prune --prod
+            - run: pnpm prune --prod --config.ignore-scripts=true
             # package final binaries
             - run: |
                   pnpx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
