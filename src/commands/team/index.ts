@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { teamCredentialsCommands } from './credentials';
 import { CouldNotFindTeamCredentialsError } from '../../errors';
 import { runTeamLogs, runTeamMembers, runTeamReport } from '../../command-handlers';
-import { customParseInt, getTeamDeviceCredentials } from '../../utils';
+import { customParseInt, customParseTimestampMilliseconds, getTeamDeviceCredentials } from '../../utils';
 
 export const teamCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -37,8 +37,13 @@ export const teamCommands = (params: { program: Command }) => {
         .command('logs')
         .alias('l')
         .description('List audit logs')
-        .option('--start <start>', 'start timestamp in ms', '0')
-        .option('--end <end>', 'end timestamp in ms (use "now" to get the current timestamp)', 'now')
+        .option('--start <start>', 'Start timestamp in ms', customParseTimestampMilliseconds, '0')
+        .option(
+            '--end <end>',
+            'End timestamp in ms (use "now" to get the current timestamp)',
+            customParseTimestampMilliseconds,
+            'now'
+        )
         .option('--type <type>', 'log type')
         .option('--category <category>', 'log category')
         .option('--csv', 'Output in CSV format')
