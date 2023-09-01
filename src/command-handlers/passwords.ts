@@ -14,7 +14,7 @@ export const runPassword = async (filters: string[] | null, options: { output: '
     const foundCredentials = await findCredentials({ db, filters, secrets });
 
     if (output === 'json') {
-        console.log(JSON.stringify(foundCredentials, null, 4));
+        console.log(JSON.stringify(foundCredentials));
         return;
     }
 
