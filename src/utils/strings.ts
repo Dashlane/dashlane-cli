@@ -24,6 +24,26 @@ export const customParseInt = (value: string, _dummyPrevious: unknown) => {
     return parsedValue;
 };
 
+export const customParseTimestampMilliseconds = (value: string, _dummyPrevious: unknown) => {
+    if (value === 'now') {
+        return Date.now();
+    }
+    if (value === '0') {
+        return 0;
+    }
+
+    // parseInt takes a string and a radix
+    const parsedValue = parseInt(value, 10);
+    if (isNaN(parsedValue)) {
+        throw new commander.InvalidArgumentError('Not a number.');
+    }
+
+    if (parsedValue < 999999999999 || parsedValue > 100000000000000) {
+        throw new commander.InvalidArgumentError('Timestamp must be in milliseconds.');
+    }
+    return parsedValue;
+};
+
 /** Remove underscores and capitalize string */
 export const removeUnderscoresAndCapitalize = (string: string): string => {
     return string
