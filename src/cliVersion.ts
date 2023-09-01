@@ -1,6 +1,6 @@
 import { CliVersion } from './types';
 
-export const CLI_VERSION: CliVersion = { major: 1, minor: 13, patch: 0 };
+export const CLI_VERSION: CliVersion = { major: 1, minor: 14, patch: 1 };
 export const breakingChangesVersions: CliVersion[] = [];
 
 export const cliVersionToString = (version: CliVersion): string => {

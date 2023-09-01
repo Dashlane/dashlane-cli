@@ -41,7 +41,7 @@ export const customParseTimestampMilliseconds = (value: string, _dummyPrevious: 
     if (parsedValue < 999999999999 || parsedValue > 100000000000000) {
         throw new commander.InvalidArgumentError('Timestamp must be in milliseconds.');
     }
-    return parsedValue;
+    return parsedValue.toString();
 };
 
 /** Remove underscores and capitalize string */

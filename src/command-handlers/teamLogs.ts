@@ -4,8 +4,8 @@ import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../uti
 import { GenericLog } from '../types/logs';
 
 export const runTeamLogs = async (options: {
-    start: number;
-    end: number;
+    start: string;
+    end: string;
     type: string;
     category: string;
     csv: boolean;
@@ -17,8 +17,8 @@ export const runTeamLogs = async (options: {
 
     let logs = await getAuditLogs({
         teamDeviceCredentials,
-        startDateRangeUnix: start,
-        endDateRangeUnix: end,
+        startDateRangeUnix: parseInt(start),
+        endDateRangeUnix: parseInt(end),
         logType: type,
         category,
     });
