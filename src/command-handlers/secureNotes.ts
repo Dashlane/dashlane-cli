@@ -49,7 +49,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
 
     switch (output) {
         case 'json':
-            console.log(JSON.stringify(matchedNotes, null, 4));
+            console.log(JSON.stringify(matchedNotes));
             break;
         case 'text': {
             let selectedNote: VaultNote | null = null;
