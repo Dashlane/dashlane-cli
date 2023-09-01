@@ -11,8 +11,15 @@ export const runPassword = async (filters: string[] | null, options: { output: '
     const { output } = options;
     const { db, secrets } = await connectAndPrepare({});
 
+    const foundCredentials = await findCredentials({ db, filters, secrets });
+
+    if (output === 'json') {
+        console.log(JSON.stringify(foundCredentials, null, 4));
+        return;
+    }
+
+    const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
     const clipboard = new Clipboard();
-    const selectedCredential = await selectCredential({ filters, secrets, db });
 
     switch (output) {
         case 'clipboard':
@@ -30,9 +37,6 @@ export const runPassword = async (filters: string[] | null, options: { output: '
         case 'password':
             console.log(selectedCredential.password);
             break;
-        case 'json':
-            console.log(JSON.stringify(selectedCredential, null, 4));
-            break;
         default:
             throw new Error('Unable to recognize the output mode.');
     }
@@ -44,7 +48,10 @@ export const runOtp = async (filters: string[] | null, options: { print: boolean
     const { db, secrets } = await connectAndPrepare({});
 
     const clipboard = new Clipboard();
-    const selectedCredential = await selectCredential({ db, filters, secrets }, true);
+    const foundCredentials = (await findCredentials({ db, filters, secrets })).filter(
+        (credential) => credential.otpSecret
+    );
+    const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
 
     const output = options.print ? 'otp' : 'clipboard';
 
@@ -73,7 +80,7 @@ interface GetCredential {
     db: Database.Database;
 }
 
-export const selectCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
+export const findCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
     const { secrets, filters, db } = params;
 
     winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
@@ -98,18 +105,15 @@ export const selectCredentials = async (params: GetCredential): Promise<VaultCre
     return filterMatches<VaultCredential>(beautifiedCredentials, filters);
 };
 
-export const selectCredential = async (params: GetCredential, onlyOtpCredentials = false): Promise<VaultCredential> => {
-    let matchedCredentials = await selectCredentials(params);
-
-    if (onlyOtpCredentials) {
-        matchedCredentials = matchedCredentials.filter((credential) => credential.otpSecret);
-    }
-
-    if (!matchedCredentials || matchedCredentials.length === 0) {
+export const selectCredential = async (
+    vaultCredentials: VaultCredential[],
+    hasFilters: boolean
+): Promise<VaultCredential> => {
+    if (!vaultCredentials || vaultCredentials.length === 0) {
         throw new Error('No credential with this name found');
-    } else if (matchedCredentials.length === 1) {
-        return matchedCredentials[0];
+    } else if (vaultCredentials.length === 1) {
+        return vaultCredentials[0];
     }
 
-    return askCredentialChoice({ matchedCredentials, hasFilters: Boolean(params.filters?.length) });
+    return askCredentialChoice({ matchedCredentials: vaultCredentials, hasFilters });
 };
