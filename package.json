@@ -7,13 +7,14 @@
     "bin": {
         "dcli": "dist/index.js"
     },
+    "type": "module",
     "pkg": {
         "assets": [
-            "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
-            "node_modules/@json2csv/plainjs/dist/**/*",
-            "node_modules/@json2csv/formatters/dist/**/*",
-            "node_modules/@json2csv/transforms/dist/**/*",
-            "node_modules/@streamparser/json/dist/**/*"
+            "node_modules/.pnpm/better-sqlite3@8.5.2/node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+            "node_modules/@json2csv/**/*",
+            "node_modules/.pnpm/@json2csv+formatters@7.0.3/node_modules/@json2csv/formatters/dist/**/*",
+            "node_modules/.pnpm/@json2csv+transforms@7.0.3/node_modules/@json2csv/transforms/dist/**/*",
+            "node_modules/.pnpm/@streamparser+json@0.0.17/node_modules/@streamparser/json/dist/**/*"
         ]
     },
     "scripts": {
@@ -56,7 +57,7 @@
         "@types/chai": "^4.3.5",
         "@types/inquirer": "^8.2.6",
         "@types/mocha": "^10.0.1",
-        "@types/node": "^18.17.4",
+        "@types/node": "^20.5.7",
         "@typescript-eslint/eslint-plugin": "^5.62.0",
         "@typescript-eslint/parser": "^5.62.0",
         "chai": "^4.3.7",
@@ -68,7 +69,7 @@
         "pkg": "^5.8.1",
         "prettier": "^2.8.8",
         "ts-node": "^10.9.1",
-        "typescript": "^4.9.5"
+        "typescript": "^5.2.2"
     },
     "dependencies": {
         "@json2csv/plainjs": "^7.0.1",

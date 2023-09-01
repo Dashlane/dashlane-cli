@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { getVaultSecret, initVaultSecrets } from '../modules/database';
+import { getVaultSecret, initVaultSecrets } from '../modules/database/index.js';
 
 interface InjectOpts {
     in: string;

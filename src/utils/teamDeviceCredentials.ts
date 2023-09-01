@@ -1,5 +1,5 @@
-import { CouldNotFindTeamCredentialsError } from '../errors';
-import { TeamDeviceCredentials } from '../types';
+import { CouldNotFindTeamCredentialsError } from '../errors.js';
+import { TeamDeviceCredentials } from '../types.js';
 
 let teamDeviceCredentials: TeamDeviceCredentials | null = null;
 

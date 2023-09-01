@@ -1,5 +1,5 @@
-import { requestUserApi } from '../requestApi';
-import { Secrets } from '../types';
+import { requestUserApi } from '../requestApi.js';
+import { Secrets } from '../types.js';
 
 interface ListDeviceParams {
     secrets: Secrets;

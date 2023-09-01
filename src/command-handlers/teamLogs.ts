@@ -1,7 +1,7 @@
 import winston from 'winston';
-import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints';
-import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../utils';
-import { GenericLog } from '../types/logs';
+import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints/index.js';
+import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../utils/index.js';
+import { GenericLog } from '../types/logs.js';
 
 export const runTeamLogs = async (options: {
     start: string;

@@ -1,8 +1,8 @@
 import winston from 'winston';
-import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
-import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
-import { connectAndPrepare } from '../modules/database';
-import { parseBooleanString } from '../utils';
+import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt.js';
+import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager.js';
+import { connectAndPrepare } from '../modules/database/index.js';
+import { parseBooleanString } from '../utils/index.js';
 
 export const configureSaveMasterPassword = async (boolean: string) => {
     let shouldNotSaveMasterPassword = !parseBooleanString(boolean);

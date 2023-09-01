@@ -3,17 +3,17 @@ import { Entry } from '@napi-rs/keyring';
 import winston from 'winston';
 import os from 'os';
 import crypto from 'crypto';
-import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
-import { encryptAesCbcHmac256 } from './encrypt';
-import { sha512 } from './hash';
-import { EncryptedData } from './types';
-import { decryptSsoRemoteKey } from './buildSsoRemoteKey';
-import { CLI_VERSION, cliVersionToString } from '../../cliVersion';
-import { perform2FAVerification, registerDevice } from '../auth';
-import { DeviceConfiguration, Secrets } from '../../types';
-import { askEmailAddress, askMasterPassword } from '../../utils/dialogs';
-import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
-import { getDeviceCredentials } from '../../utils';
+import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt.js';
+import { encryptAesCbcHmac256 } from './encrypt.js';
+import { sha512 } from './hash.js';
+import { EncryptedData } from './types.js';
+import { decryptSsoRemoteKey } from './buildSsoRemoteKey.js';
+import { CLI_VERSION, cliVersionToString } from '../../cliVersion.js';
+import { perform2FAVerification, registerDevice } from '../auth/index.js';
+import { DeviceConfiguration, Secrets } from '../../types.js';
+import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
+import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
+import { getDeviceCredentials } from '../../utils/index.js';
 
 const SERVICE = 'dashlane-cli';
 

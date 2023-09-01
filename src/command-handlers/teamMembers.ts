@@ -1,5 +1,5 @@
-import { getTeamMembers as getTeamMembersRequest } from '../endpoints';
-import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv, epochTimestampToIso } from '../utils';
+import { getTeamMembers as getTeamMembersRequest } from '../endpoints/index.js';
+import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv, epochTimestampToIso } from '../utils/index.js';
 
 interface GetTeamMembersOpts {
     csv: boolean;

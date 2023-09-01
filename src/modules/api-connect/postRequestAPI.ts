@@ -1,5 +1,5 @@
-import { signRequest } from './signRequest';
-import { PostRequestAPIParams } from './types';
+import { signRequest } from './signRequest.js';
+import { PostRequestAPIParams } from './types.js';
 
 export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
     const { path, authentication, payload, query, method, userAgent, requestFunction } = params;

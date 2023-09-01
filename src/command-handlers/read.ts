@@ -1,7 +1,7 @@
-import { decryptTransactions } from '../modules/crypto';
-import { connectAndPrepare, findVaultSecret } from '../modules/database';
-import { AuthentifiantTransactionContent, BackupEditTransaction, SecureNoteTransactionContent } from '../types';
-import { beautifySecrets, parsePath } from '../utils';
+import { decryptTransactions } from '../modules/crypto/index.js';
+import { connectAndPrepare, findVaultSecret } from '../modules/database/index.js';
+import { AuthentifiantTransactionContent, BackupEditTransaction, SecureNoteTransactionContent } from '../types.js';
+import { beautifySecrets, parsePath } from '../utils/index.js';
 
 export const runRead = async (path: string) => {
     const { db, secrets } = await connectAndPrepare({});

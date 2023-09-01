@@ -1,6 +1,6 @@
 import winston from 'winston';
 import fs from 'fs';
-import { connectAndPrepare, getDatabasePath } from '../modules/database';
+import { connectAndPrepare, getDatabasePath } from '../modules/database/index.js';
 
 export const runBackup = async (options: { directory: string; filename: string }) => {
     const { db } = await connectAndPrepare({ failIfNoDB: true, forceSync: true });

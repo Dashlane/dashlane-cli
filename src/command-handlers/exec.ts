@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import winston from 'winston';
 import { spawn } from 'child_process';
-import { getVaultSecret, initVaultSecrets } from '../modules/database';
+import { getVaultSecret, initVaultSecrets } from '../modules/database/index.js';
 
 export const runExec = async (_options: unknown, program: Command) => {
     const command = program.args.join(' ');

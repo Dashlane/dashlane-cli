@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { configureDisableAutoSync, configureSaveMasterPassword } from '../command-handlers';
+import { configureDisableAutoSync, configureSaveMasterPassword } from '../command-handlers/index.js';
 
 export const configureCommands = (params: { program: Command }) => {
     const { program } = params;

@@ -1,9 +1,9 @@
 import { Database } from 'better-sqlite3';
 import winston from 'winston';
-import { deactivateDevices } from '../endpoints';
-import { connectAndPrepare, connect, reset } from '../modules/database';
-import { Secrets, DeviceConfiguration } from '../types';
-import { askConfirmReset } from '../utils';
+import { deactivateDevices } from '../endpoints/index.js';
+import { connectAndPrepare, connect, reset } from '../modules/database/index.js';
+import { Secrets, DeviceConfiguration } from '../types.js';
+import { askConfirmReset } from '../utils/index.js';
 
 export const runLogout = async () => {
     const resetConfirmation = await askConfirmReset();

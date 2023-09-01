@@ -1,7 +1,7 @@
-import { isUuid } from './strings';
-import { transformJsonPath, transformOtp, transformOtpAndExpiry } from './secretTransformation';
-import { ParsedPath } from '../types';
-import { InvalidDashlanePathError } from '../errors';
+import { isUuid } from './strings.js';
+import { transformJsonPath, transformOtp, transformOtpAndExpiry } from './secretTransformation.js';
+import { ParsedPath } from '../types.js';
+import { InvalidDashlanePathError } from '../errors.js';
 
 /**
  * Function to parse a custom Dashlane path and return the query parameters for the vault lookup

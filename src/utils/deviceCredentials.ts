@@ -1,4 +1,4 @@
-import { DeviceCredentials } from '../types';
+import { DeviceCredentials } from '../types.js';
 
 let deviceCredentials: DeviceCredentials | null = null;
 

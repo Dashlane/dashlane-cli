@@ -4,10 +4,10 @@ import * as xmlJs from 'xml-js';
 import * as crypto from 'crypto';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import { CipherData, EncryptedData } from './types';
-import { hmacSha256, sha512 } from './hash';
-import { deserializeEncryptedData } from './encryptedDataDeserialization';
-import { BackupEditTransaction, Secrets, SymmetricKeyGetter } from '../../types';
+import { CipherData, EncryptedData } from './types.js';
+import { hmacSha256, sha512 } from './hash.js';
+import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
+import { BackupEditTransaction, Secrets, SymmetricKeyGetter } from '../../types.js';
 
 interface DecryptAesCbcHmac256Params {
     /** The cipher data to decrypt */

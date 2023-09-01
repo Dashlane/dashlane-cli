@@ -1,4 +1,4 @@
-import { TwoFactorAuthenticationType } from './types/two-factor-authentication';
+import { TwoFactorAuthenticationType } from './types/two-factor-authentication.js';
 
 export interface Secrets {
     login: string;

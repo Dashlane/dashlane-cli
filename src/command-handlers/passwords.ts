@@ -2,10 +2,10 @@ import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
-import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
-import { decryptTransactions } from '../modules/crypto';
-import { askCredentialChoice, filterMatches } from '../utils';
-import { connectAndPrepare } from '../modules/database';
+import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types.js';
+import { decryptTransactions } from '../modules/crypto/index.js';
+import { askCredentialChoice, filterMatches } from '../utils/index.js';
+import { connectAndPrepare } from '../modules/database/index.js';
 
 export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'password' }) => {
     const { output } = options;

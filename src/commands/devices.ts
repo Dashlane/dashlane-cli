@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { listAllDevices, registerNonInteractiveDevice, removeAllDevices } from '../command-handlers';
+import { listAllDevices, registerNonInteractiveDevice, removeAllDevices } from '../command-handlers/index.js';
 
 export const devicesCommands = (params: { program: Command }) => {
     const { program } = params;

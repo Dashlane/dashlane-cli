@@ -1,7 +1,7 @@
 import * as got from 'got';
-import * as apiConnect from './modules/api-connect';
-import { CLI_VERSION, cliVersionToString } from './cliVersion';
-import { gotImplementation } from './utils/';
+import * as apiConnect from './modules/api-connect/index.js';
+import { CLI_VERSION, cliVersionToString } from './cliVersion.js';
+import { gotImplementation } from './utils/index.js';
 
 interface RequestApi {
     payload: Dictionary<unknown>;

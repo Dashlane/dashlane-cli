@@ -1,19 +1,19 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-import { connect } from './connect';
-import { prepareDB } from './prepare';
-import { reset } from './reset';
+import { connect } from './connect.js';
+import { prepareDB } from './prepare.js';
+import { reset } from './reset.js';
 import {
     CLI_VERSION,
     breakingChangesVersions,
     cliVersionLessThan,
     cliVersionToString,
     stringToCliVersion,
-} from '../../cliVersion';
-import { getSecrets } from '../crypto';
-import { DeviceConfiguration, Secrets } from '../../types';
-import { askIgnoreBreakingChanges } from '../../utils/dialogs';
-import { sync } from '../../command-handlers';
+} from '../../cliVersion.js';
+import { getSecrets } from '../crypto/index.js';
+import { DeviceConfiguration, Secrets } from '../../types.js';
+import { askIgnoreBreakingChanges } from '../../utils/dialogs.js';
+import { sync } from '../../command-handlers/index.js';
 
 export interface ConnectAndPrepareParams {
     /* Is the vault automatically synchronized every hour */

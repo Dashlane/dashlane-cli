@@ -2,9 +2,9 @@
 import { Command } from 'commander';
 import winston from 'winston';
 
-import { cliVersionToString, CLI_VERSION } from './cliVersion';
-import { rootCommands } from './commands';
-import { initDeviceCredentials, initTeamDeviceCredentials } from './utils';
+import { cliVersionToString, CLI_VERSION } from './cliVersion.js';
+import { rootCommands } from './commands/index.js';
+import { initDeviceCredentials, initTeamDeviceCredentials } from './utils/index.js';
 
 const errorColor = (str: string) => {
     // Add ANSI escape codes to display text in red.

@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-import { deleteLocalKey } from '../crypto/keychainManager';
-import { Secrets } from '../../types';
+import { deleteLocalKey } from '../crypto/keychainManager.js';
+import { Secrets } from '../../types.js';
 
 interface ResetDB {
     db: Database.Database;

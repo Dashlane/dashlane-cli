@@ -1,2 +1,2 @@
-export * from './perform2FAVerification';
-export * from './registerDevice';
+export * from './perform2FAVerification.js';
+export * from './registerDevice.js';

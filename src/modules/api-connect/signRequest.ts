@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
-import { makeCanonicalRequest } from './makeCanonicalRequest';
-import { Authentication, SignRequestParams } from './types';
+import { makeCanonicalRequest } from './makeCanonicalRequest.js';
+import { Authentication, SignRequestParams } from './types.js';
 
 export const signRequest = (params: SignRequestParams) => {
     const { method, body, uri, headers, query, authentication } = params;

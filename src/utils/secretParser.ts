@@ -1,4 +1,4 @@
-import { AuthentifiantTransactionContent, SecureNoteTransactionContent, VaultCredential, VaultNote } from '../types';
+import { AuthentifiantTransactionContent, SecureNoteTransactionContent, VaultCredential, VaultNote } from '../types.js';
 
 /**
  * Transform entries [{_attributes: {key:xx}, _cdata: ww}] into an easier-to-use object

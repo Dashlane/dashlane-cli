@@ -1,8 +1,8 @@
 import winston from 'winston';
 import { Command } from 'commander';
-import { listAllTeamDevices } from '../../command-handlers';
-import { connectAndPrepare } from '../../modules/database';
-import { deactivateTeamDevice, registerTeamDevice } from '../../endpoints';
+import { listAllTeamDevices } from '../../command-handlers/index.js';
+import { connectAndPrepare } from '../../modules/database/index.js';
+import { deactivateTeamDevice, registerTeamDevice } from '../../endpoints/index.js';
 
 export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
     const { teamGroup } = params;

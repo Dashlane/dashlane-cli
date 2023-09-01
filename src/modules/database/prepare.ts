@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { DeviceConfiguration } from '../../types';
+import { DeviceConfiguration } from '../../types.js';
 
 interface PrepareDB {
     db: Database.Database;

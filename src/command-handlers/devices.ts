@@ -1,9 +1,9 @@
 import winston from 'winston';
-import { connectAndPrepare, reset } from '../modules/database';
-import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints';
-import { askConfirmReset, epochTimestampToIso } from '../utils';
-import { registerDevice } from '../modules/auth';
-import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated';
+import { connectAndPrepare, reset } from '../modules/database/index.js';
+import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints/index.js';
+import { askConfirmReset, epochTimestampToIso } from '../utils/index.js';
+import { registerDevice } from '../modules/auth/index.js';
+import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated.js';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
     isCurrentDevice: boolean;

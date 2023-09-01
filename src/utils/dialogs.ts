@@ -1,9 +1,9 @@
 import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
-import { removeUnderscoresAndCapitalize } from './strings';
-import { getDeviceCredentials } from './deviceCredentials';
-import { PrintableVaultCredential, PrintableVaultNote, VaultCredential, VaultNote } from '../types';
-import { GetAuthenticationMethodsForDeviceResult } from '../endpoints/getAuthenticationMethodsForDevice';
+import { removeUnderscoresAndCapitalize } from './strings.js';
+import { getDeviceCredentials } from './deviceCredentials.js';
+import { PrintableVaultCredential, PrintableVaultNote, VaultCredential, VaultNote } from '../types.js';
+import { GetAuthenticationMethodsForDeviceResult } from '../endpoints/getAuthenticationMethodsForDevice.js';
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
 export const prompt = inquirer.createPromptModule({ output: process.stderr });

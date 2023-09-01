@@ -1,6 +1,6 @@
-import { connectAndPrepare } from '../modules/database';
-import { listTeamDevices } from '../endpoints';
-import { epochTimestampToIso } from '../utils';
+import { connectAndPrepare } from '../modules/database/index.js';
+import { listTeamDevices } from '../endpoints/index.js';
+import { epochTimestampToIso } from '../utils/index.js';
 
 export async function listAllTeamDevices(options: { json: boolean }) {
     const { db, secrets } = await connectAndPrepare({ autoSync: false });

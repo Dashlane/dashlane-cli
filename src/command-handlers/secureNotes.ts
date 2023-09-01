@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types';
-import { decryptTransactions } from '../modules/crypto';
-import { askSecureNoteChoice, filterMatches } from '../utils';
-import { connectAndPrepare } from '../modules/database';
+import { BackupEditTransaction, Secrets, SecureNoteTransactionContent, VaultNote } from '../types.js';
+import { decryptTransactions } from '../modules/crypto/index.js';
+import { askSecureNoteChoice, filterMatches } from '../utils/index.js';
+import { connectAndPrepare } from '../modules/database/index.js';
 
 export const runSecureNote = async (filters: string[] | null, options: { output: 'text' | 'json' }) => {
     const { db, secrets } = await connectAndPrepare({});
