@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-core';
 import { DASHLANE_APP_REGEX, extractSsoInfoFromUrl } from './utils';
 import { performSSOVerification } from '../../../endpoints/performSSOVerification';
 

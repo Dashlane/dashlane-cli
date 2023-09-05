@@ -22,75 +22,62 @@
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
         "start": "node dist",
-        "pkg:linux": "pkg . -t node16-linux-x64 -o bundle/dcli-linux",
-        "pkg:macos": "pkg . -t node16-macos-x64 -o bundle/dcli-macos",
-        "pkg:macos-arm": "pkg . -t node16-macos-arm64 -o bundle/dcli-macos-arm",
-        "pkg:win": "pkg . -t node16-win-x64 -o bundle/dcli-win.exe",
+        "pkg:linux": "pkg . -t node18-linux-x64 -o bundle/dcli-linux",
+        "pkg:macos": "pkg . -t node18-macos-x64 -o bundle/dcli-macos",
+        "pkg:macos-arm": "pkg . -t node18-macos-arm64 -o bundle/dcli-macos-arm",
+        "pkg:win": "pkg . -t node18-win-x64 -o bundle/dcli-win.exe",
         "pkg": "yarn run build && yarn run pkg:linux && yarn run pkg:macos && yarn run pkg:win",
         "prepare": "husky install",
         "test": "mocha"
     },
     "author": {
-        "name": "Corentin Mors",
-        "email": "corentin@dashlane.com",
-        "url": "https://pixelswap.fr/"
+        "name": "Dashlane",
+        "email": "engineering@dashlane.com",
+        "url": "https://www.dashlane.com/"
     },
-    "contributors": [
-        {
-            "name": "Jérôme Boillot"
-        },
-        {
-            "name": "Paul-Louis Hery"
-        },
-        {
-            "name": "Léos Julien"
-        },
-        {
-            "name": "Tristan Parisot"
-        }
-    ],
+    "contributors": [],
     "license": "Apache-2.0",
     "devDependencies": {
         "@types/async": "^3.2.20",
         "@types/better-sqlite3": "^7.6.4",
-        "@types/chai": "^4.3.5",
+        "@types/chai": "^4.3.6",
         "@types/inquirer": "^8.2.6",
         "@types/mocha": "^10.0.1",
-        "@types/node": "^18.17.4",
-        "@typescript-eslint/eslint-plugin": "^5.62.0",
-        "@typescript-eslint/parser": "^5.62.0",
-        "chai": "^4.3.7",
-        "eslint": "^8.46.0",
-        "eslint-config-prettier": "^8.10.0",
-        "eslint-plugin-import": "^2.28.0",
+        "@types/node": "^18.17.14",
+        "@typescript-eslint/eslint-plugin": "^6.6.0",
+        "@typescript-eslint/parser": "^6.6.0",
+        "chai": "^4.3.8",
+        "eslint": "^8.48.0",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-import": "^2.28.1",
         "husky": "^8.0.3",
         "mocha": "^10.2.0",
         "pkg": "^5.8.1",
-        "prettier": "^2.8.8",
+        "prettier": "^3.0.3",
         "ts-node": "^10.9.1",
-        "typescript": "^4.9.5"
+        "typescript": "^5.2.2"
     },
     "dependencies": {
-        "@json2csv/plainjs": "^7.0.1",
-        "@json2csv/transforms": "^7.0.1",
+        "@json2csv/plainjs": "^7.0.3",
+        "@json2csv/transforms": "^7.0.3",
         "@napi-rs/clipboard": "^1.1.1",
         "@napi-rs/keyring": "^1.1.3",
         "@node-rs/argon2": "^1.5.2",
-        "better-sqlite3": "^8.5.0",
-        "commander": "^10.0.1",
+        "better-sqlite3": "^8.6.0",
+        "commander": "^11.0.0",
         "got": "^11.8.6",
         "inquirer": "^8.2.6",
         "inquirer-search-list": "^1.2.6",
         "jsonpath-plus": "^7.2.0",
         "otplib": "^12.0.1",
-        "playwright": "^1.37.0",
+        "playwright-core": "^1.37.1",
         "winston": "^3.10.0",
         "xml-js": "^1.6.11",
         "zlib": "^1.0.5"
     },
     "engines": {
-        "node": ">=16",
-        "yarn": ">=3.4.0"
+        "node": ">=18",
+        "yarn": ">=3.6.0"
     },
-    "packageManager": "yarn@3.4.1"
+    "packageManager": "yarn@3.6.3"
 }
