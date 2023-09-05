@@ -14,3 +14,6 @@ jobs:
             - run: yarn
             - run: yarn run lint
             - run: yarn run test
+            - run: yarn run build
+            - run: npm link
+            - run: bash .github/workflows/scripts/test-build.sh
