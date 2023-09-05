@@ -15,13 +15,13 @@ jobs:
                     - host: ubuntu-latest
                       target: linux-x64
         runs-on: ${{ matrix.settings.host }}
-        name: dev build - ${{ matrix.settings.target }} - node@16
+        name: dev build - ${{ matrix.settings.target }} - node@18
         steps:
             - uses: actions/checkout@v3
             - name: Use Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: 16.x
+                  node-version: 18.x
 
             - run: yarn
             - run: yarn run build
@@ -29,7 +29,7 @@ jobs:
             - run: yarn workspaces focus --all --production
             # package final binaries
             - run: |
-                  yarn dlx pkg . -t node16-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
+                  yarn dlx pkg . -t node18-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
 
             - name: Archive binary artifact
               uses: actions/upload-artifact@v3
