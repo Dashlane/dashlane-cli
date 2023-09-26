@@ -85,5 +85,3 @@ See [src/modules/crypto/README.md](src/modules/crypto/README.md).
 
 Feel free to contribute to this project, fork and pull request your ideas.
 Don't include work that is not open source or not from you.
-
-**Warranty note**: Dashlane CLI project is provided “as is,” without warranty of any kind, either express or implied. Neither Dashlane, Inc. nor its affiliates, employees or contractors warrant that Dashlane CLI will meet your requirements, operate as required without error or provide future updates. Dashlane, Inc. does not provide customer support on this project. The community is invited to submit bugs and improvements in the issues and pull requests sections of this repository.
