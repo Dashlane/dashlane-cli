@@ -1,4 +1,4 @@
-# Experimental Dashlane CLI
+# Dashlane CLI
 
 ![GitHub](https://img.shields.io/github/license/Dashlane/dashlane-cli)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/Dashlane/dashlane-cli)
