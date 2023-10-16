@@ -1,6 +1,6 @@
 import { TwoFactorAuthenticationType } from './types/two-factor-authentication';
 
-export interface Secrets {
+export interface LocalConfiguration {
     login: string;
     masterPassword: string;
     shouldNotSaveMasterPassword: boolean;
@@ -48,7 +48,7 @@ export interface CliVersion {
 export type SymmetricKeyGetter =
     | {
           type: 'memoize';
-          secrets: Secrets;
+          localConfiguration: LocalConfiguration;
           derivates: Map<string, Promise<Buffer>>;
       }
     | {
@@ -256,15 +256,16 @@ export class PrintableVaultSecret {
     }
 }
 
-export interface VaultSecrets {
+export interface VaultContent {
     credentials: VaultCredential[];
     notes: VaultNote[];
+    secrets: VaultSecret[];
 }
 
 export type SupportedAuthenticationMethod = 'email_token' | 'totp' | 'duo_push' | 'dashlane_authenticator' | 'sso';
 
 export interface ParsedPath {
-    secretId?: string;
+    itemId?: string;
     title?: string;
     field?: string;
     transformation?: (field: string) => string;

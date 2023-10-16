@@ -3,9 +3,9 @@ import { listTeamDevices } from '../endpoints';
 import { epochTimestampToIso } from '../utils';
 
 export async function listAllTeamDevices(options: { json: boolean }) {
-    const { db, secrets } = await connectAndPrepare({ autoSync: false });
+    const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
 
-    const listTeamDevicesResponse = await listTeamDevices({ secrets });
+    const listTeamDevicesResponse = await listTeamDevices({ localConfiguration });
 
     db.close();
 

@@ -1,18 +1,18 @@
 import { Command } from 'commander';
 import winston from 'winston';
 import { spawn } from 'child_process';
-import { getVaultSecret, initVaultSecrets } from '../modules/database';
+import { getVaultContent, initVaultContent } from '../modules/database';
 
 export const runExec = async (_options: unknown, program: Command) => {
     const command = program.args.join(' ');
     const environmentVariables = process.env;
 
-    await initVaultSecrets();
+    await initVaultContent();
 
     for (const [key, value] of Object.entries(process.env)) {
         let returnValue = value;
         if (value && value.startsWith('dl://')) {
-            returnValue = getVaultSecret(value);
+            returnValue = getVaultContent(value);
         }
         process.env[key] = returnValue;
     }

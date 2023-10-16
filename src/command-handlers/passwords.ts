@@ -2,16 +2,16 @@ import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
 import winston from 'winston';
-import { AuthentifiantTransactionContent, BackupEditTransaction, Secrets, VaultCredential } from '../types';
+import { AuthentifiantTransactionContent, BackupEditTransaction, LocalConfiguration, VaultCredential } from '../types';
 import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
 export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'password' }) => {
     const { output } = options;
-    const { db, secrets } = await connectAndPrepare({});
+    const { db, localConfiguration } = await connectAndPrepare({});
 
-    const foundCredentials = await findCredentials({ db, filters, secrets });
+    const foundCredentials = await findCredentials({ db, filters, localConfiguration });
 
     if (output === 'json') {
         console.log(JSON.stringify(foundCredentials));
@@ -45,10 +45,10 @@ export const runPassword = async (filters: string[] | null, options: { output: '
 };
 
 export const runOtp = async (filters: string[] | null, options: { print: boolean }) => {
-    const { db, secrets } = await connectAndPrepare({});
+    const { db, localConfiguration } = await connectAndPrepare({});
 
     const clipboard = new Clipboard();
-    const foundCredentials = (await findCredentials({ db, filters, secrets })).filter(
+    const foundCredentials = (await findCredentials({ db, filters, localConfiguration })).filter(
         (credential) => credential.otpSecret
     );
     const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
@@ -76,20 +76,23 @@ export const runOtp = async (filters: string[] | null, options: { print: boolean
 
 interface GetCredential {
     filters: string[] | null;
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
     db: Database.Database;
 }
 
 export const findCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
-    const { secrets, filters, db } = params;
+    const { localConfiguration, filters, db } = params;
 
     winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'AUTHENTIFIANT' AND action = 'BACKUP_EDIT'`)
-        .bind(secrets.login)
+        .bind(localConfiguration.login)
         .all() as BackupEditTransaction[];
 
-    const credentialsDecrypted = await decryptTransactions<AuthentifiantTransactionContent>(transactions, secrets);
+    const credentialsDecrypted = await decryptTransactions<AuthentifiantTransactionContent>(
+        transactions,
+        localConfiguration
+    );
 
     // transform entries [{_attributes: {key:xx}, _cdata: ww}] into an easier-to-use object
     const beautifiedCredentials = credentialsDecrypted.map(

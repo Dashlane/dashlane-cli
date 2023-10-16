@@ -1,16 +1,21 @@
 import { decryptTransactions } from '../modules/crypto';
-import { connectAndPrepare, findVaultSecret } from '../modules/database';
-import { AuthentifiantTransactionContent, BackupEditTransaction, SecureNoteTransactionContent } from '../types';
-import { beautifySecrets, parsePath } from '../utils';
+import { connectAndPrepare, findVaultContent } from '../modules/database';
+import {
+    AuthentifiantTransactionContent,
+    BackupEditTransaction,
+    SecretTransactionContent,
+    SecureNoteTransactionContent,
+} from '../types';
+import { beautifyContent, parsePath } from '../utils';
 
 export const runRead = async (path: string) => {
-    const { db, secrets } = await connectAndPrepare({});
+    const { db, localConfiguration } = await connectAndPrepare({});
 
     const parsedPath = parsePath(path);
 
     let transactions: BackupEditTransaction[] = [];
 
-    if (parsedPath.secretId) {
+    if (parsedPath.itemId) {
         transactions = db
             .prepare(
                 `SELECT * 
@@ -20,7 +25,7 @@ export const runRead = async (path: string) => {
                     AND action = 'BACKUP_EDIT'
                 `
             )
-            .bind(secrets.login, parsedPath.secretId)
+            .bind(localConfiguration.login, parsedPath.itemId)
             .all() as BackupEditTransaction[];
     }
 
@@ -31,10 +36,10 @@ export const runRead = async (path: string) => {
                 FROM transactions
                 WHERE login = ?
                     AND action = 'BACKUP_EDIT'
-                    AND (type = 'AUTHENTIFIANT' OR type = 'SECURENOTE')
+                    AND (type = 'AUTHENTIFIANT' OR type = 'SECURENOTE' or type = 'SECRET')
                 `
             )
-            .bind(secrets.login)
+            .bind(localConfiguration.login)
             .all() as BackupEditTransaction[];
     }
 
@@ -42,11 +47,20 @@ export const runRead = async (path: string) => {
 
     const credentials = transactions.filter((transaction) => transaction.type === 'AUTHENTIFIANT');
     const notes = transactions.filter((transaction) => transaction.type === 'SECURENOTE');
+    const secrets = transactions.filter((transaction) => transaction.type === 'SECRET');
 
-    const decryptedCredentials = await decryptTransactions<AuthentifiantTransactionContent>(credentials, secrets);
-    const decryptedNotes = await decryptTransactions<SecureNoteTransactionContent>(notes, secrets);
+    const decryptedCredentials = await decryptTransactions<AuthentifiantTransactionContent>(
+        credentials,
+        localConfiguration
+    );
+    const decryptedNotes = await decryptTransactions<SecureNoteTransactionContent>(notes, localConfiguration);
+    const decryptedSecrets = await decryptTransactions<SecretTransactionContent>(secrets, localConfiguration);
 
-    const secretsDecrypted = beautifySecrets({ credentials: decryptedCredentials, notes: decryptedNotes });
+    const secretsDecrypted = beautifyContent({
+        credentials: decryptedCredentials,
+        notes: decryptedNotes,
+        secrets: decryptedSecrets,
+    });
 
-    console.log(findVaultSecret(secretsDecrypted, parsedPath));
+    console.log(findVaultContent(secretsDecrypted, parsedPath));
 };

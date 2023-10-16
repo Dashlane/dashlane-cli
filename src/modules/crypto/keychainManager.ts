@@ -10,7 +10,7 @@ import { EncryptedData } from './types';
 import { decryptSsoRemoteKey } from './buildSsoRemoteKey';
 import { CLI_VERSION, cliVersionToString } from '../../cliVersion';
 import { perform2FAVerification, registerDevice } from '../auth';
-import { DeviceConfiguration, Secrets } from '../../types';
+import { DeviceConfiguration, LocalConfiguration } from '../../types';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
 import { getDeviceCredentials } from '../../utils';
@@ -80,11 +80,11 @@ const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
     };
 };
 
-const getSecretsWithoutDB = async (
+const getLocalConfigurationWithoutDB = async (
     db: Database,
     login: string,
     shouldNotSaveMasterPassword: boolean
-): Promise<Secrets> => {
+): Promise<LocalConfiguration> => {
     const localKey = generateLocalKey();
 
     // Register the user's device
@@ -166,7 +166,10 @@ const getSecretsWithoutDB = async (
     };
 };
 
-const getSecretsWithoutKeychain = async (login: string, deviceConfiguration: DeviceConfiguration): Promise<Secrets> => {
+const getLocalConfigurationWithoutKeychain = async (
+    login: string,
+    deviceConfiguration: DeviceConfiguration
+): Promise<LocalConfiguration> => {
     if (deviceConfiguration.authenticationMode === 'sso') {
         throw new Error('SSO is currently not supported without the keychain');
     }
@@ -214,14 +217,14 @@ Install it or disable its usage via \`dcli configure save-master-password false\
 
 export const replaceMasterPassword = async (
     db: Database,
-    secrets: Secrets,
+    localConfiguration: LocalConfiguration,
     deviceConfiguration: DeviceConfiguration | null
-): Promise<Secrets> => {
+): Promise<LocalConfiguration> => {
     if (deviceConfiguration && deviceConfiguration.authenticationMode === 'sso') {
         throw new Error("You can't replace the master password of an SSO account");
     }
 
-    const { localKey, login, accessKey, secretKey, shouldNotSaveMasterPassword } = secrets;
+    const { localKey, login, accessKey, secretKey, shouldNotSaveMasterPassword } = localConfiguration;
 
     let newMasterPassword = '';
     let serverKey;
@@ -230,7 +233,7 @@ export const replaceMasterPassword = async (
     if (deviceConfiguration && deviceConfiguration.authenticationMode === 'totp_login') {
         serverKey = await perform2FAVerification({ login, deviceAccessKey: deviceConfiguration.accessKey });
         newMasterPassword = serverKey ?? '';
-        serverKeyEncrypted = encryptAesCbcHmac256(secrets.localKey, Buffer.from(serverKey ?? ''));
+        serverKeyEncrypted = encryptAesCbcHmac256(localConfiguration.localKey, Buffer.from(serverKey ?? ''));
     }
 
     newMasterPassword += await askMasterPassword();
@@ -240,7 +243,7 @@ export const replaceMasterPassword = async (
         getDerivationParametersForLocalKey(login)
     );
 
-    const masterPasswordEncrypted = encryptAesCbcHmac256(secrets.localKey, Buffer.from(newMasterPassword));
+    const masterPasswordEncrypted = encryptAesCbcHmac256(localConfiguration.localKey, Buffer.from(newMasterPassword));
     const localKeyEncrypted = encryptAesCbcHmac256(derivate, localKey);
 
     db.prepare(
@@ -265,11 +268,11 @@ export const replaceMasterPassword = async (
     };
 };
 
-export const getSecrets = async (
+export const getLocalConfiguration = async (
     db: Database,
     deviceConfiguration: DeviceConfiguration | null,
     shouldNotSaveMasterPasswordIfNoDeviceKeys = false
-): Promise<Secrets> => {
+): Promise<LocalConfiguration> => {
     let login: string;
     if (deviceConfiguration) {
         login = deviceConfiguration.login;
@@ -277,9 +280,9 @@ export const getSecrets = async (
         login = await askEmailAddress();
     }
 
-    // If there are no secrets in the DB
+    // If there are no configuration and secrets in the DB
     if (!deviceConfiguration) {
-        return getSecretsWithoutDB(db, login, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+        return getLocalConfigurationWithoutDB(db, login, shouldNotSaveMasterPasswordIfNoDeviceKeys);
     }
 
     let localKey: Buffer | undefined = undefined;
@@ -291,7 +294,7 @@ export const getSecrets = async (
         !deviceConfiguration.masterPasswordEncrypted ||
         !(localKey = getLocalKey(login))
     ) {
-        return getSecretsWithoutKeychain(login, deviceConfiguration);
+        return getLocalConfigurationWithoutKeychain(login, deviceConfiguration);
     }
 
     // Otherwise, the local key can be used to decrypt the device secret key and the master password in the DB

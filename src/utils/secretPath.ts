@@ -28,14 +28,14 @@ export const parsePath = (path: string): ParsedPath => {
         throw new InvalidDashlanePathError();
     }
 
-    let secretId = undefined;
+    let itemId = undefined;
     let title = undefined;
     let field = undefined;
 
     if (!isUuid(pathChunks[0])) {
         title = pathChunks[0];
     } else {
-        secretId = `{${pathChunks[0]}}`;
+        itemId = `{${pathChunks[0]}}`;
     }
 
     if (pathChunks.length > 1) {
@@ -63,5 +63,5 @@ export const parsePath = (path: string): ParsedPath => {
         }
     }
 
-    return { secretId, title, field, transformation };
+    return { itemId, title, field, transformation };
 };

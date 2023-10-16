@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { getVaultSecret, initVaultSecrets } from '../modules/database';
+import { getVaultContent, initVaultContent } from '../modules/database';
 
 interface InjectOpts {
     in: string;
@@ -38,7 +38,7 @@ const compile = (template: string) => {
         if (t.startsWith('{{') && t.endsWith('}}')) {
             const key = t.split(/{{|}}/).filter(Boolean)[0].trim();
             if (key.startsWith('dl://')) {
-                fnStr += getVaultSecret(key);
+                fnStr += getVaultContent(key);
                 return;
             }
         }
@@ -51,7 +51,7 @@ const compile = (template: string) => {
 export const runInject = async (options: InjectOpts) => {
     const { in: inputFilePath, out: outputFilePath } = options;
 
-    await initVaultSecrets();
+    await initVaultContent();
 
     if (inputFilePath) {
         const input = fs.readFileSync(inputFilePath, 'utf8');

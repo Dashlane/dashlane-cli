@@ -1,8 +1,8 @@
 import { requestUserApi } from '../requestApi';
-import { Secrets } from '../types';
+import { LocalConfiguration } from '../types';
 
 interface ListDeviceParams {
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
     login: string;
 }
 
@@ -44,7 +44,7 @@ export const listDevices = (params: ListDeviceParams) =>
         payload: {},
         login: params.login,
         deviceKeys: {
-            accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey,
+            accessKey: params.localConfiguration.accessKey,
+            secretKey: params.localConfiguration.secretKey,
         },
     });

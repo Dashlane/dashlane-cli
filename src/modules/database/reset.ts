@@ -1,15 +1,15 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
 import { deleteLocalKey } from '../crypto/keychainManager';
-import { Secrets } from '../../types';
+import { LocalConfiguration } from '../../types';
 
 interface ResetDB {
     db: Database.Database;
-    secrets?: Secrets;
+    localConfiguration?: LocalConfiguration;
 }
 
 export const reset = (params: ResetDB) => {
-    const { db, secrets } = params;
+    const { db, localConfiguration } = params;
 
     db.prepare('DROP TABLE IF EXISTS syncUpdates').run();
     db.prepare('DROP TABLE IF EXISTS transactions').run();
@@ -17,9 +17,9 @@ export const reset = (params: ResetDB) => {
 
     winston.debug('Database reset');
 
-    if (secrets) {
+    if (localConfiguration) {
         try {
-            deleteLocalKey(secrets.login);
+            deleteLocalKey(localConfiguration.login);
         } catch (error) {
             // Errors are ignored because the OS keychain may be unreachable
             let errorMessage = 'unknown error';
