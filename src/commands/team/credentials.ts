@@ -14,8 +14,8 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
         .option('--json', 'Output in JSON format')
         .description('Generate new team credentials')
         .action(async (options: { json: boolean }) => {
-            const { db, secrets } = await connectAndPrepare({ autoSync: false });
-            const credentials = await registerTeamDevice({ secrets, deviceName: 'Dashlane CLI' });
+            const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
+            const credentials = await registerTeamDevice({ localConfiguration, deviceName: 'Dashlane CLI' });
             db.close();
 
             if (options.json) {
@@ -45,8 +45,8 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
         .description('Revoke credentials by access key')
         .argument('<accessKey>', 'Access key of the credentials to revoke')
         .action(async (accessKey: string) => {
-            const { db, secrets } = await connectAndPrepare({ autoSync: false });
-            await deactivateTeamDevice({ secrets, teamDeviceAccessKey: accessKey });
+            const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
+            await deactivateTeamDevice({ localConfiguration, teamDeviceAccessKey: accessKey });
             db.close();
 
             console.log('The credentials have been revoked');

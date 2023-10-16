@@ -1,15 +1,23 @@
-import { AuthentifiantTransactionContent, SecureNoteTransactionContent, VaultCredential, VaultNote } from '../types';
+import {
+    AuthentifiantTransactionContent,
+    SecretTransactionContent,
+    SecureNoteTransactionContent,
+    VaultCredential,
+    VaultNote,
+    VaultSecret,
+} from '../types';
 
 /**
  * Transform entries [{_attributes: {key:xx}, _cdata: ww}] into an easier-to-use object
- * @param secrets
- * @returns beautified secrets
+ * @param content
+ * @returns beautified content
  */
-export const beautifySecrets = (secrets: {
+export const beautifyContent = (content: {
     credentials: AuthentifiantTransactionContent[];
     notes: SecureNoteTransactionContent[];
-}): { credentials: VaultCredential[]; notes: VaultNote[] } => {
-    const credentials = secrets.credentials.map((credential) => {
+    secrets: SecretTransactionContent[];
+}): { credentials: VaultCredential[]; notes: VaultNote[]; secrets: VaultSecret[] } => {
+    const credentials = content.credentials.map((credential) => {
         const credentialObject = Object.fromEntries(
             credential.root.KWAuthentifiant.KWDataItem.map((entry) => [
                 entry._attributes.key[0].toLowerCase() + entry._attributes.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
@@ -20,7 +28,7 @@ export const beautifySecrets = (secrets: {
         return credentialObject;
     });
 
-    const notes = secrets.notes.map((note) => {
+    const notes = content.notes.map((note) => {
         const noteObject = Object.fromEntries(
             note.root.KWSecureNote.KWDataItem.map((entry) => [
                 entry._attributes.key[0].toLowerCase() + entry._attributes.key.slice(1), // lowercase the first letter: OtpSecret => otpSecret
@@ -31,5 +39,16 @@ export const beautifySecrets = (secrets: {
         return noteObject;
     });
 
-    return { credentials, notes };
+    const secrets = content.secrets.map((secret) => {
+        const secretObject = Object.fromEntries(
+            secret.root.KWSecret.KWDataItem.map((entry) => [
+                entry._attributes.key[0].toLowerCase() + entry._attributes.key.slice(1),
+                entry._cdata,
+            ])
+        ) as unknown as VaultSecret;
+
+        return secretObject;
+    });
+
+    return { credentials, notes, secrets };
 };

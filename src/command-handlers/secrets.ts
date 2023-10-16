@@ -1,15 +1,15 @@
 import Database from 'better-sqlite3';
 import winston from 'winston';
-import { BackupEditTransaction, Secrets, SecretTransactionContent, VaultSecret } from '../types';
+import { BackupEditTransaction, LocalConfiguration, SecretTransactionContent, VaultSecret } from '../types';
 import { decryptTransactions } from '../modules/crypto';
 import { askSecretChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
 export const runSecret = async (filters: string[] | null, options: { output: 'text' | 'json' }) => {
-    const { db, secrets } = await connectAndPrepare({});
+    const { db, localConfiguration } = await connectAndPrepare({});
     await getSecret({
         filters,
-        secrets,
+        localConfiguration,
         output: options.output,
         db,
     });
@@ -18,21 +18,21 @@ export const runSecret = async (filters: string[] | null, options: { output: 'te
 
 interface GetSecret {
     filters: string[] | null;
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
     output: 'text' | 'json';
     db: Database.Database;
 }
 
 export const getSecret = async (params: GetSecret): Promise<void> => {
-    const { secrets, filters, db, output } = params;
+    const { localConfiguration, filters, db, output } = params;
 
     winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'SECRET' AND action = 'BACKUP_EDIT'`)
-        .bind(secrets.login)
+        .bind(localConfiguration.login)
         .all() as BackupEditTransaction[];
 
-    const secretDecrypted = await decryptTransactions<SecretTransactionContent>(transactions, secrets);
+    const secretDecrypted = await decryptTransactions<SecretTransactionContent>(transactions, localConfiguration);
 
     // transform entries [{_attributes: {key: xx}, _cdata: ww}] into an easier-to-use object
     const beautifiedSecrets = secretDecrypted?.map(

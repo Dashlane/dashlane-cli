@@ -1,18 +1,18 @@
-import { Secrets } from '../types';
+import { LocalConfiguration } from '../types';
 import { requestUserApi } from '../requestApi';
 
 export interface RegisterTeamDeviceParams {
     deviceName: string;
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
 }
 
 export const registerTeamDevice = (params: RegisterTeamDeviceParams) =>
     requestUserApi<RegisterTeamDeviceOutput>({
         path: 'teams/RegisterTeamDevice',
-        login: params.secrets.login,
+        login: params.localConfiguration.login,
         deviceKeys: {
-            accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey,
+            accessKey: params.localConfiguration.accessKey,
+            secretKey: params.localConfiguration.secretKey,
         },
         payload: {
             platform: 'command_line',
@@ -30,7 +30,7 @@ export interface RegisterTeamDeviceOutput {
      */
     deviceAccessKey: string;
     /**
-     * The registered device secret key. Must be stored securely and never transmited over the network
+     * The registered device secret key. Must be stored securely and never transmitted over the network
      */
     deviceSecretKey: string;
 }

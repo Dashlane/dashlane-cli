@@ -10,8 +10,8 @@ import {
     cliVersionToString,
     stringToCliVersion,
 } from '../../cliVersion';
-import { getSecrets } from '../crypto';
-import { DeviceConfiguration, Secrets } from '../../types';
+import { getLocalConfiguration } from '../crypto';
+import { DeviceConfiguration, LocalConfiguration } from '../../types';
 import { askIgnoreBreakingChanges } from '../../utils/dialogs';
 import { sync } from '../../command-handlers';
 
@@ -32,7 +32,7 @@ export const connectAndPrepare = async (
     params: ConnectAndPrepareParams
 ): Promise<{
     db: Database.Database;
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
     deviceConfiguration: DeviceConfiguration | null;
 }> => {
     const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB, forceSync } = params;
@@ -45,7 +45,11 @@ export const connectAndPrepare = async (
         throw new Error('No device registered in the database');
     }
 
-    const secrets = await getSecrets(db, deviceConfiguration, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+    const localConfiguration = await getLocalConfiguration(
+        db,
+        deviceConfiguration,
+        shouldNotSaveMasterPasswordIfNoDeviceKeys
+    );
 
     if (deviceConfiguration && deviceConfiguration.version !== cliVersionToString(CLI_VERSION)) {
         const version = stringToCliVersion(deviceConfiguration.version);
@@ -65,7 +69,7 @@ export const connectAndPrepare = async (
         }
         if (breakingChanges) {
             if (!(await askIgnoreBreakingChanges())) {
-                reset({ db, secrets });
+                reset({ db, localConfiguration });
                 db.close();
                 return connectAndPrepare(params);
             }
@@ -81,20 +85,22 @@ export const connectAndPrepare = async (
     ) {
         const lastClientSyncTimestamp =
             (
-                db.prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
+                db
+                    .prepare('SELECT lastClientSyncTimestamp FROM syncUpdates WHERE login = ?')
+                    .get(localConfiguration.login) as {
                     lastClientSyncTimestamp?: number;
                 }
             )?.lastClientSyncTimestamp || 0;
 
         // If there were no updates during last hour, synchronize the vault
         if (Date.now() / 1000 - lastClientSyncTimestamp > 3600 || forceSync) {
-            await sync({ db, secrets, deviceConfiguration });
+            await sync({ db, localConfiguration, deviceConfiguration });
         }
     }
 
     return {
         db,
-        secrets,
+        localConfiguration,
         deviceConfiguration,
     };
 };

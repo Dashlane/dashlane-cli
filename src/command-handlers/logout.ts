@@ -2,7 +2,7 @@ import { Database } from 'better-sqlite3';
 import winston from 'winston';
 import { deactivateDevices } from '../endpoints';
 import { connectAndPrepare, connect, reset } from '../modules/database';
-import { Secrets, DeviceConfiguration } from '../types';
+import { LocalConfiguration, DeviceConfiguration } from '../types';
 import { askConfirmReset } from '../utils';
 
 export const runLogout = async () => {
@@ -12,10 +12,10 @@ export const runLogout = async () => {
     }
 
     let db: Database;
-    let secrets: Secrets | undefined;
+    let localConfiguration: LocalConfiguration | undefined;
     let deviceConfiguration: DeviceConfiguration | null | undefined;
     try {
-        ({ db, secrets, deviceConfiguration } = await connectAndPrepare({
+        ({ db, localConfiguration, deviceConfiguration } = await connectAndPrepare({
             autoSync: false,
             failIfNoDB: true,
         }));
@@ -29,14 +29,14 @@ export const runLogout = async () => {
         db = connect();
         db.serialize();
     }
-    if (secrets && deviceConfiguration) {
+    if (localConfiguration && deviceConfiguration) {
         await deactivateDevices({
             deviceIds: [deviceConfiguration.accessKey],
             login: deviceConfiguration.login,
-            secrets,
+            localConfiguration,
         }).catch((error) => console.error('Unable to deactivate the device', error));
     }
-    reset({ db, secrets });
+    reset({ db, localConfiguration });
     console.log('The local Dashlane local storage has been reset and you have been logged out');
     db.close();
 };

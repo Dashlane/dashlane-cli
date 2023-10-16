@@ -1,8 +1,8 @@
 import { requestUserApi } from '../requestApi';
-import { Secrets } from '../types';
+import { LocalConfiguration } from '../types';
 
 interface DeactivateDevicesParams {
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
     login: string;
 
     /**
@@ -26,7 +26,7 @@ export const deactivateDevices = (params: DeactivateDevicesParams) =>
         },
         login: params.login,
         deviceKeys: {
-            accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey,
+            accessKey: params.localConfiguration.accessKey,
+            secretKey: params.localConfiguration.secretKey,
         },
     });

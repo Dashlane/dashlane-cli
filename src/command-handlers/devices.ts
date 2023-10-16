@@ -10,15 +10,15 @@ type OutputDevice = ListDevicesOutput['devices'][number] & {
 };
 
 export async function listAllDevices(options: { json: boolean }) {
-    const { secrets, deviceConfiguration, db } = await connectAndPrepare({ autoSync: false });
+    const { localConfiguration, deviceConfiguration, db } = await connectAndPrepare({ autoSync: false });
     if (!deviceConfiguration) {
         throw new Error('Require to be connected');
     }
-    const listDevicesResponse = await listDevices({ secrets, login: deviceConfiguration.login });
+    const listDevicesResponse = await listDevices({ localConfiguration, login: deviceConfiguration.login });
     db.close();
 
     const result: OutputDevice[] = listDevicesResponse.devices.map(
-        (device) => <OutputDevice>{ ...device, isCurrentDevice: device.deviceId === secrets.accessKey }
+        (device) => <OutputDevice>{ ...device, isCurrentDevice: device.deviceId === localConfiguration.accessKey }
     );
 
     if (options.json) {
@@ -51,18 +51,18 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
         throw new Error('Please use either --all, either --others, but not both');
     }
 
-    const { secrets, deviceConfiguration, db } = await connectAndPrepare({ autoSync: false });
+    const { localConfiguration, deviceConfiguration, db } = await connectAndPrepare({ autoSync: false });
     if (!deviceConfiguration) {
         throw new Error('Requires to be connected');
     }
 
-    const listDevicesResponse = await listDevices({ secrets, login: deviceConfiguration.login });
+    const listDevicesResponse = await listDevices({ localConfiguration, login: deviceConfiguration.login });
     const existingDeviceIds = listDevicesResponse.devices.map((device) => device.deviceId);
 
     if (options.all) {
         devices = existingDeviceIds;
     } else if (options.others) {
-        devices = existingDeviceIds.filter((d) => d != secrets.accessKey);
+        devices = existingDeviceIds.filter((d) => d != localConfiguration.accessKey);
     } else if (!devices) {
         // if there is no devices provided, well we will have an easy job
         // let's not fail
@@ -74,7 +74,7 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
         throw new Error(`These devices do not exist: ${notFoundDevices.join('\t')}`);
     }
 
-    const shouldReset = devices.includes(secrets.accessKey);
+    const shouldReset = devices.includes(localConfiguration.accessKey);
 
     if (shouldReset) {
         const confirmation = await askConfirmReset();
@@ -86,18 +86,18 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
     await deactivateDevices({
         deviceIds: devices,
         login: deviceConfiguration.login,
-        secrets,
+        localConfiguration,
     });
 
     if (shouldReset) {
-        reset({ db, secrets });
+        reset({ db, localConfiguration });
     }
     db.close();
 }
 
 export const registerNonInteractiveDevice = async (deviceName: string, options: { json: boolean }) => {
     const {
-        secrets: { login },
+        localConfiguration: { login },
         db,
     } = await connectAndPrepare({ autoSync: false });
 

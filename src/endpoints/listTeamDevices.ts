@@ -1,8 +1,8 @@
 import { requestUserApi } from '../requestApi';
-import { Secrets } from '../types';
+import { LocalConfiguration } from '../types';
 
 interface ListTeamDevicesParams {
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
 }
 
 export interface ListTeamDevicesOutput {
@@ -29,10 +29,10 @@ export interface ListTeamDevicesOutput {
 export const listTeamDevices = (params: ListTeamDevicesParams) =>
     requestUserApi<ListTeamDevicesOutput>({
         path: 'teams/ListTeamDevices',
-        login: params.secrets.login,
+        login: params.localConfiguration.login,
         deviceKeys: {
-            accessKey: params.secrets.accessKey,
-            secretKey: params.secrets.secretKey,
+            accessKey: params.localConfiguration.accessKey,
+            secretKey: params.localConfiguration.secretKey,
         },
         payload: {},
     });

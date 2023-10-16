@@ -7,7 +7,7 @@ import zlib from 'zlib';
 import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash';
 import { deserializeEncryptedData } from './encryptedDataDeserialization';
-import { BackupEditTransaction, Secrets, SymmetricKeyGetter } from '../../types';
+import { BackupEditTransaction, LocalConfiguration, SymmetricKeyGetter } from '../../types';
 
 interface DecryptAesCbcHmac256Params {
     /** The cipher data to decrypt */
@@ -64,7 +64,7 @@ export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: Sym
             if (!symmetricKeyPromise) {
                 winston.debug(`Computing new derivate with method: ${encryptedData.keyDerivation.algo}`);
                 symmetricKeyPromise = getDerivateUsingParametersFromEncryptedData(
-                    symmetricKeyGetter.secrets.masterPassword,
+                    symmetricKeyGetter.localConfiguration.masterPassword,
                     encryptedData
                 );
                 symmetricKeyGetter.derivates.set(derivationMethodBytes, symmetricKeyPromise);
@@ -82,11 +82,11 @@ export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: Sym
 
 export const decryptTransaction = async <TransactionContent>(
     encryptedTransaction: BackupEditTransaction,
-    secrets: Secrets
+    localConfiguration: LocalConfiguration
 ): Promise<TransactionContent> => {
     const decryptedTransactionContent = await decrypt(encryptedTransaction.content, {
         type: 'alreadyComputed',
-        symmetricKey: secrets.localKey,
+        symmetricKey: localConfiguration.localKey,
     });
     const xmlContent = zlib.inflateRawSync(decryptedTransactionContent.slice(6)).toString();
     return JSON.parse(xmlJs.xml2json(xmlContent, { compact: true })) as TransactionContent;
@@ -94,9 +94,11 @@ export const decryptTransaction = async <TransactionContent>(
 
 export const decryptTransactions = async <TransactionContent>(
     transactions: BackupEditTransaction[],
-    secrets: Secrets
+    localConfiguration: LocalConfiguration
 ): Promise<TransactionContent[]> =>
-    Promise.all(transactions.map((transaction) => decryptTransaction<TransactionContent>(transaction, secrets)));
+    Promise.all(
+        transactions.map((transaction) => decryptTransaction<TransactionContent>(transaction, localConfiguration))
+    );
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
 

@@ -5,39 +5,41 @@ import { decrypt } from '../modules/crypto/decrypt';
 import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
 import { replaceMasterPassword } from '../modules/crypto/keychainManager';
 import { getLatestContent } from '../endpoints';
-import type { DeviceConfiguration, Secrets } from '../types';
+import type { DeviceConfiguration, LocalConfiguration } from '../types';
 import { notEmpty } from '../utils';
 import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
 
 export const runSync = async () => {
-    const { db, secrets, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
-    await sync({ db, secrets, deviceConfiguration });
+    const { db, localConfiguration, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
+    await sync({ db, localConfiguration, deviceConfiguration });
     winston.info('Successfully synced');
     db.close();
 };
 
 interface Sync {
     db: Database.Database;
-    secrets: Secrets;
+    localConfiguration: LocalConfiguration;
     deviceConfiguration: DeviceConfiguration | null;
 }
 
 export const sync = async (params: Sync) => {
     const { db } = params;
-    let { secrets } = params;
+    let { localConfiguration } = params;
     winston.debug('Start syncing...');
 
     const lastServerSyncTimestamp =
         (
-            db.prepare('SELECT lastServerSyncTimestamp FROM syncUpdates WHERE login = ?').get(secrets.login) as {
+            db
+                .prepare('SELECT lastServerSyncTimestamp FROM syncUpdates WHERE login = ?')
+                .get(localConfiguration.login) as {
                 lastServerSyncTimestamp?: number;
             }
         )?.lastServerSyncTimestamp || 0;
 
     const latestContent = await getLatestContent({
-        login: secrets.login,
+        login: localConfiguration.login,
         timestamp: lastServerSyncTimestamp,
-        secrets,
+        localConfiguration,
     });
 
     let values: string[][] = [];
@@ -54,7 +56,7 @@ export const sync = async (params: Sync) => {
                     try {
                         transactionContent = await decrypt(transac.content, {
                             type: 'memoize',
-                            secrets,
+                            localConfiguration,
                             derivates,
                         });
                     } catch (error) {
@@ -68,21 +70,28 @@ export const sync = async (params: Sync) => {
                             if (!(await askReplaceIncorrectMasterPassword())) {
                                 throw new Error('The master password is incorrect.');
                             }
-                            secrets = await replaceMasterPassword(db, secrets, params.deviceConfiguration);
+                            localConfiguration = await replaceMasterPassword(
+                                db,
+                                localConfiguration,
+                                params.deviceConfiguration
+                            );
                             masterPasswordValid = false;
                         }
                         return null;
                     }
-                    const encryptedTransactionContent = encryptAesCbcHmac256(secrets.localKey, transactionContent);
+                    const encryptedTransactionContent = encryptAesCbcHmac256(
+                        localConfiguration.localKey,
+                        transactionContent
+                    );
                     return [
-                        secrets.login,
+                        localConfiguration.login,
                         transac.identifier,
                         transac.type,
                         transac.action,
                         encryptedTransactionContent,
                     ];
                 }
-                return [secrets.login, transac.identifier, transac.type, transac.action, ''];
+                return [localConfiguration.login, transac.identifier, transac.type, transac.action, ''];
             })
         );
         values = valuesWithErrors.filter(notEmpty);
@@ -108,7 +117,7 @@ export const sync = async (params: Sync) => {
 
     // save the new transaction timestamp in the db
     db.prepare('REPLACE INTO syncUpdates (login, lastServerSyncTimestamp, lastClientSyncTimestamp) VALUES(?, ?, ?)')
-        .bind(secrets.login, Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
+        .bind(localConfiguration.login, Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
         .run();
 
     winston.debug(`Requested timestamp ${lastServerSyncTimestamp}, new timestamp ${latestContent.timestamp}`);
