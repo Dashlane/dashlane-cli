@@ -13,6 +13,7 @@ import {
     runInject,
     runExec,
     runBackup,
+    runSecret,
 } from '../command-handlers';
 
 export const rootCommands = (params: { program: Command }) => {
@@ -85,6 +86,23 @@ export const rootCommands = (params: { program: Command }) => {
             'Filter notes based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
         )
         .action(runSecureNote);
+
+    program
+        .command('secret')
+        .description('Retrieve a secret from the local vault and open it')
+        .addOption(
+            new Option(
+                '-o, --output <type>',
+                'How to print the secrets. The JSON option outputs all the matching secrets'
+            )
+                .choices(['text', 'json'])
+                .default('text')
+        )
+        .argument(
+            '[filters...]',
+            'Filter secrets based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
+        )
+        .action(runSecret);
 
     accountsCommands({ program });
 

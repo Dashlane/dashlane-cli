@@ -106,7 +106,10 @@ export interface BackupRemoveTransaction {
     action: 'BACKUP_REMOVE';
 }
 
-export type TransactionContent = AuthentifiantTransactionContent | SecureNoteTransactionContent;
+export type TransactionContent =
+    | AuthentifiantTransactionContent
+    | SecureNoteTransactionContent
+    | SecretTransactionContent;
 
 export interface AuthentifiantTransactionContent {
     root: {
@@ -124,6 +127,19 @@ export interface AuthentifiantTransactionContent {
 export interface SecureNoteTransactionContent {
     root: {
         KWSecureNote: {
+            KWDataItem: {
+                _attributes: {
+                    key: string;
+                };
+                _cdata?: string;
+            }[];
+        };
+    };
+}
+
+export interface SecretTransactionContent {
+    root: {
+        KWSecret: {
             KWDataItem: {
                 _attributes: {
                     key: string;
@@ -207,6 +223,36 @@ export class PrintableVaultNote {
 
     toString(): string {
         return this.vaultNote.title.trim();
+    }
+}
+
+export interface VaultSecret {
+    anonId: string;
+    category?: string;
+    content: string;
+    creationDate?: string;
+    creationDateTime?: string;
+    id: string;
+    lastBackupTime: string;
+    secured: string; // either true or false
+    spaceId?: string;
+    title: string;
+    updateDate?: string;
+    localeFormat: string; // either UNIVERSAL or a country code
+    type: string;
+    sharedObject?: string;
+    userModificationDatetime?: string;
+}
+
+export class PrintableVaultSecret {
+    vaultSecret: VaultSecret;
+
+    constructor(vaultSecret: VaultSecret) {
+        this.vaultSecret = vaultSecret;
+    }
+
+    toString(): string {
+        return this.vaultSecret.title.trim();
     }
 }
 

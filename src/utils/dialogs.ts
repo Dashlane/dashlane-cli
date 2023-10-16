@@ -2,7 +2,14 @@ import inquirer from 'inquirer';
 import inquirerSearchList from 'inquirer-search-list';
 import { removeUnderscoresAndCapitalize } from './strings';
 import { getDeviceCredentials } from './deviceCredentials';
-import { PrintableVaultCredential, PrintableVaultNote, VaultCredential, VaultNote } from '../types';
+import {
+    PrintableVaultCredential,
+    PrintableVaultNote,
+    PrintableVaultSecret,
+    VaultCredential,
+    VaultNote,
+    VaultSecret,
+} from '../types';
 import { GetAuthenticationMethodsForDeviceResult } from '../endpoints/getAuthenticationMethodsForDevice';
 import PromptConstructor = inquirer.prompts.PromptConstructor;
 
@@ -122,6 +129,26 @@ export const askSecureNoteChoice = async (params: { matchedNotes: VaultNote[]; h
     ]);
 
     return response.printableNote.vaultNote;
+};
+
+export const askSecretChoice = async (params: { matchedSecrets: VaultSecret[]; hasFilters: boolean }) => {
+    const message = params.hasFilters
+        ? 'There are multiple results for your query, pick one:'
+        : 'What secret would you like to get?';
+
+    const response = await prompt<{ printableSecret: PrintableVaultSecret }>([
+        {
+            type: 'search-list',
+            name: 'printableSecret',
+            message,
+            choices: params.matchedSecrets.map((item) => {
+                const printableItem = new PrintableVaultSecret(item);
+                return { name: printableItem.toString(), value: printableItem };
+            }),
+        },
+    ]);
+
+    return response.printableSecret.vaultSecret;
 };
 
 export const askOtp = async () => {

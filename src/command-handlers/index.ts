@@ -6,6 +6,7 @@ export * from './inject';
 export * from './logout';
 export * from './passwords';
 export * from './read';
+export * from './secrets';
 export * from './secureNotes';
 export * from './sync';
 export * from './teamDevices';
