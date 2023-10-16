@@ -54,7 +54,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
         case 'text': {
             let selectedNote: VaultNote | null = null;
 
-            if (!matchedNotes || matchedNotes.length === 0) {
+            if (matchedNotes.length === 0) {
                 throw new Error('No note found');
             } else if (matchedNotes.length === 1) {
                 selectedNote = matchedNotes[0];
