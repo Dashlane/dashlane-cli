@@ -67,6 +67,9 @@ dcli p url,title=mywebsite
 dcli note title=sample.md
 # will return any secure note which matches the filters (similar to password filters)
 
+dcli secret title=api_keys
+# will return any secret which matches the filters (similar to password filters)
+
 dcli otp [filters]
 # will return any otp which matches the filters (similar to password filters)
 ```

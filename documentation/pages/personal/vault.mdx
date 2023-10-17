@@ -49,7 +49,21 @@ You can also select a different output for notes among `text, json`. The JSON op
 dcli note [filters]
 
 # Example with a JSON output
-dcli note tilte=sample.md -o json
+dcli note title=sample.md -o json
+```
+
+## Get a secret
+
+Dashlane introduced the secret content type. You can use it to store any kind of secret data in your vault.
+
+In order to get a secret, just use the `secret` command and define some filters (similarly to the secure note command).
+You can also select a different output for notes among `text, json`. The JSON option outputs all the matching notes.
+
+```sh copy
+dcli secret [filters]
+
+# Example with a JSON output
+dcli secret title=api_keys -o json
 ```
 
 ## Options
