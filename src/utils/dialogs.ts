@@ -72,7 +72,11 @@ export const askEmailAddress = async (): Promise<string> => {
             name: 'login',
             message: 'Please enter your email address:',
             validate(input: string) {
-                return /^([\w.+-]+@([\w-]+\.)+[\w-]{2,4})$/.test(input) ? true : 'Not a valid email address';
+                return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+                    input
+                )
+                    ? true
+                    : 'Not a valid email address';
             },
         },
     ]);
