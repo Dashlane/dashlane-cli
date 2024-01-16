@@ -8,12 +8,12 @@ jobs:
             matrix:
                 settings:
                     - host: macos-latest
-                      target: macos-x64
+                      target: macos
                     - host: windows-latest
-                      target: win-x64
+                      target: win
                       extension: .exe
                     - host: ubuntu-latest
-                      target: linux-x64
+                      target: linux
         runs-on: ${{ matrix.settings.host }}
         name: dev build - ${{ matrix.settings.target }} - node@18
         steps:
@@ -29,13 +29,16 @@ jobs:
             - run: yarn workspaces focus --all --production
             # package final binaries
             - run: |
-                  yarn dlx pkg . -t node18-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
+                  yarn dlx pkg . -t node18-${{ matrix.settings.target }}-x64 -o bundle/dcli-${{ matrix.settings.target }}-x64${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
+                  yarn dlx pkg . -t node18-${{ matrix.settings.target }}-arm64 -o bundle/dcli-${{ matrix.settings.target }}-arm64${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
 
             - name: Archive binary artifact
               uses: actions/upload-artifact@v3
               with:
                   name: dcli-${{ matrix.settings.target }}
-                  path: bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }}
+                  path: |
+                      bundle/dcli-${{ matrix.settings.target }}-x64${{ matrix.settings.extension }}
+                      bundle/dcli-${{ matrix.settings.target }}-arm64${{ matrix.settings.extension }}
                   retention-days: 1
 
     release:
