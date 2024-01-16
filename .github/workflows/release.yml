@@ -41,11 +41,44 @@ jobs:
                   path: bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }}
                   retention-days: 1
 
-    release:
+    sign:
         runs-on: ubuntu-latest
         needs: build
         steps:
+            - name: Sign Artifact with CodeSignTool
+              uses: sslcom/esigner-codesign@develop
+              with:
+                  command: sign
+                  username: ${{ secrets.ES_USERNAME }}
+                  password: ${{ secrets.ES_PASSWORD }}
+                  # Credential ID for signing certificate.
+                  credential_id: ${{ secrets.CREDENTIAL_ID }}
+                  # OAuth TOTP Secret (https://www.ssl.com/how-to/automate-esigner-ev-code-signing)
+                  totp_secret: ${{ secrets.ES_TOTP_SECRET }}
+                  # Path of code object to be signed
+                  file_path: ${GITHUB_WORKSPACE}/bundle/dcli-win-x64.exe
+                  # Directory where signed code object(s) will be written.
+                  output_path: ${GITHUB_WORKSPACE}/signed
+                  malware_block: false
+                  environment_name: PROD
+
+            - run: mv signed/dcli-win-x64.exe signed/dcli-win-x64-signed.exe
+
+            - name: Archive binary artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: dcli-win-x64-signed
+                  path: signed/dcli-win-x64-signed.exe
+                  retention-days: 1
+
+    release:
+        runs-on: ubuntu-latest
+        needs:
+            - build
+            - sign
+        steps:
             - uses: actions/checkout@v3
+
             - name: Download all artifacts
               uses: actions/download-artifact@v3
               with:
@@ -62,3 +95,4 @@ jobs:
                       artifacts/dcli-linux-x64/dcli-linux-x64
                       artifacts/dcli-macos-x64/dcli-macos-x64
                       artifacts/dcli-win-x64/dcli-win-x64.exe
+                      artifacts/dcli-win-x64-signed/dcli-win-x64-signed.exe
