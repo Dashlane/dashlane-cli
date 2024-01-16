@@ -45,6 +45,17 @@ jobs:
         runs-on: ubuntu-latest
         needs: build
         steps:
+            - uses: actions/checkout@v3
+
+            - name: Download all artifacts
+              uses: actions/download-artifact@v3
+              with:
+                  path: artifacts
+
+            - name: List artifacts
+              run: ls -R artifacts
+              shell: bash
+
             - name: Sign Artifact with CodeSignTool
               uses: sslcom/esigner-codesign@develop
               with:
@@ -56,9 +67,9 @@ jobs:
                   # OAuth TOTP Secret (https://www.ssl.com/how-to/automate-esigner-ev-code-signing)
                   totp_secret: ${{ secrets.ES_TOTP_SECRET }}
                   # Path of code object to be signed
-                  file_path: ${GITHUB_WORKSPACE}/bundle/dcli-win-x64.exe
+                  file_path: artifacts/dcli-win-x64/dcli-win-x64.exe
                   # Directory where signed code object(s) will be written.
-                  output_path: ${GITHUB_WORKSPACE}/signed
+                  output_path: signed
                   malware_block: false
                   environment_name: PROD
 
