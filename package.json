@@ -27,7 +27,7 @@
         "pkg:macos-arm": "pkg . -t node18-macos-arm64 -o bundle/dcli-macos-arm",
         "pkg:win": "pkg . -t node18-win-x64 -o bundle/dcli-win.exe",
         "pkg": "yarn run build && yarn run pkg:linux && yarn run pkg:macos && yarn run pkg:win",
-        "version": "ts-node src/bumpVersion.ts",
+        "version:bump": "ts-node src/bumpVersion.ts",
         "prepare": "husky install",
         "test": "mocha"
     },

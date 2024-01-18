@@ -88,3 +88,20 @@ See [src/modules/crypto/README.md](src/modules/crypto/README.md).
 
 Feel free to contribute to this project, fork and pull request your ideas.
 Don't include work that is not open source or not from you.
+
+
+### How to bump the version
+
+```sh
+yarn run version:bump
+```
+
+This will change the version of the application with the following rules
+
+- It won't change the major version.
+- The minor version will be set to match the following format
+  - 2 digits corresponding to the last digit of the current year (ex: 24 for 2024)
+  - 2 digits corresponding to the number of the current week (ex: 01 for the first week of the year)
+- The patch will be :
+  - set to 0 if the minor version has changed
+  - incremented from the previous version of the patch otherwise
