@@ -4,9 +4,11 @@ import { PostRequestAPIParams } from './types';
 import { cliVersionToString, CLI_VERSION } from '../../cliVersion';
 
 export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
-    const { path, authentication, payload, query, method, userAgent, requestFunction } = params;
+    const { path, authentication, payload, query, method, userAgent, customHeaders, customHost, requestFunction } =
+        params;
 
-    const apiHost = `https://api.dashlane.com/`;
+    const apiHost = customHost ?? 'api.dashlane.com';
+    const apiUrl = `https://${apiHost}/`;
 
     const forgedHeaders = {
         'content-type': 'application/json',
@@ -17,7 +19,8 @@ export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
             osversion: `${os.platform()}-${os.arch()}`,
             partner: 'dashlane',
         }),
-        host: 'api.dashlane.com',
+        host: apiHost,
+        ...(customHeaders || {}),
     };
 
     let authorizationHeader = null;
@@ -35,12 +38,11 @@ export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
 
     return requestFunction({
         method: method || 'POST',
-        url: apiHost + path,
+        url: apiUrl + path,
         json: payload,
         query: query || {},
         headers: {
             ...forgedHeaders,
-            host: 'api.dashlane.com',
             ...(authorizationHeader ? { Authorization: authorizationHeader } : {}),
         },
     });

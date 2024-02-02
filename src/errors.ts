@@ -9,3 +9,9 @@ export class InvalidDashlanePathError extends Error {
         super('Invalid Dashlane path');
     }
 }
+
+export class CloudflareStagingCredentialsNotSetError extends Error {
+    constructor() {
+        super('Cloudflare staging credentials not set');
+    }
+}

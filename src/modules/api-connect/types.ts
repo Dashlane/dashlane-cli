@@ -52,6 +52,7 @@ export interface PostRequestAPIParams<T> {
     userAgent?: string;
     testPort?: string;
     customHost?: string;
+    customHeaders?: Record<string, string>;
 }
 
 export interface SignRequestParams {

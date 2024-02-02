@@ -32,6 +32,14 @@ const dashlaneApiKeys = {
     appSecretKey: 'boUtXxmDgLUtNFaigCMQ3+u+LAx0tg1ePAUE13nkR7dto+Zwq1naOHZTwbxxM7iL',
 };
 
+const makeStagingCloudflareHeaders = () =>
+    process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS
+        ? {
+              'CF-Access-Client-Id': process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS ?? '',
+              'CF-Access-Client-Secret': process.env.CLOUDFLARE_SERVICE_TOKEN_SECRET ?? '',
+          }
+        : undefined;
+
 const requestApi = async <T>(params: RequestApi): Promise<T> => {
     const { payload, path, authentication } = params;
 
@@ -43,6 +51,8 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
             path: 'v1/' + path,
             payload,
             userAgent: `Dashlane CLI v${cliVersionToString(CLI_VERSION)}`,
+            customHeaders: makeStagingCloudflareHeaders(),
+            customHost: process.env.DCLI_STAGING_HOST,
         });
     } catch (error: unknown) {
         // Generate a DashlaneApiError if appropriate
