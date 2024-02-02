@@ -4,7 +4,7 @@ import winston from 'winston';
 
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { rootCommands } from './commands';
-import { initDeviceCredentials, initTeamDeviceCredentials } from './utils';
+import { initDeviceCredentials, initStagingCheck, initTeamDeviceCredentials } from './utils';
 
 const errorColor = (str: string) => {
     // Add ANSI escape codes to display text in red.
@@ -19,6 +19,7 @@ winston.configure({
     transports: [new winston.transports.Console({ stderrLevels: ['error', 'debug', 'info'] })],
 });
 
+initStagingCheck();
 initTeamDeviceCredentials();
 initDeviceCredentials();
 

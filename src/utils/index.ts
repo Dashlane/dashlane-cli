@@ -5,5 +5,6 @@ export * from './gotImplementation';
 export * from './secretParser';
 export * from './secretPath';
 export * from './secretTransformation';
+export * from './stagingCheck';
 export * from './strings';
 export * from './teamDeviceCredentials';
