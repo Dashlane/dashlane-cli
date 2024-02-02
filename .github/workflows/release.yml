@@ -10,9 +10,11 @@ jobs:
         strategy:
             matrix:
                 settings:
-                    - host: macos-latest
+                    - host: macos-12
                       target: macos-x64
-                    - host: windows-latest
+                    - host: macos-14
+                      target: macos-arm64
+                    - host: windows-2022
                       target: win-x64
                       extension: .exe
                     - host: ubuntu-latest
@@ -105,5 +107,6 @@ jobs:
                   files: |
                       artifacts/dcli-linux-x64/dcli-linux-x64
                       artifacts/dcli-macos-x64/dcli-macos-x64
+                      artifacts/dcli-macos-arm64/dcli-macos-arm64
                       artifacts/dcli-win-x64/dcli-win-x64.exe
                       artifacts/dcli-win-x64-signed/dcli-win-x64-signed.exe
