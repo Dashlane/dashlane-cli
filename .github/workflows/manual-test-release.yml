@@ -7,9 +7,11 @@ jobs:
         strategy:
             matrix:
                 settings:
-                    - host: macos-latest
+                    - host: macos-12
                       target: macos-x64
-                    - host: windows-latest
+                    - host: macos-14
+                      target: macos-arm64
+                    - host: windows-2022
                       target: win-x64
                       extension: .exe
                     - host: ubuntu-latest
