@@ -42,7 +42,7 @@ export const teamCommands = (params: { program: Command }) => {
             '--end <end>',
             'End timestamp in ms (use "now" to get the current timestamp)',
             customParseTimestampMilliseconds,
-            'now'
+            Date.now()
         )
         .option('--type <type>', 'log type')
         .option('--category <category>', 'log category')
