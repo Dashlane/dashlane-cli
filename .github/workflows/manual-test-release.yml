@@ -31,7 +31,7 @@ jobs:
             - run: yarn workspaces focus --all --production
             # package final binaries
             - run: |
-                  yarn dlx @yao-pkg/pkg . -t node18-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
+                  yarn dlx @yao-pkg/pkg@5.11.1 . -t node18-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
 
             - name: Archive binary artifact
               uses: actions/upload-artifact@v3
