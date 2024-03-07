@@ -14,6 +14,7 @@ import {
     runExec,
     runBackup,
     runSecret,
+    runLogin
 } from '../command-handlers';
 
 export const rootCommands = (params: { program: Command }) => {
@@ -71,6 +72,24 @@ export const rootCommands = (params: { program: Command }) => {
             'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
         )
         .action(runOtp);
+
+    program
+        .command('login')
+        .alias('u')
+        .description('Retrieve a login from the local vault and copy it to the clipboard')
+        .addOption(
+            new Option(
+                '-o, --output <type>',
+                'How to print the login. The JSON option outputs all the matching credentials'
+            )
+                .choices(['clipboard', 'login', 'json'])
+                .default('clipboard')
+        )
+        .argument(
+            '[filters...]',
+            'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
+        )
+        .action(runLogin);
 
     program
         .command('note')

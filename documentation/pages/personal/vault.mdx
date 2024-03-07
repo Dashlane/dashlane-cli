@@ -38,6 +38,25 @@ Just use the `otp` or `o` command and filter similarly to the password command:
 dcli otp [filters]
 ```
 
+## Get a login
+
+```sh
+dcli u mywebsite
+# will return any entry for which either the url or the title matches mywebsite
+
+dcli u id=xxxxxx
+# will return any entry for which the id matches xxxxxx
+
+dcli u url=someurl title=mytitle
+# will return any entry for which the url matches someurl, or the title matches mytitle
+
+dcli u url,title=mywebsite
+# will return any entry for which either the url or the title matches mywebsite
+```
+
+Note: You can select a different output for login among `clipboard, login, json`. The JSON option outputs all the matching credentials.
+```
+
 ## Get a secure note
 
 <YoutubePlayer videoId="n8OxYRfrgfk" />

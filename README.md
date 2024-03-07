@@ -72,6 +72,9 @@ dcli secret title=api_keys
 
 dcli otp [filters]
 # will return any otp which matches the filters (similar to password filters)
+
+dcli login [filters]
+# will return any login which matches the filters (similar to password filters)
 ```
 
 Note: You can select a different output for passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.

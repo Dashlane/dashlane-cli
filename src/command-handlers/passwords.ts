@@ -74,6 +74,44 @@ export const runOtp = async (filters: string[] | null, options: { print: boolean
     db.close();
 };
 
+export const runLogin = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'login' }) => {
+    const { output } = options;
+    const { db, localConfiguration } = await connectAndPrepare({});
+
+    const foundCredentials = await findCredentials({ db, filters, localConfiguration });
+
+    if (output === 'json') {
+        console.log(JSON.stringify(foundCredentials));
+        return;
+    }
+
+    const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
+    const clipboard = new Clipboard();
+
+    switch (output) {
+        case 'clipboard':
+            if (selectedCredential.login) {
+                clipboard.setText(selectedCredential.login);
+                console.log(
+                    `🛂 Login for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
+                );
+            } else {
+                console.log(
+                    `⚠ No login found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
+                );
+            }
+
+            break;
+        case 'login':
+            console.log(selectedCredential.login);
+            break;
+        default:
+            throw new Error('Unable to recognize the output mode.');
+    }
+
+    db.close();
+};
+
 interface GetCredential {
     filters: string[] | null;
     localConfiguration: LocalConfiguration;
