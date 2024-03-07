@@ -7,8 +7,8 @@ import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
-export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'password' }) => {
-    const { output } = options;
+export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'console', credential: 'login' | 'email' | 'password' }) => {
+    const { output, credential } = options;
     const { db, localConfiguration } = await connectAndPrepare({});
 
     const foundCredentials = await findCredentials({ db, filters, localConfiguration });
@@ -19,23 +19,51 @@ export const runPassword = async (filters: string[] | null, options: { output: '
     }
 
     const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
-    const clipboard = new Clipboard();
+
+    let result;
+    switch (credential) {
+        case 'login':
+            result = selectedCredential.login;
+            break;
+        case 'email':
+            result = selectedCredential.email;
+            break;
+        case 'password':
+            result = selectedCredential.password;
+            break;
+        default:
+            throw new Error('Unable to recognize the type mode.');
+    }
 
     switch (output) {
         case 'clipboard':
-            clipboard.setText(selectedCredential.password);
-            console.log(
-                `🔓 Password for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
-            );
+            if (result) {
+                const clipboard = new Clipboard();
+                clipboard.setText(result);
 
-            if (selectedCredential.otpSecret) {
-                const token = authenticator.generate(selectedCredential.otpSecret);
-                const timeRemaining = authenticator.timeRemaining();
-                console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+                console.log(
+                    `🔓 ${credential} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`,
+                );
+
+                if (selectedCredential.otpSecret) {
+                    const token = authenticator.generate(selectedCredential.otpSecret);
+                    const timeRemaining = authenticator.timeRemaining();
+                    console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+                }
+            } else {
+                console.log(
+                    `⚠ No ${credential} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`,
+                );
             }
             break;
-        case 'password':
-            console.log(selectedCredential.password);
+        case 'console':
+            if (result) {
+                console.log(result);
+            } else {
+                console.log(
+                    `⚠ No ${credential} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`,
+                );
+            }
             break;
         default:
             throw new Error('Unable to recognize the output mode.');
@@ -66,44 +94,6 @@ export const runOtp = async (filters: string[] | null, options: { print: boolean
             break;
         case 'otp':
             console.log(token);
-            break;
-        default:
-            throw new Error('Unable to recognize the output mode.');
-    }
-
-    db.close();
-};
-
-export const runLogin = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'login' }) => {
-    const { output } = options;
-    const { db, localConfiguration } = await connectAndPrepare({});
-
-    const foundCredentials = await findCredentials({ db, filters, localConfiguration });
-
-    if (output === 'json') {
-        console.log(JSON.stringify(foundCredentials));
-        return;
-    }
-
-    const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
-    const clipboard = new Clipboard();
-
-    switch (output) {
-        case 'clipboard':
-            if (selectedCredential.login) {
-                clipboard.setText(selectedCredential.login);
-                console.log(
-                    `🛂 Login for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
-                );
-            } else {
-                console.log(
-                    `⚠ No login found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
-                );
-            }
-
-            break;
-        case 'login':
-            console.log(selectedCredential.login);
             break;
         default:
             throw new Error('Unable to recognize the output mode.');

@@ -15,6 +15,15 @@ import { YoutubePlayer } from '../../components/player';
 dcli p mywebsite
 # will return any entry for which either the url or the title matches mywebsite
 
+dcli p mywebsite -c login
+# will copy the login of the selected entry for which either the url or the title matches mywebsite to the clipboard
+
+dcli p mywebsite -c email -o console
+# will print the email of the selected entry for which either the url or the title matches mywebsite to the console
+
+dcli p mywebsite -o json
+# will print the json of the entry for which either the url or the title matches mywebsite to the console
+
 dcli p id=xxxxxx
 # will return any entry for which the id matches xxxxxx
 
@@ -36,25 +45,6 @@ Just use the `otp` or `o` command and filter similarly to the password command:
 
 ```sh copy
 dcli otp [filters]
-```
-
-## Get a login
-
-```sh
-dcli u mywebsite
-# will return any entry for which either the url or the title matches mywebsite
-
-dcli u id=xxxxxx
-# will return any entry for which the id matches xxxxxx
-
-dcli u url=someurl title=mytitle
-# will return any entry for which the url matches someurl, or the title matches mytitle
-
-dcli u url,title=mywebsite
-# will return any entry for which either the url or the title matches mywebsite
-```
-
-Note: You can select a different output for login among `clipboard, login, json`. The JSON option outputs all the matching credentials.
 ```
 
 ## Get a secure note

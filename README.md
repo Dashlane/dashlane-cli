@@ -64,6 +64,15 @@ dcli p url=someurl title=mytitle
 dcli p url,title=mywebsite
 # will return any entry for which either the url or the title matches mywebsite
 
+dcli p mywebsite -c login
+# will copy the login of the selected entry for which either the url or the title matches mywebsite to the clipboard
+
+dcli p mywebsite -c email -o console
+# will print the email of the selected entry for which either the url or the title matches mywebsite to the console
+
+dcli p mywebsite -o json
+# will print the json of the entry for which either the url or the title matches mywebsite to the console
+
 dcli note title=sample.md
 # will return any secure note which matches the filters (similar to password filters)
 
@@ -72,9 +81,6 @@ dcli secret title=api_keys
 
 dcli otp [filters]
 # will return any otp which matches the filters (similar to password filters)
-
-dcli login [filters]
-# will return any login which matches the filters (similar to password filters)
 ```
 
 Note: You can select a different output for passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.
