@@ -7,8 +7,8 @@ import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
-export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'password' }) => {
-    const { output } = options;
+export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'console', field: 'login' | 'email' | 'password' }) => {
+    const { output, field } = options;
     const { db, localConfiguration } = await connectAndPrepare({});
 
     const foundCredentials = await findCredentials({ db, filters, localConfiguration });
@@ -19,23 +19,51 @@ export const runPassword = async (filters: string[] | null, options: { output: '
     }
 
     const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
-    const clipboard = new Clipboard();
+
+    let result;
+    switch (field) {
+        case 'login':
+            result = selectedCredential.login;
+            break;
+        case 'email':
+            result = selectedCredential.email;
+            break;
+        case 'password':
+            result = selectedCredential.password;
+            break;
+        default:
+            throw new Error('Unable to recognize the field.');
+    }
 
     switch (output) {
         case 'clipboard':
-            clipboard.setText(selectedCredential.password);
-            console.log(
-                `🔓 Password for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
-            );
+            if (result) {
+                const clipboard = new Clipboard();
+                clipboard.setText(result);
 
-            if (selectedCredential.otpSecret) {
-                const token = authenticator.generate(selectedCredential.otpSecret);
-                const timeRemaining = authenticator.timeRemaining();
-                console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+                console.log(
+                    `🔓 ${field} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
+                );
+
+                if (selectedCredential.otpSecret) {
+                    const token = authenticator.generate(selectedCredential.otpSecret);
+                    const timeRemaining = authenticator.timeRemaining();
+                    console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+                }
+            } else {
+                console.log(
+                    `⚠ No ${field} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
+                );
             }
             break;
-        case 'password':
-            console.log(selectedCredential.password);
+        case 'console':
+            if (result) {
+                console.log(result);
+            } else {
+                console.log(
+                    `⚠ No ${field} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
+                );
+            }
             break;
         default:
             throw new Error('Unable to recognize the output mode.');

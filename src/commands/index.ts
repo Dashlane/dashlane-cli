@@ -52,8 +52,16 @@ export const rootCommands = (params: { program: Command }) => {
                 '-o, --output <type>',
                 'How to print the passwords. The JSON option outputs all the matching credentials'
             )
-                .choices(['clipboard', 'password', 'json'])
+                .choices(['clipboard', 'console', 'json'])
                 .default('clipboard')
+        )
+        .addOption(
+            new Option(
+                '-f, --field <type>',
+                'What type of field to retrieve (login, email, password)'
+            )
+                .choices(['login', 'email', 'password'])
+                .default('password')
         )
         .argument(
             '[filters...]',

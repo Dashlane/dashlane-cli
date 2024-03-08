@@ -64,6 +64,15 @@ dcli p url=someurl title=mytitle
 dcli p url,title=mywebsite
 # will return any entry for which either the url or the title matches mywebsite
 
+dcli p mywebsite -f login
+# will copy the login of the selected entry for which either the url or the title matches mywebsite to the clipboard
+
+dcli p mywebsite -f email -o console
+# will print the email of the selected entry for which either the url or the title matches mywebsite to the console
+
+dcli p mywebsite -o json
+# will print the json of the entry for which either the url or the title matches mywebsite to the console
+
 dcli note title=sample.md
 # will return any secure note which matches the filters (similar to password filters)
 
