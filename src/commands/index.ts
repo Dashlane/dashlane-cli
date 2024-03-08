@@ -5,7 +5,6 @@ import { configureCommands } from './configure';
 import { accountsCommands } from './accounts';
 import {
     runSync,
-    runOtp,
     runPassword,
     runSecureNote,
     runLogout,
@@ -56,11 +55,8 @@ export const rootCommands = (params: { program: Command }) => {
                 .default('clipboard')
         )
         .addOption(
-            new Option(
-                '-f, --field <type>',
-                'What type of field to retrieve (login, email, password)'
-            )
-                .choices(['login', 'email', 'password'])
+            new Option('-f, --field <type>', 'What type of field to retrieve (login, email, password, otp)')
+                .choices(['login', 'email', 'otp', 'password'])
                 .default('password')
         )
         .argument(
@@ -68,17 +64,6 @@ export const rootCommands = (params: { program: Command }) => {
             'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
         )
         .action(runPassword);
-
-    program
-        .command('otp')
-        .alias('o')
-        .description('Retrieve an OTP code from local vault and copy it to the clipboard')
-        .option('--print', 'Prints just the OTP code, instead of copying it to the clipboard')
-        .argument(
-            '[filters...]',
-            'Filter credentials based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to url and title'
-        )
-        .action(runOtp);
 
     program
         .command('note')

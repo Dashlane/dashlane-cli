@@ -7,15 +7,23 @@ import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
-export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'console', field: 'login' | 'email' | 'password' }) => {
+export const runPassword = async (
+    filters: string[] | null,
+    options: { output: 'json' | 'clipboard' | 'console'; field: 'login' | 'email' | 'password' | 'otp' }
+) => {
     const { output, field } = options;
     const { db, localConfiguration } = await connectAndPrepare({});
 
-    const foundCredentials = await findCredentials({ db, filters, localConfiguration });
+    let foundCredentials = await findCredentials({ db, filters, localConfiguration });
+    db.close();
 
     if (output === 'json') {
         console.log(JSON.stringify(foundCredentials));
         return;
+    }
+
+    if (field === 'otp') {
+        foundCredentials = foundCredentials.filter((credential) => credential.otpSecret);
     }
 
     const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
@@ -31,75 +39,35 @@ export const runPassword = async (filters: string[] | null, options: { output: '
         case 'password':
             result = selectedCredential.password;
             break;
+        case 'otp':
+            if (!selectedCredential.otpSecret) {
+                throw new Error('No OTP found for this credential.');
+            }
+            result = authenticator.generate(selectedCredential.otpSecret);
+            break;
         default:
             throw new Error('Unable to recognize the field.');
     }
 
-    switch (output) {
-        case 'clipboard':
-            if (result) {
-                const clipboard = new Clipboard();
-                clipboard.setText(result);
-
-                console.log(
-                    `🔓 ${field} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
-                );
-
-                if (selectedCredential.otpSecret) {
-                    const token = authenticator.generate(selectedCredential.otpSecret);
-                    const timeRemaining = authenticator.timeRemaining();
-                    console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
-                }
-            } else {
-                console.log(
-                    `⚠ No ${field} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
-                );
-            }
-            break;
-        case 'console':
-            if (result) {
-                console.log(result);
-            } else {
-                console.log(
-                    `⚠ No ${field} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
-                );
-            }
-            break;
-        default:
-            throw new Error('Unable to recognize the output mode.');
+    if (!result) {
+        throw new Error(`No ${field} found for "${selectedCredential.title ?? selectedCredential.url ?? 'N/C'}.`);
     }
 
-    db.close();
-};
-
-export const runOtp = async (filters: string[] | null, options: { print: boolean }) => {
-    const { db, localConfiguration } = await connectAndPrepare({});
+    if (output === 'console') {
+        console.log(result);
+    }
 
     const clipboard = new Clipboard();
-    const foundCredentials = (await findCredentials({ db, filters, localConfiguration })).filter(
-        (credential) => credential.otpSecret
+    clipboard.setText(result);
+    console.log(
+        `🔓 ${field} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
     );
-    const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
 
-    const output = options.print ? 'otp' : 'clipboard';
-
-    // otpSecret can't be null because onlyOtpCredentials is set to true above
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const token = authenticator.generate(selectedCredential.otpSecret!);
-    const timeRemaining = authenticator.timeRemaining();
-    switch (output) {
-        case 'clipboard':
-            clipboard.setText(token);
-            console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
-            break;
-        case 'otp':
-            console.log(token);
-            break;
-        default:
-            throw new Error('Unable to recognize the output mode.');
+    if (field === 'password' && selectedCredential.otpSecret) {
+        const token = authenticator.generate(selectedCredential.otpSecret);
+        const timeRemaining = authenticator.timeRemaining();
+        console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
     }
-
-    db.close();
 };
 
 interface GetCredential {
@@ -141,7 +109,7 @@ export const selectCredential = async (
     hasFilters: boolean
 ): Promise<VaultCredential> => {
     if (!vaultCredentials || vaultCredentials.length === 0) {
-        throw new Error('No credential with this name found');
+        throw new Error('No credential found with this filters.');
     } else if (vaultCredentials.length === 1) {
         return vaultCredentials[0];
     }
