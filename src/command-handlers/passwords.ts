@@ -7,8 +7,8 @@ import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
 
-export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'console', credential: 'login' | 'email' | 'password' }) => {
-    const { output, credential } = options;
+export const runPassword = async (filters: string[] | null, options: { output: 'json' | 'clipboard' | 'console', field: 'login' | 'email' | 'password' }) => {
+    const { output, field } = options;
     const { db, localConfiguration } = await connectAndPrepare({});
 
     const foundCredentials = await findCredentials({ db, filters, localConfiguration });
@@ -21,7 +21,7 @@ export const runPassword = async (filters: string[] | null, options: { output: '
     const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
 
     let result;
-    switch (credential) {
+    switch (field) {
         case 'login':
             result = selectedCredential.login;
             break;
@@ -32,7 +32,7 @@ export const runPassword = async (filters: string[] | null, options: { output: '
             result = selectedCredential.password;
             break;
         default:
-            throw new Error('Unable to recognize the type mode.');
+            throw new Error('Unable to recognize the field.');
     }
 
     switch (output) {
@@ -42,7 +42,7 @@ export const runPassword = async (filters: string[] | null, options: { output: '
                 clipboard.setText(result);
 
                 console.log(
-                    `🔓 ${credential} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`,
+                    `🔓 ${field} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
                 );
 
                 if (selectedCredential.otpSecret) {
@@ -52,7 +52,7 @@ export const runPassword = async (filters: string[] | null, options: { output: '
                 }
             } else {
                 console.log(
-                    `⚠ No ${credential} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`,
+                    `⚠ No ${field} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
                 );
             }
             break;
@@ -61,7 +61,7 @@ export const runPassword = async (filters: string[] | null, options: { output: '
                 console.log(result);
             } else {
                 console.log(
-                    `⚠ No ${credential} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`,
+                    `⚠ No ${field} found for "${selectedCredential.title || selectedCredential.url || 'N/C'}.`
                 );
             }
             break;

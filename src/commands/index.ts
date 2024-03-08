@@ -57,8 +57,8 @@ export const rootCommands = (params: { program: Command }) => {
         )
         .addOption(
             new Option(
-                '-c, --credential <type>',
-                'What type of credential to retrieve (login, email, password)'
+                '-f, --field <type>',
+                'What type of field to retrieve (login, email, password)'
             )
                 .choices(['login', 'email', 'password'])
                 .default('password')

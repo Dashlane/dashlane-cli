@@ -64,10 +64,10 @@ dcli p url=someurl title=mytitle
 dcli p url,title=mywebsite
 # will return any entry for which either the url or the title matches mywebsite
 
-dcli p mywebsite -c login
+dcli p mywebsite -f login
 # will copy the login of the selected entry for which either the url or the title matches mywebsite to the clipboard
 
-dcli p mywebsite -c email -o console
+dcli p mywebsite -f email -o console
 # will print the email of the selected entry for which either the url or the title matches mywebsite to the console
 
 dcli p mywebsite -o json
