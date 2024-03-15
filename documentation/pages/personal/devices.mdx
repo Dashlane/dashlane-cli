@@ -64,14 +64,17 @@ This will create a new device named `my_server` and will print the device creden
 Save them in a safe place (like in a secure note), as you won't be able to retrieve them later.
 Run the suggested commands on your target device (your server or CI) to set the device credentials as environment variables.
 
-```sh
-export DASHLANE_DEVICE_ACCESS_KEY=bdd5[..redacted..]6eb
-export DASHLANE_DEVICE_SECRET_KEY=99f7d9bd547c0[..redacted..]c93fa2118cdf7e3d0
-export DASHLANE_LOGIN=email@domain.com
-export DASHLANE_MASTER_PASSWORD=<insert your master password here>
+```sh 
+export DASHLANE_SERVICE_DEVICE_KEYS=dls_[deviceAccessKey]_[payload]
 ```
 
-Please, replace `<insert your master password here>` with your actual master password.
+On Windows, you can use the `set` command instead of `export`.
+
+```sh
+set DASHLANE_SERVICE_DEVICE_KEYS=dls_[deviceAccessKey]_[payload]
+```
+
+<Callout emoji="ℹ️">The token you'll get is starting by `dls` in order to be easily identified by scanning tools.</Callout>
 
 <Callout type="warning" emoji="⚠️">
     OTP at each login and SSO are not supported for non-interactive devices. We recommend creating a dedicated Dashlane

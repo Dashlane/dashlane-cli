@@ -1,16 +1,28 @@
+import { DeviceCredentialsWrongFormatError } from '../errors';
 import { DeviceCredentials } from '../types';
 
 let deviceCredentials: DeviceCredentials | null = null;
 
 export const initDeviceCredentials = (): DeviceCredentials | null => {
-    const { DASHLANE_DEVICE_ACCESS_KEY, DASHLANE_DEVICE_SECRET_KEY, DASHLANE_LOGIN, DASHLANE_MASTER_PASSWORD } =
-        process.env;
-    if (DASHLANE_DEVICE_ACCESS_KEY && DASHLANE_DEVICE_SECRET_KEY && DASHLANE_LOGIN && DASHLANE_MASTER_PASSWORD) {
+    const { DASHLANE_SERVICE_DEVICE_KEYS } = process.env;
+    if (DASHLANE_SERVICE_DEVICE_KEYS) {
+        if (!DASHLANE_SERVICE_DEVICE_KEYS.startsWith('dls_')) {
+            throw new DeviceCredentialsWrongFormatError();
+        }
+
+        const [accessKey, payloadB64] = DASHLANE_SERVICE_DEVICE_KEYS.split('_').slice(1);
+
+        const payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8')) as {
+            login: string;
+            deviceSecretKey: string;
+            masterPassword: string;
+        };
+
         deviceCredentials = {
-            login: DASHLANE_LOGIN,
-            accessKey: DASHLANE_DEVICE_ACCESS_KEY,
-            secretKey: DASHLANE_DEVICE_SECRET_KEY,
-            masterPassword: DASHLANE_MASTER_PASSWORD,
+            login: payload.login,
+            accessKey,
+            secretKey: payload.deviceSecretKey,
+            masterPassword: payload.masterPassword,
         };
     }
     return deviceCredentials;
