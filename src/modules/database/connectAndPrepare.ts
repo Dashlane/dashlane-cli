@@ -40,7 +40,7 @@ export const connectAndPrepare = async (
     db.serialize();
 
     // Create the tables and load the deviceConfiguration if it exists
-    const deviceConfiguration = prepareDB({ db });
+    let deviceConfiguration = prepareDB({ db });
     if (failIfNoDB && !deviceConfiguration) {
         throw new Error('No device registered in the database');
     }
@@ -50,6 +50,11 @@ export const connectAndPrepare = async (
         deviceConfiguration,
         shouldNotSaveMasterPasswordIfNoDeviceKeys
     );
+
+    // if the device was created for the first time we need to get the device credentials again
+    if (!deviceConfiguration) {
+        deviceConfiguration = prepareDB({ db });
+    }
 
     if (deviceConfiguration && deviceConfiguration.version !== cliVersionToString(CLI_VERSION)) {
         const version = stringToCliVersion(deviceConfiguration.version);
