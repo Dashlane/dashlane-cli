@@ -97,7 +97,7 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
 
 export const registerNonInteractiveDevice = async (deviceName: string, options: { json: boolean }) => {
     const {
-        localConfiguration: { login },
+        localConfiguration: { login, masterPassword },
         db,
     } = await connectAndPrepare({ autoSync: false });
 
@@ -116,19 +116,25 @@ export const registerNonInteractiveDevice = async (deviceName: string, options: 
         deviceName: `Non-Interactive - ${deviceName}`,
     });
 
+    const serviceDeviceKeysPayload = {
+        login,
+        deviceSecretKey,
+        masterPassword,
+    };
+
+    const serviceDeviceKeysPayloadB64 = Buffer.from(JSON.stringify(serviceDeviceKeysPayload)).toString('base64');
+
+    const serviceDeviceKeys = `dls_${deviceAccessKey}_${serviceDeviceKeysPayloadB64}`;
+
     if (options.json) {
         console.log(
             JSON.stringify({
-                DASHLANE_DEVICE_ACCESS_KEY: deviceAccessKey,
-                DASHLANE_DEVICE_SECRET_KEY: deviceSecretKey,
+                DASHLANE_SERVICE_DEVICE_KEYS: serviceDeviceKeys,
             })
         );
     } else {
-        winston.info('The device credentials have been generated, save and run the following commands to export them:');
-        console.log(`export DASHLANE_DEVICE_ACCESS_KEY=${deviceAccessKey}`);
-        console.log(`export DASHLANE_DEVICE_SECRET_KEY=${deviceSecretKey}`);
-        console.log(`export DASHLANE_LOGIN=${login}`);
-        console.log(`export DASHLANE_MASTER_PASSWORD=<insert your master password here>`);
+        winston.info('The device credentials have been generated, save and run the following command to export them:');
+        console.log(`export DASHLANE_SERVICE_DEVICE_KEYS=${serviceDeviceKeys}`);
     }
 
     db.close();
