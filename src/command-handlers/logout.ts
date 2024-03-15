@@ -5,7 +5,11 @@ import { connectAndPrepare, connect, reset } from '../modules/database';
 import { LocalConfiguration, DeviceConfiguration } from '../types';
 import { askConfirmReset } from '../utils';
 
-export const runLogout = async () => {
+export const runLogout = async (options: { ignoreRevocation: boolean }) => {
+    if (options.ignoreRevocation) {
+        winston.info("The device credentials won't be revoked on Dashlane's servers");
+    }
+
     const resetConfirmation = await askConfirmReset();
     if (!resetConfirmation) {
         return;
@@ -29,7 +33,7 @@ export const runLogout = async () => {
         db = connect();
         db.serialize();
     }
-    if (localConfiguration && deviceConfiguration) {
+    if (localConfiguration && deviceConfiguration && !options.ignoreRevocation) {
         await deactivateDevices({
             deviceIds: [deviceConfiguration.accessKey],
             login: deviceConfiguration.login,

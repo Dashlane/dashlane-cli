@@ -112,5 +112,9 @@ export const rootCommands = (params: { program: Command }) => {
         .description('Backup your local vault (will use the current directory by default)')
         .action(runBackup);
 
-    program.command('logout').description('Logout and clean your local database and OS keychain').action(runLogout);
+    program
+        .command('logout')
+        .option('--ignore-revocation', "Device credentials won't be revoked on Dashlane's servers")
+        .description('Logout and clean your local database and OS keychain')
+        .action(runLogout);
 };
