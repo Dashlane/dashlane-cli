@@ -4,6 +4,12 @@ export class CouldNotFindTeamCredentialsError extends Error {
     }
 }
 
+export class TeamCredentialsWrongFormatError extends Error {
+    constructor() {
+        super('Team credentials has a wrong format');
+    }
+}
+
 export class InvalidDashlanePathError extends Error {
     constructor() {
         super('Invalid Dashlane path');

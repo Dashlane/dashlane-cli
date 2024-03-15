@@ -1,8 +1,8 @@
 import { connectAndPrepare } from '../modules/database';
-import { listTeamDevices } from '../endpoints';
+import { listTeamDevices, registerTeamDevice } from '../endpoints';
 import { epochTimestampToIso } from '../utils';
 
-export async function listAllTeamDevices(options: { json: boolean }) {
+export const listAllTeamDevices = async (options: { json: boolean }) => {
     const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
 
     const listTeamDevicesResponse = await listTeamDevices({ localConfiguration });
@@ -39,4 +39,21 @@ export async function listAllTeamDevices(options: { json: boolean }) {
         });
 
     console.table(result);
-}
+};
+
+export const createTeamDevice = async () => {
+    const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
+    const credentials = await registerTeamDevice({ localConfiguration, deviceName: 'Dashlane CLI' });
+    db.close();
+
+    const teamDeviceKeysPayload = {
+        teamUuid: credentials.teamUuid,
+        deviceSecretKey: credentials.deviceSecretKey,
+    };
+
+    const teamDeviceKeysPayloadB64 = Buffer.from(JSON.stringify(teamDeviceKeysPayload)).toString('base64');
+
+    const deviceAccountKey = `dlt_${credentials.deviceAccessKey}_${teamDeviceKeysPayloadB64}`;
+
+    return deviceAccountKey;
+};

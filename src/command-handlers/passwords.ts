@@ -50,7 +50,7 @@ export const runPassword = async (
     }
 
     if (!result) {
-        throw new Error(`No ${field} found for "${selectedCredential.title ?? selectedCredential.url ?? 'N/C'}.`);
+        throw new Error(`No ${field} found for "${selectedCredential.title ?? selectedCredential.url ?? 'N/C'}".`);
     }
 
     if (output === 'console') {

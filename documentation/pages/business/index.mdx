@@ -17,20 +17,18 @@ dcli t credentials generate
 You will be prompted with a list of variables to export in your environment. Simply copy/paste them in your terminal.
 
 ```sh copy
-export DASHLANE_TEAM_UUID=08a48d4f-[..redacted..]-fba9193d968c
-export DASHLANE_TEAM_ACCESS_KEY=f56[..redacted..]56ce
-export DASHLANE_TEAM_SECRET_KEY=839c9[..redacted..]3ada5
+export DASHLANE_TEAM_DEVICE_KEYS=dlt_[deviceAccessKey]_[payload]
 ```
 
 On Windows, you can use the `set` command instead of `export`.
 
 ```sh copy
-set DASHLANE_TEAM_UUID=08a48d4f-[..redacted..]-fba9193d968c
-set DASHLANE_TEAM_ACCESS_KEY=f56[..redacted..]56ce
-set DASHLANE_TEAM_SECRET_KEY=839c9[..redacted..]3ada5
+set DASHLANE_TEAM_DEVICE_KEYS=dlt_[deviceAccessKey]_[payload]
 ```
 
 Make sure you save them in a safe place (use a secure note for instance 😉).
+
+<Callout emoji="ℹ️">The token you'll get is starting by `dlt` in order to be easily identified by scanning tools.</Callout>
 
 ## List credentials
 

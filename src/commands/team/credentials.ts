@@ -1,8 +1,8 @@
 import winston from 'winston';
 import { Command } from 'commander';
-import { listAllTeamDevices } from '../../command-handlers';
+import { createTeamDevice, listAllTeamDevices } from '../../command-handlers';
 import { connectAndPrepare } from '../../modules/database';
-import { deactivateTeamDevice, registerTeamDevice } from '../../endpoints';
+import { deactivateTeamDevice } from '../../endpoints';
 
 export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
     const { teamGroup } = params;
@@ -14,23 +14,19 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
         .option('--json', 'Output in JSON format')
         .description('Generate new team credentials')
         .action(async (options: { json: boolean }) => {
-            const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
-            const credentials = await registerTeamDevice({ localConfiguration, deviceName: 'Dashlane CLI' });
-            db.close();
+            const teamDeviceKeys = await createTeamDevice();
 
             if (options.json) {
                 console.log(
                     JSON.stringify({
-                        DASHLANE_TEAM_UUID: credentials.teamUuid,
-                        DASHLANE_TEAM_ACCESS_KEY: credentials.deviceAccessKey,
-                        DASHLANE_TEAM_SECRET_KEY: credentials.deviceSecretKey,
+                        DASHLANE_TEAM_DEVICE_KEYS: teamDeviceKeys,
                     })
                 );
             } else {
-                winston.info('The credentials have been generated, run the following commands to export them:');
-                console.log(`export DASHLANE_TEAM_UUID=${credentials.teamUuid}`);
-                console.log(`export DASHLANE_TEAM_ACCESS_KEY=${credentials.deviceAccessKey}`);
-                console.log(`export DASHLANE_TEAM_SECRET_KEY=${credentials.deviceSecretKey}`);
+                winston.info(
+                    'The credentials have been generated, run the following command to export them in your env:'
+                );
+                console.log(`export DASHLANE_TEAM_DEVICE_KEYS=${teamDeviceKeys}`);
             }
         });
 
