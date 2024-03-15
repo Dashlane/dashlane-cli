@@ -52,8 +52,9 @@ export const registerDevice = async (params: RegisterDevice) => {
             otp,
         }));
     } else if (selectedVerificationMethod.type === 'email_token') {
+        const urlEncodedLogin = encodeURIComponent(login);
         winston.info(
-            `Please open the following URL in your browser: https://www.dashlane.com/cli-device-registration?login=${login}`
+            `Please open the following URL in your browser: https://www.dashlane.com/cli-device-registration?login=${urlEncodedLogin}`
         );
         const token = await askToken();
         ({ authTicket } = await performEmailTokenVerification({
