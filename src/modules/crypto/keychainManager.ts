@@ -107,12 +107,15 @@ const getLocalConfigurationWithoutDB = async (
     const { type } = await get2FAStatusUnauthenticated({ login });
 
     let masterPassword = '';
+    let masterPasswordEnv = process.env.DASHLANE_MASTER_PASSWORD;
     let serverKeyEncrypted = null;
     const isSSO = type === 'sso';
 
     // In case of SSO
     if (isSSO) {
         masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
+    } else if(masterPasswordEnv) {
+        masterPassword = masterPasswordEnv
     } else {
         masterPassword = await askMasterPassword();
 
