@@ -156,7 +156,7 @@ __metadata:
     husky: "npm:^8.0.3"
     inquirer: "npm:^8.2.6"
     inquirer-search-list: "npm:^1.2.6"
-    jsonpath-plus: "npm:^7.2.0"
+    jsonpath-plus: "npm:^8.1.0"
     mocha: "npm:^10.3.0"
     otplib: "npm:^12.0.1"
     playwright-core: "npm:^1.42.1"
@@ -3564,10 +3564,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonpath-plus@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "jsonpath-plus@npm:7.2.0"
-  checksum: f602445b1aa2d55abc2875859fd948f942980ef6400ca2a0362c7a6aa6f912467865262f4d092e04a16889fa74f0dbf6fd67b9dc9583485a5059be6e0a62c6c2
+"jsonpath-plus@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "jsonpath-plus@npm:8.1.0"
+  bin:
+    jsonpath: bin/jsonpath-cli.js
+    jsonpath-plus: bin/jsonpath-cli.js
+  checksum: 1954bbf0f9b2b8b749d0ed22cb84e0f475efe66c6cd186cbe0f97c1c8350ac68d156053ac690629cf9ad8ff00aa0fc8e2e97100a5cdd5ee7610074f5f7151650
   languageName: node
   linkType: hard
 
