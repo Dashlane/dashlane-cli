@@ -146,7 +146,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^7.2.0"
     "@typescript-eslint/parser": "npm:^7.2.0"
     "@yao-pkg/pkg": "npm:^5.11.5"
-    better-sqlite3: "npm:^8.7.0"
+    better-sqlite3: "npm:^9.4.3"
     chai: "npm:^4.4.1"
     commander: "npm:^11.1.0"
     eslint: "npm:^8.57.0"
@@ -1511,14 +1511,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:^8.7.0":
-  version: 8.7.0
-  resolution: "better-sqlite3@npm:8.7.0"
+"better-sqlite3@npm:^9.4.3":
+  version: 9.4.3
+  resolution: "better-sqlite3@npm:9.4.3"
   dependencies:
     bindings: "npm:^1.5.0"
     node-gyp: "npm:latest"
     prebuild-install: "npm:^7.1.1"
-  checksum: ce7b37eac0abddf275d95b195a36879ed843503ca477c80b2193eec4d2c133216b88d53a6c9c25c70ac38477da3adb785d3b573e8dfe13dc55ded0b62f53e2ca
+  checksum: a6d68f5c079b52b86815ce4a98dedd941da4da2db2f611cf8f1bf85473f0ac53a84858732152b68b5a36406bd5ad4f3d07caca60f9f8a2a654115173da8cba01
   languageName: node
   linkType: hard
 
