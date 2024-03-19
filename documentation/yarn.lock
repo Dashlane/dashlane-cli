@@ -26,22 +26,23 @@ __metadata:
   resolution: "@dashlane/cli-documentation@workspace:."
   dependencies:
     next: "npm:^13.5.6"
-    nextra: "npm:^2.13.2"
-    nextra-theme-docs: "npm:^2.13.2"
+    nextra: "npm:^2.13.4"
+    nextra-theme-docs: "npm:^2.13.4"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
-"@headlessui/react@npm:^1.7.10":
-  version: 1.7.15
-  resolution: "@headlessui/react@npm:1.7.15"
+"@headlessui/react@npm:^1.7.17":
+  version: 1.7.18
+  resolution: "@headlessui/react@npm:1.7.18"
   dependencies:
+    "@tanstack/react-virtual": "npm:^3.0.0-beta.60"
     client-only: "npm:^0.0.1"
   peerDependencies:
     react: ^16 || ^17 || ^18
     react-dom: ^16 || ^17 || ^18
-  checksum: d478cfc345640c1954a7a44e590b0c5c361cfea5bcfd8970767d1b1a9789e4d645dcdc879fcbfe43208385e779f82bd7bc3e750310a834e68aafb0621bdb1a2d
+  checksum: 9615f7b709842f2e56b3ef1a8f1a77faed7982e86af52f057a5c2a9950d073672073a6c09829f0c26ed7287e298f5e2345f3898dbc2cc13318af10598ceb4bbc
   languageName: node
   linkType: hard
 
@@ -271,7 +272,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@popperjs/core@npm:^2.11.6":
+"@popperjs/core@npm:^2.11.8":
   version: 2.11.8
   resolution: "@popperjs/core@npm:2.11.8"
   checksum: ddd16090cde777aaf102940f05d0274602079a95ad9805bd20bc55dcc7c3a2ba1b99dd5c73e5cc2753c3d31250ca52a67d58059459d7d27debb983a9f552936c
@@ -284,6 +285,25 @@ __metadata:
   dependencies:
     tslib: "npm:^2.4.0"
   checksum: 3a3b179b3369acd26c5da89a0e779c756ae5231eb18a5507524c7abf955f488d34d86649f5b8417a0e19879688470d06319f5cfca2273d6d6b2046950e0d79af
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-virtual@npm:^3.0.0-beta.60":
+  version: 3.2.0
+  resolution: "@tanstack/react-virtual@npm:3.2.0"
+  dependencies:
+    "@tanstack/virtual-core": "npm:3.2.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 09bf6db0f3dbfa2245c7d78ed425bb7c0e169cbe5024cc6bfc53005505a472b36a0b5506d6fa4b8a47c07296c5982b1ac49acd4f32c48547aef7556f9ed2ed1d
+  languageName: node
+  linkType: hard
+
+"@tanstack/virtual-core@npm:3.2.0":
+  version: 3.2.0
+  resolution: "@tanstack/virtual-core@npm:3.2.0"
+  checksum: cf3ef6a2f3fa8ec4b155926da32508df45dadf268b365f206a171d011d6c728ddc9a7ea074575145266ccbdf445352ee9c9278bc1f55c3f96ad69ade7964b936
   languageName: node
   linkType: hard
 
@@ -2708,12 +2728,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nextra-theme-docs@npm:^2.13.2":
-  version: 2.13.2
-  resolution: "nextra-theme-docs@npm:2.13.2"
+"nextra-theme-docs@npm:^2.13.4":
+  version: 2.13.4
+  resolution: "nextra-theme-docs@npm:2.13.4"
   dependencies:
-    "@headlessui/react": "npm:^1.7.10"
-    "@popperjs/core": "npm:^2.11.6"
+    "@headlessui/react": "npm:^1.7.17"
+    "@popperjs/core": "npm:^2.11.8"
     clsx: "npm:^2.0.0"
     escape-string-regexp: "npm:^5.0.0"
     flexsearch: "npm:^0.7.31"
@@ -2723,22 +2743,22 @@ __metadata:
     match-sorter: "npm:^6.3.1"
     next-seo: "npm:^6.0.0"
     next-themes: "npm:^0.2.1"
-    scroll-into-view-if-needed: "npm:^3.0.0"
+    scroll-into-view-if-needed: "npm:^3.1.0"
     zod: "npm:^3.22.3"
   peerDependencies:
     next: ">=9.5.3"
-    nextra: 2.13.2
+    nextra: 2.13.4
     react: ">=16.13.1"
     react-dom: ">=16.13.1"
-  checksum: 634942d299f78616f38ef8eb5f24cdbde95e85e354da1079dd6a9d50c065648af2eed91dfc8087bb57040a4d8a3dcb12b2613f087c855d5b0a6fa376c86b8a51
+  checksum: 00d3d0293bd7bac3786e611546e001c2c2dcdbb1f8584fa46805ff7284d851183b7a4fdef71fce26be2f56fe512e2229c80a450fc1310ff3c1ec118e6844e5d2
   languageName: node
   linkType: hard
 
-"nextra@npm:^2.13.2":
-  version: 2.13.2
-  resolution: "nextra@npm:2.13.2"
+"nextra@npm:^2.13.4":
+  version: 2.13.4
+  resolution: "nextra@npm:2.13.4"
   dependencies:
-    "@headlessui/react": "npm:^1.7.10"
+    "@headlessui/react": "npm:^1.7.17"
     "@mdx-js/mdx": "npm:^2.3.0"
     "@mdx-js/react": "npm:^2.3.0"
     "@napi-rs/simple-git": "npm:^0.1.9"
@@ -2768,7 +2788,7 @@ __metadata:
     next: ">=9.5.3"
     react: ">=16.13.1"
     react-dom: ">=16.13.1"
-  checksum: 8f395a5909f2531398eb46f84d49fe5cd58d2d8ac2bc315c8771f129226e06fa65a661594a9e18b2409c28ea4b23c028218f511bec5d62c7742884f4617c3a74
+  checksum: 0d71c7e7ef164a4793e4ff6ddd235a967cebdfb91e5fdb9b01273da31754f490e522544d5453c6c5db6bf2302df7430a9ef91efa9ffda3c1b85751f7ebec2c40
   languageName: node
   linkType: hard
 
@@ -3107,12 +3127,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scroll-into-view-if-needed@npm:^3.0.0":
-  version: 3.0.10
-  resolution: "scroll-into-view-if-needed@npm:3.0.10"
+"scroll-into-view-if-needed@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "scroll-into-view-if-needed@npm:3.1.0"
   dependencies:
     compute-scroll-into-view: "npm:^3.0.2"
-  checksum: fd94bbdfea5e939e1ee4d499cff04e24ca1eeb18d03230b6c9a529c32f650dd46147c2c0ea626247724d4a5f600586e79e278c2637f8f35004e8fa3ceeb01599
+  checksum: 1ea10d84b79db592493ed22563e307a4eaf858527b4c345e70cc26b9c51383636edda31a09d383541fafb5b50a94e59384d85351662cb7d6e5d70805c0d18798
   languageName: node
   linkType: hard
 
