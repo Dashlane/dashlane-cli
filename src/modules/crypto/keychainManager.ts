@@ -104,7 +104,8 @@ const getLocalConfigurationWithoutDB = async (
           });
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
-    const { type } = await get2FAStatusUnauthenticated({ login });
+    // if non-interactive device, we consider it as email_token, so we don't need to call the API
+    const { type } = deviceCredentials ? { type: 'email_token' } : await get2FAStatusUnauthenticated({ login });
 
     let masterPassword = '';
     const masterPasswordEnv = process.env.DASHLANE_MASTER_PASSWORD;
@@ -114,10 +115,8 @@ const getLocalConfigurationWithoutDB = async (
     // In case of SSO
     if (isSSO) {
         masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
-    } else if (masterPasswordEnv) {
-        masterPassword = masterPasswordEnv;
     } else {
-        masterPassword = await askMasterPassword();
+        masterPassword = masterPasswordEnv ?? (await askMasterPassword());
 
         // In case of OTP2
         if (type === 'totp_login' && serverKey) {
