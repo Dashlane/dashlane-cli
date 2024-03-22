@@ -1,10 +1,16 @@
-import { Tab, Tabs } from 'nextra-theme-docs'
+import { Callout, Tab, Tabs } from 'nextra-theme-docs'
  
 # Install
 
-The Dashlane CLI can be installed in multiple ways. You can either install it using [Homebrew](https://brew.sh/) on **macOS** and **Linux**, manually with [Yarn](https://yarnpkg.com/) or download the packaged executables for **Windows**, **macOS** and **Linux** on x64 architectures.
+The Dashlane CLI can be installed in multiple ways.
 
-<Tabs items={['Homebrew', 'Manually with Yarn', 'Packaged Executables (x64 only)']}>
+You can either install it using :
+
+-   [Homebrew](https://brew.sh/) on **macOS** and **Linux**
+-   download the packaged executables for **Windows**, **macOS** and **Linux** on x64 architectures.
+-   manually with [Yarn](https://yarnpkg.com/)
+
+<Tabs items={['Homebrew', 'Packaged Executables (x64 only)', 'Manually with Yarn']}>
     <Tab>
     You can install the Dashlane CLI using [Homebrew](https://brew.sh/), a package manager for __macOS__ and __Linux__.
     
@@ -21,31 +27,6 @@ The Dashlane CLI can be installed in multiple ways. You can either install it us
     ```
 
     The CLI is now installed on your machine, it will be updated automatically when a new version is released.
-    </Tab>
-    <Tab>
-    This method is available on every environment that supports [Node.js](https://nodejs.org/en/) and Yarn.
-
-    First you need to download or `git clone` this repository and run the following commands in the root directory of the repository.
-
-    Install the dependencies:
-
-    ```sh copy
-    yarn
-    ```
-
-    In order to build:
-
-    ```sh copy
-    yarn run build
-    ```
-
-    In order to link:
-
-    ```sh copy
-    yarn link
-    ```
-
-    Make sure to pull the latest changes and rebuild the project to get the latest version of the CLI.
     </Tab>
     <Tab>
     Head to the [releases page](https://github.com/Dashlane/dashlane-cli/releases) and download the latest version of the CLI for your platform (Windows, macOS or Linux).
@@ -79,6 +60,33 @@ The Dashlane CLI can be installed in multiple ways. You can either install it us
     To do so, go to `System Preferences > Security & Privacy > General` and click on "Allow Anyway" next to the message "dcli-macos was blocked from use because it is not from an identified developer".
 
     You will need to get the latest version of the CLI manually by downloading the latest release and replacing the binary in your bin folder.
+    </Tab>
+    <Tab>
+    <Callout type="warning">We do not recommend the manual install for personal computers, if you plan to use the local keychain, as the NodeJS process will be the owner of your secrets, we recommend to use a packaged version.</Callout>
+
+    This method is available on every environment that supports [Node.js](https://nodejs.org/en/) and Yarn.
+
+    First you need to download or `git clone` this repository and run the following commands in the root directory of the repository.
+
+    Install the dependencies:
+
+    ```sh copy
+    yarn
+    ```
+
+    In order to build:
+
+    ```sh copy
+    yarn run build
+    ```
+
+    In order to link:
+
+    ```sh copy
+    npm link
+    ```
+
+    Make sure to pull the latest changes and rebuild the project to get the latest version of the CLI.
     </Tab>
 
 </Tabs>

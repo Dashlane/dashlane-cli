@@ -3,48 +3,62 @@ import { YoutubePlayer } from '../../components/player';
 
 # Accessing your Vault
 
-<Callout type="info" emoji="ℹ️">
-    For now accessing your vault is read only.
-</Callout>
+<Callout type="info">For now accessing your vault is read only.</Callout>
 
 ## Get a password
 
 <YoutubePlayer videoId="dMII21YI5s4" />
 
-```sh
+```sh copy filename="Return any entry for which either the url or the title matches mywebsite"
 dcli p mywebsite
-# will return any entry for which either the url or the title matches mywebsite
-
-dcli p mywebsite -f login
-# will copy the login of the selected entry for which either the url or the title matches mywebsite to the clipboard
-
-dcli p mywebsite -f email -o console
-# will print the email of the selected entry for which either the url or the title matches mywebsite to the console
-
-dcli p mywebsite -o json
-# will print the json of the entry for which either the url or the title matches mywebsite to the console
-
-dcli p id=xxxxxx
-# will return any entry for which the id matches xxxxxx
-
-dcli p url=someurl title=mytitle
-# will return any entry for which the url matches someurl, or the title matches mytitle
-
-dcli p url,title=mywebsite
-# will return any entry for which either the url or the title matches mywebsite
 ```
 
-Note: You can select a different output for passwords among `clipboard, password, json`. The JSON option outputs all the matching credentials.
+```sh copy filename="Copy the login of the selected entry for which either the url or the title matches mywebsite to the clipboard"
+dcli p mywebsite -f login
+```
+
+```sh copy filename="Print the email of the selected entry for which either the url or the title matches mywebsite to the console"
+dcli p mywebsite -f email -o console
+```
+
+```sh copy filename="Print the json of the entry for which either the url or the title matches mywebsite to the console"
+dcli p mywebsite -o json
+```
+
+```sh copy filename="Return any entry for which the id matches xxxxxx"
+dcli p id=xxxxxx
+```
+
+```sh copy filename="Return any entry for which the url matches someurl, or the title matches mytitle"
+dcli p url=someurl title=mytitle
+```
+
+```sh copy filename="Return any entry for which either the url or the title matches mywebsite"
+dcli p url,title=mywebsite
+```
+
+**Note:** You can select a different output for passwords among `clipboard, console, json`. The JSON option outputs all the matching credentials.
 
 ![Dashlane CLI copy password](../../public/password-copy.png)
 
-## Generate an OTP code
+### Get the email or login of a password
 
-You can get an OTP code from your vault as well as the remaining time before it expires.
-Just use the `otp` or `o` command and filter similarly to the password command:
+You can get the email or username of a password by using the `--field` or `-f` parameter:
 
 ```sh copy
-dcli otp [filters]
+dcli password -f email mywebsite
+```
+
+```sh copy
+dcli password -f login mywebsite
+```
+
+### Generate an OTP code
+
+You can get an OTP code from your vault as well as the remaining time before it expires.
+
+```sh copy
+dcli password -f otp mywebsite
 ```
 
 ## Get a secure note
@@ -70,8 +84,9 @@ You can also select a different output for notes among `text, json`. The JSON op
 
 ```sh copy
 dcli secret [filters]
+```
 
-# Example with a JSON output
+```sh copy filename="Example: get the secret with the title api_keys and a JSON output"
 dcli secret title=api_keys -o json
 ```
 
@@ -93,8 +108,7 @@ This could be useful if you want to share SSH keys with your team.
 
 Let's say you have generated a new SSH key pair and you want to store it in Dashlane.
 
-```sh
-# this is an example, use the parameters you want
+```sh copy filename="This is an example, use the parameters you want"
 ssh-keygen -t rsa -b 4096 -C "Dashlane SSH demo key"
 ```
 

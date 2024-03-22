@@ -4,11 +4,12 @@ import { Callout } from 'nextra/components';
 
 Commands related to business use a different authentication than your personal vault.
 
-Commands are calling a server API to perform actions and retrieve data. The first step is to login with the personal account ([follow this guide](/personal/authentication)) of a team admin and to generate a set of credentials.
+Commands are calling a server API to perform actions and retrieve data.
+The first step is to login with the personal account ([follow this guide](../personal/authentication.mdx)) of a team admin and to generate a set of credentials.
 
 ## Generate credentials
 
-<Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
+<Callout>Needs to be authenticated as an admin to use this command.</Callout>
 
 ```sh copy
 dcli t credentials generate
@@ -28,11 +29,11 @@ set DASHLANE_TEAM_DEVICE_KEYS=dlt_[deviceAccessKey]_[payload]
 
 Make sure you save them in a safe place (use a secure note for instance 😉).
 
-<Callout emoji="ℹ️">The token you'll get is starting by `dlt` in order to be easily identified by scanning tools.</Callout>
+<Callout type="info">The token you'll get is starting by `dlt` in order to be easily identified by scanning tools.</Callout>
 
 ## List credentials
 
-<Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
+<Callout>Needs to be authenticated as an admin to use this command.</Callout>
 
 ```sh copy
 dcli t credentials list
@@ -40,7 +41,7 @@ dcli t credentials list
 
 ## Revoke credentials
 
-<Callout emoji="💡">Needs to be authenticated as an admin to use this command.</Callout>
+<Callout>Needs to be authenticated as an admin to use this command.</Callout>
 
 ```sh copy
 dcli t credentials revoke <DASHLANE_TEAM_ACCESS_KEY>

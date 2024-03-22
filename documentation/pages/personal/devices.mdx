@@ -46,7 +46,7 @@ dcli devices remove --others
 dcli devices remove --all
 ```
 
-<Callout type="info" emoji="ℹ️">
+<Callout type="info">
     If you remove the current CLI device, you will need to do a `dcli logout` in order to re-authenticate.
 </Callout>
 
@@ -64,7 +64,7 @@ This will create a new device named `my_server` and will print the device creden
 Save them in a safe place (like in a secure note), as you won't be able to retrieve them later.
 Run the suggested commands on your target device (your server or CI) to set the device credentials as environment variables.
 
-```sh 
+```sh
 export DASHLANE_SERVICE_DEVICE_KEYS=dls_[deviceAccessKey]_[payload]
 ```
 
@@ -74,9 +74,11 @@ On Windows, you can use the `set` command instead of `export`.
 set DASHLANE_SERVICE_DEVICE_KEYS=dls_[deviceAccessKey]_[payload]
 ```
 
-<Callout emoji="ℹ️">The token you'll get is starting by `dls` in order to be easily identified by scanning tools.</Callout>
+<Callout type="info">
+    The token you'll get is starting by `dls` in order to be easily identified by scanning tools.
+</Callout>
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warning">
     OTP at each login and SSO are not supported for non-interactive devices. We recommend creating a dedicated Dashlane
     account for your non-interactive devices.
 </Callout>
