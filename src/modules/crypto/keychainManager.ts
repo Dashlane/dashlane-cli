@@ -183,8 +183,8 @@ const getLocalConfigurationWithoutKeychain = async (
         serverKey = await perform2FAVerification({ login, deviceAccessKey: deviceConfiguration.accessKey });
         masterPassword = serverKey ?? '';
     }
-
-    masterPassword += await askMasterPassword();
+    const masterPasswordEnv = process.env.DASHLANE_MASTER_PASSWORD;
+    masterPassword += masterPasswordEnv ?? (await askMasterPassword());
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         masterPassword,
