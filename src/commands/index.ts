@@ -7,6 +7,7 @@ import {
     runSync,
     runPassword,
     runSecureNote,
+    runLock,
     runLogout,
     runRead,
     runInject,
@@ -111,6 +112,11 @@ export const rootCommands = (params: { program: Command }) => {
         .option('--filename <filename>', 'Filename of the backup ("dashlane-backup-<unix_timestamp>.db by default")')
         .description('Backup your local vault (will use the current directory by default)')
         .action(runBackup);
+
+    program
+        .command('lock')
+        .description('Lock the vault, next commands will request the master password to unlock it)')
+        .action(runLock);
 
     program
         .command('logout')
