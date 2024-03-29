@@ -1,5 +1,9 @@
-import { Command } from 'commander';
-import { configureDisableAutoSync, configureSaveMasterPassword } from '../command-handlers';
+import { Command, Option } from 'commander';
+import {
+    configureDisableAutoSync,
+    configureSaveMasterPassword,
+    configureUserPresenceVerification,
+} from '../command-handlers';
 
 export const configureCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -15,4 +19,16 @@ export const configureCommands = (params: { program: Command }) => {
         .command('save-master-password <boolean>')
         .description('Should the encrypted master password be saved and the OS keychain be used (default: true)')
         .action(configureSaveMasterPassword);
+
+    configureGroup
+        .command('user-presence')
+        .description(
+            'Configure the method used to verify user presence (prevent access to vault without selected method)'
+        )
+        .addOption(
+            new Option('-m, --method <type>', 'Method used to verify user presence')
+                .choices(['none', 'biometrics'])
+                .makeOptionMandatory(true)
+        )
+        .action(configureUserPresenceVerification);
 };

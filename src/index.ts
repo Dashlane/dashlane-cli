@@ -35,7 +35,10 @@ program.option('--debug', 'Print debug messages');
 
 rootCommands({ program });
 
-program.parseAsync().catch((error: Error) => {
-    console.error(errorColor(`error: ${error.message}`));
-    process.exit(1);
-});
+program
+    .parseAsync()
+    .catch((error: Error) => {
+        console.error(errorColor(`error: ${error.message}`));
+        process.exit(1);
+    })
+    .finally(() => process.exit(0));

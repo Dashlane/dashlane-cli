@@ -14,6 +14,7 @@ import { getLocalConfiguration } from '../crypto';
 import { DeviceConfiguration, LocalConfiguration } from '../../types';
 import { askIgnoreBreakingChanges } from '../../utils/dialogs';
 import { sync } from '../../command-handlers';
+import { userPresenceVerification } from '../auth';
 
 export interface ConnectAndPrepareParams {
     /* Is the vault automatically synchronized every hour */
@@ -44,6 +45,12 @@ export const connectAndPrepare = async (
     if (failIfNoDB && !deviceConfiguration) {
         throw new Error('No device registered in the database');
     }
+
+    await userPresenceVerification({ deviceConfiguration }).catch((error: Error) => {
+        winston.error(`User presence verification failed: ${error.message}`);
+        db.close();
+        process.exit(1);
+    });
 
     const localConfiguration = await getLocalConfiguration(
         db,

@@ -142,7 +142,7 @@ const getLocalConfigurationWithoutDB = async (
         });
     }
 
-    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
             cliVersionToString(CLI_VERSION),
@@ -152,6 +152,7 @@ const getLocalConfigurationWithoutDB = async (
             shouldSaveMasterPassword ? 0 : 1,
             localKeyEncrypted,
             1,
+            'none',
             type,
             serverKeyEncrypted
         )
