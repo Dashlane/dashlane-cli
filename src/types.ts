@@ -36,6 +36,7 @@ export interface DeviceConfiguration extends DeviceKeys {
     login: string;
     version: string;
     autoSync: 0 | 1;
+    userPresenceVerification: 'biometrics' | 'none';
     authenticationMode: TwoFactorAuthenticationType | null;
 }
 

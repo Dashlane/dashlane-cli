@@ -1,8 +1,10 @@
 import winston from 'winston';
+import { canPromptTouchID } from 'node-mac-auth';
 import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
 import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
 import { connectAndPrepare } from '../modules/database';
 import { parseBooleanString } from '../utils';
+import { DeviceConfiguration } from '../types';
 
 export const configureSaveMasterPassword = async (boolean: string) => {
     let shouldNotSaveMasterPassword = !parseBooleanString(boolean);
@@ -58,6 +60,23 @@ export const configureDisableAutoSync = async (boolean: string) => {
 
     db.prepare('UPDATE device SET autoSync = ? WHERE login = ?')
         .bind(disableAutoSync ? 0 : 1, localConfiguration.login)
+        .run();
+
+    db.close();
+};
+
+export const configureUserPresenceVerification = async (options: {
+    method: DeviceConfiguration['userPresenceVerification'];
+}) => {
+    const { method } = options;
+    const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
+
+    if (method === 'biometrics' && !canPromptTouchID()) {
+        throw new Error('Biometrics are not supported on your device.');
+    }
+
+    db.prepare('UPDATE device SET userPresenceVerification = ? WHERE login = ?')
+        .bind(method, localConfiguration.login)
         .run();
 
     db.close();
