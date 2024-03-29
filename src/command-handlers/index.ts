@@ -3,6 +3,7 @@ export * from './configure';
 export * from './devices';
 export * from './exec';
 export * from './inject';
+export * from './lock';
 export * from './logout';
 export * from './passwords';
 export * from './read';

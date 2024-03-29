@@ -169,6 +169,7 @@ const getLocalConfigurationWithoutDB = async (
 };
 
 const getLocalConfigurationWithoutKeychain = async (
+    db: Database,
     login: string,
     deviceConfiguration: DeviceConfiguration
 ): Promise<LocalConfiguration> => {
@@ -204,6 +205,15 @@ const getLocalConfigurationWithoutKeychain = async (
             winston.warn(`Unable to reach OS keychain because of error: "${errorMessage}". \
 Install it or disable its usage via \`dcli configure save-master-password false\`.`);
         });
+
+        if (!deviceConfiguration.masterPasswordEncrypted) {
+            // Set encrypted master password in the DB
+            const masterPasswordEncrypted = encryptAesCbcHmac256(localKey, Buffer.from(masterPassword));
+
+            db.prepare('UPDATE device SET masterPasswordEncrypted = ? WHERE login = ?')
+                .bind(masterPasswordEncrypted, login)
+                .run();
+        }
     }
 
     return {
@@ -296,7 +306,7 @@ export const getLocalConfiguration = async (
         !deviceConfiguration.masterPasswordEncrypted ||
         !(localKey = getLocalKey(login))
     ) {
-        return getLocalConfigurationWithoutKeychain(login, deviceConfiguration);
+        return getLocalConfigurationWithoutKeychain(db, login, deviceConfiguration);
     }
 
     // Otherwise, the local key can be used to decrypt the device secret key and the master password in the DB
