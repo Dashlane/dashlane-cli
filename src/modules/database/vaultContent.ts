@@ -65,6 +65,7 @@ export const findVaultContent = (vaultContent: VaultContent, parsedPath: ParsedP
             (credential) => credential.title === parsedPath.title
         );
         vaultContent.notes = vaultContent.notes.filter((note) => note.title === parsedPath.title);
+        vaultContent.secrets = vaultContent.secrets.filter((secret) => secret.title === parsedPath.title);
     }
 
     if (parsedPath.itemId) {
