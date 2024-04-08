@@ -41,9 +41,25 @@ By completing the device registration process, you'll be now asked to enter your
 
 ## Options
 
+### Save Master Password
+
 By default your Master Password will be saved locally in the OS keychain so you don't have to enter it every time.
 You can disable this behavior with the following command:
 
 ```sh copy
 dcli configure save-master-password false
+```
+
+### Unlock with Biometrics
+
+You can unlock the CLI with your biometrics (Touch ID, Face ID) if your machine supports it (only Macos for now).
+
+```sh copy
+dcli configure user-presence --method biometric
+```
+
+And to disable it:
+
+```sh copy
+dcli configure user-presence --method none
 ```
