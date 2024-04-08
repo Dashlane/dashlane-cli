@@ -25,6 +25,7 @@ jobs:
               with:
                   node-version: 18.x
 
+            - run: pip install setuptools
             - run: yarn
             - run: yarn run build
             # remove dev dependencies before packaging
