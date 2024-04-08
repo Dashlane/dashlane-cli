@@ -1,6 +1,6 @@
 import { Callout } from 'nextra/components';
 
-# Authentication
+# Authentication (Login)
 
 To start with launch a first manual sync:
 
@@ -39,6 +39,16 @@ The CLI will open a new **incognito** tab to authenticate you to your SSO provid
 
 By completing the device registration process, you'll be now asked to enter your Master Password.
 
+## Lock the CLI
+
+You can lock the CLI at any time by running:
+
+```sh copy
+dcli lock
+```
+
+This will require you to enter your Master Password again to unlock the CLI.
+
 ## Options
 
 ### Save Master Password
@@ -52,7 +62,7 @@ dcli configure save-master-password false
 
 ### Unlock with Biometrics
 
-You can unlock the CLI with your biometrics (Touch ID, Face ID) if your machine supports it (only Macos for now).
+You can unlock the CLI with your biometrics (Touch ID, Face ID) if your machine supports it (only macOS for now).
 
 ```sh copy
 dcli configure user-presence --method biometric
