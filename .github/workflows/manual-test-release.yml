@@ -25,7 +25,7 @@ jobs:
               with:
                   node-version: 18.x
 
-            - if: matrix.settings.host == 'macos-14'
+            - if: runner.os == 'macOS'
               run: brew install python-setuptools
             - run: yarn
             - run: yarn run build
