@@ -25,7 +25,7 @@ jobs:
               with:
                   node-version: 18.x
 
-            - run: pip install packaging
+            - run: brew install python-setuptools
             - run: yarn
             - run: yarn run build
             # remove dev dependencies before packaging
