@@ -4,7 +4,11 @@ import { Callout } from 'nextra/components';
 
 <Callout emoji="💡">Needs team credentials to use this command.</Callout>
 
-You can get reports on your team about the number of seats provisioned, used and pending. You can also get reports on the aggregated password health history of your team.
+You can get reports on your team containing:
+
+-   number of seats provisioned, used and pending
+-   current password health score
+-   aggregated password health score history
 
 ## Fetch reports
 
@@ -13,6 +17,21 @@ The following commands take in input the number of days to look back for the pas
 ```sh copy
 dcli t report 30
 ```
+
+Here is the structure of the report:
+
+| Output Interface               | Description                                                     | Type     |
+| ------------------------------ | --------------------------------------------------------------- | -------- |
+| `seats.provisioned`            | The total number of seats that are paid                         | `number` |
+| `seats.used`                   | The number of used seats (active, pending)                      | `number` |
+| `seats.pending`                | The number of pending invitations                               | `number` |
+| `passwordHealthHistory`        | Array containing objects with date and securityIndex properties | `array`  |
+| `passwordHealth.securityIndex` | The aggregated security index of the team                       | `number` |
+| `passwordHealth.passwords`     | The total number of passwords in this team                      | `number` |
+| `passwordHealth.safe`          | The total number of safe passwords in this team                 | `number` |
+| `passwordHealth.weak`          | The total number of weak passwords in this team                 | `number` |
+| `passwordHealth.reused`        | The total number of reused passwords in this team               | `number` |
+| `passwordHealth.compromised`   | The total number of compromised passwords in this team          | `number` |
 
 ## Generate graphics from reports
 
