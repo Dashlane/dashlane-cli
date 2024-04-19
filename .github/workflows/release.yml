@@ -22,9 +22,9 @@ jobs:
         runs-on: ${{ matrix.settings.host }}
         name: dev build - ${{ matrix.settings.target }} - node@18
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Use Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: 18.x
 
@@ -41,7 +41,7 @@ jobs:
                   yarn dlx @yao-pkg/pkg@5.11.1 . -t node18-${{ matrix.settings.target }} -o bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }} -C GZip "--public" "--public-packages" "tslib,thirty-two" "--no-bytecode"
 
             - name: Archive binary artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: dcli-${{ matrix.settings.target }}
                   path: bundle/dcli-${{ matrix.settings.target }}${{ matrix.settings.extension }}
