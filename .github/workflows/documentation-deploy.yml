@@ -13,10 +13,10 @@ jobs:
                 working-directory: 'documentation'
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Set up Node.js
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v4
               with:
                   node-version: 18
 
@@ -24,7 +24,6 @@ jobs:
               run: |
                   yarn
                   yarn next build
-                  yarn next export
                   touch out/.nojekyll
 
             - name: Deploy

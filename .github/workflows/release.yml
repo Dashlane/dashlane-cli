@@ -51,10 +51,10 @@ jobs:
         runs-on: ubuntu-latest
         needs: build
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
             - name: Download all artifacts
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                   path: artifacts
 
@@ -82,7 +82,7 @@ jobs:
             - run: mv signed/dcli-win-x64.exe signed/dcli-win-x64-signed.exe
 
             - name: Archive binary artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: dcli-win-x64-signed
                   path: signed/dcli-win-x64-signed.exe
@@ -94,10 +94,10 @@ jobs:
             - build
             - sign
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
             - name: Download all artifacts
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                   path: artifacts
 
@@ -106,7 +106,7 @@ jobs:
               shell: bash
 
             - name: Release
-              uses: softprops/action-gh-release@v0.1.14
+              uses: softprops/action-gh-release@v2
               with:
                   files: |
                       artifacts/dcli-linux-x64/dcli-linux-x64
