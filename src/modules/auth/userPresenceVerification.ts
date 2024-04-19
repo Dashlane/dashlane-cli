@@ -17,7 +17,6 @@ export const userPresenceVerification = async (params: { deviceConfiguration: De
             if (canPromptTouchID()) {
                 return promptTouchID({
                     reason: 'validate your identity before accessing your vault',
-                    reuseDuration: 60, // 1min - dies when program closes
                 }).catch((error) => {
                     throw new Error(`Touch ID verification failed: ${error}`);
                 });

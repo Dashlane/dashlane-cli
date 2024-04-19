@@ -41,4 +41,4 @@ program
         console.error(errorColor(`error: ${error.message}`));
         process.exit(1);
     })
-    .finally(() => process.exit(0));
+    .finally(() => process.stdout.write('', 'utf-8', () => process.exit(0)));
