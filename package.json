@@ -18,7 +18,7 @@
         ]
     },
     "scripts": {
-        "build": "tsc",
+        "build": "node scripts/build.js",
         "watch": "tsc --watch",
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
@@ -39,6 +39,16 @@
     },
     "contributors": [],
     "license": "Apache-2.0",
+    "nativeDependencies": {
+        "better-sqlite3": "*",
+        "@json2csv/plainjs": "*",
+        "@json2csv/transforms": "*",
+        "@napi-rs/clipboard": "*",
+        "@napi-rs/keyring": "*",
+        "@node-rs/argon2": "*",
+        "playwright-core": "*",
+        "node-mac-auth": "*"
+    },
     "devDependencies": {
         "@types/async": "^3.2.24",
         "@types/better-sqlite3": "^7.6.9",
@@ -50,6 +60,7 @@
         "@typescript-eslint/parser": "^7.7.0",
         "@yao-pkg/pkg": "^5.11.5",
         "chai": "^4.4.1",
+        "esbuild": "^0.21.2",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-import": "^2.29.1",
