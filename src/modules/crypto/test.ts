@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { assert } from 'chai';
 import * as crypto from 'crypto';
 import { decrypt } from './decrypt';
 import { encryptAesCbcHmac256 } from './encrypt';
@@ -14,13 +14,13 @@ describe('Encrypt and decrypt using random symmetric key', () => {
         const decodedBase64 = buffer.toString('ascii');
         const { encryptedData } = deserializeEncryptedData(decodedBase64, buffer);
 
-        expect(encryptedData.keyDerivation.algo).to.equal('noderivation', 'Invalid key derivation algorithm');
-        expect(encryptedData.cipherConfig.encryption).to.equal('aes256', 'Invalid encryption algorithm');
-        expect(encryptedData.cipherConfig.cipherMode).to.equal('cbchmac', 'Invalid encryption mode');
-        expect(encryptedData.cipherConfig.ivLength).to.equal(16, 'Invalid IV length');
-        expect(encryptedData.cipherData.salt).length(0, 'Invalid salt length');
-        expect(encryptedData.cipherData.iv).length(16, 'Invalid IV');
-        expect(encryptedData.cipherData.hash).length(32, 'Invalid hash length');
+        assert(encryptedData.keyDerivation.algo === 'noderivation', 'Invalid key derivation algorithm');
+        assert(encryptedData.cipherConfig.encryption === 'aes256', 'Invalid encryption algorithm');
+        assert(encryptedData.cipherConfig.cipherMode === 'cbchmac', 'Invalid encryption mode');
+        assert(encryptedData.cipherConfig.ivLength === 16, 'Invalid IV length');
+        assert(encryptedData.cipherData.salt.length === 0, 'Invalid salt length');
+        assert(encryptedData.cipherData.iv.length === 16, 'Invalid IV');
+        assert(encryptedData.cipherData.hash.length === 32, 'Invalid hash length');
     });
 
     it('decryption of encryption should successfully return the input', async () => {
@@ -28,6 +28,6 @@ describe('Encrypt and decrypt using random symmetric key', () => {
         const key = crypto.randomBytes(32);
         const encryptedInput = encryptAesCbcHmac256(key, Buffer.from(input));
         const decryptedInput = await decrypt(encryptedInput, { type: 'alreadyComputed', symmetricKey: key });
-        expect(input).to.equal(decryptedInput.toString());
+        assert(input === decryptedInput.toString(), 'Decrypted input is different from the original input');
     });
 });

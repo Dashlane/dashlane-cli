@@ -23,7 +23,7 @@ export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
         ...(customHeaders || {}),
     };
 
-    let authorizationHeader = null;
+    let authorizationHeader: string | null = null;
 
     if (authentication.type !== 'none') {
         authorizationHeader = signRequest({
