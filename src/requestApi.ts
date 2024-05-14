@@ -1,10 +1,10 @@
-import * as got from 'got';
+import { Response, HTTPError } from 'got';
 import * as apiConnect from './modules/api-connect';
 import { CLI_VERSION, cliVersionToString } from './cliVersion';
 import { gotImplementation } from './utils/';
 
 interface RequestApi {
-    payload: Dictionary<unknown>;
+    payload: Record<string, unknown>;
     path: string;
     authentication: apiConnect.Authentication;
 }
@@ -43,9 +43,9 @@ const makeStagingCloudflareHeaders = () =>
 const requestApi = async <T>(params: RequestApi): Promise<T> => {
     const { payload, path, authentication } = params;
 
-    let response;
+    let response: Response<string>;
     try {
-        response = await apiConnect.postRequestAPI<got.Response<string>>({
+        response = await apiConnect.postRequestAPI<Response<string>>({
             requestFunction: gotImplementation,
             authentication,
             path: 'v1/' + path,
@@ -56,7 +56,7 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
         });
     } catch (error: unknown) {
         // Generate a DashlaneApiError if appropriate
-        if (error instanceof got.HTTPError && typeof error.response?.body === 'string') {
+        if (error instanceof HTTPError && typeof error.response?.body === 'string') {
             let details;
             try {
                 details = (JSON.parse(error.response.body) as DashlaneApiErrorResponse).errors[0];
@@ -77,7 +77,7 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
 };
 
 export interface RequestAppApi {
-    payload: Dictionary<unknown>;
+    payload: Record<string, unknown>;
     path: string;
 }
 
@@ -93,7 +93,7 @@ export const requestAppApi = async <T>(params: RequestAppApi): Promise<T> => {
 
 export interface RequestUserApi {
     login: string;
-    payload: Dictionary<unknown>;
+    payload: Record<string, unknown>;
     path: string;
     deviceKeys: {
         accessKey: string;
@@ -116,7 +116,7 @@ export const requestUserApi = async <T>(params: RequestUserApi): Promise<T> => {
 
 export interface RequestTeamApi {
     teamUuid: string;
-    payload: Dictionary<unknown>;
+    payload: Record<string, unknown>;
     path: string;
     teamDeviceKeys: {
         accessKey: string;

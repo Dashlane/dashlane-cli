@@ -1,12 +1,12 @@
-import * as got from 'got';
+import got, { Response } from 'got';
 import * as apiConnect from '../modules/api-connect';
 
-export const gotImplementation: apiConnect.RequestFunction<got.Response<string>> = (
+export const gotImplementation: apiConnect.RequestFunction<Response<string>> = (
     options: apiConnect.RequestFunctionOptions
 ) => {
     const { headers, json, url } = options;
 
-    return got.default.post(url, {
+    return got.post(url, {
         headers,
         json,
         retry: { limit: 3 },
