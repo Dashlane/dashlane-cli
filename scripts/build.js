@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-const process = require('process');
-const childProcess = require('child_process');
-const esbuild = require('esbuild');
-const packageJSON = require('../package.json');
+import os from 'os';
+import fs from 'fs';
+import path, { format } from 'path';
+import process from 'process';
+import childProcess from 'child_process';
+import esbuild from 'esbuild';
+import packageJSON from '../package.json' assert { type: 'json' };
+import { fileURLToPath } from 'url';
 
 const platform = os.platform();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /* eslint-disable no-console */
 async function main(argv = process.argv) {
@@ -63,7 +66,7 @@ async function main(argv = process.argv) {
         sourceRoot: buildPath,
         bundle: true,
         platform: 'node',
-        outdir: distPath,
+        format: 'cjs',
         external: externalDependencies,
         treeShaking: true,
         // External source map for debugging
@@ -71,6 +74,7 @@ async function main(argv = process.argv) {
         // Minify and keep the original names
         minify: true,
         keepNames: true,
+        outfile: path.join(distPath, 'index.cjs')
     };
     console.error('Running esbuild:');
     console.error(esbuildOptions);

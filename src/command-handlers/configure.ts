@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { canPromptTouchID } from 'node-mac-auth';
 import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
 import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
 import { connectAndPrepare } from '../modules/database';
@@ -72,7 +73,6 @@ export const configureUserPresenceVerification = async (options: {
 
     if (method === 'biometrics') {
         if (process.platform === 'darwin') {
-            const { canPromptTouchID } = await import('node-mac-auth');
             if (!canPromptTouchID()) {
                 throw new Error('Biometrics are not supported on your device.');
             }

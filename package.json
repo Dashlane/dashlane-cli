@@ -2,10 +2,10 @@
     "name": "@dashlane/cli",
     "version": "6.2416.0",
     "description": "Manage your Dashlane vault through a CLI tool",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "type": "module",
+    "main": "dist/index.cjs",
     "bin": {
-        "dcli": "dist/index.js"
+        "dcli": "dist/index.cjs"
     },
     "pkg": {
         "assets": [
@@ -22,7 +22,7 @@
         "watch": "tsc --watch",
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
-        "start": "node dist",
+        "start": "node dist/index.cjs",
         "pkg:linux": "pkg . -t node18-linux-x64 -o bundle/dcli-linux -C GZip --public --public-packages tslib,thirty-two --no-bytecode",
         "pkg:macos": "pkg . -t node18-macos-x64 -o bundle/dcli-macos -C GZip --public --public-packages tslib,thirty-two --no-bytecode",
         "pkg:macos-arm": "pkg . -t node18-macos-arm64 -o bundle/dcli-macos-arm -C GZip --public --public-packages tslib,thirty-two --no-bytecode",
