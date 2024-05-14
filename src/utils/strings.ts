@@ -1,4 +1,4 @@
-import commander from 'commander';
+import * as commander from 'commander';
 import { Parser } from '@json2csv/plainjs';
 import { flatten } from '@json2csv/transforms';
 

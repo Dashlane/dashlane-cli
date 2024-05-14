@@ -1,6 +1,6 @@
-import * as crypto from 'crypto';
-import { serializeEncryptedData } from './encryptedDataSerialization';
-import { hmacSha256, sha512 } from './hash';
+import crypto from 'crypto';
+import { serializeEncryptedData } from './encryptedDataSerialization.js';
+import { hmacSha256, sha512 } from './hash.js';
 import { EncryptedData } from './types';
 
 export const encryptAesCbcHmac256 = (originalKey: Buffer, content: Buffer): string => {

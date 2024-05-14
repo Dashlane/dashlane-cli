@@ -13,7 +13,9 @@ export const userPresenceVerification = async (params: { deviceConfiguration: De
 
     if (deviceConfiguration.userPresenceVerification === 'biometrics') {
         if (process.platform === 'darwin') {
-            const { canPromptTouchID, promptTouchID } = await import('node-mac-auth');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
+            const nodemacauth = require('node-mac-auth') as typeof import('node-mac-auth');
+            const { canPromptTouchID, promptTouchID } = nodemacauth;
             if (canPromptTouchID()) {
                 return promptTouchID({
                     reason: 'validate your identity before accessing your vault',

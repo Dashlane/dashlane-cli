@@ -2,10 +2,10 @@
     "name": "@dashlane/cli",
     "version": "6.2416.0",
     "description": "Manage your Dashlane vault through a CLI tool",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "type": "module",
+    "main": "dist/index.cjs",
     "bin": {
-        "dcli": "dist/index.js"
+        "dcli": "dist/index.cjs"
     },
     "pkg": {
         "assets": [
@@ -22,7 +22,7 @@
         "watch": "tsc --watch",
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
-        "start": "node dist",
+        "start": "node dist/index.cjs",
         "pkg:linux": "pkg . -t node18-linux-x64 -o bundle/dcli-linux -C GZip --public --public-packages tslib,thirty-two --no-bytecode",
         "pkg:macos": "pkg . -t node18-macos-x64 -o bundle/dcli-macos -C GZip --public --public-packages tslib,thirty-two --no-bytecode",
         "pkg:macos-arm": "pkg . -t node18-macos-arm64 -o bundle/dcli-macos-arm -C GZip --public --public-packages tslib,thirty-two --no-bytecode",
@@ -59,7 +59,7 @@
         "@typescript-eslint/eslint-plugin": "^7.8.0",
         "@typescript-eslint/parser": "^7.8.0",
         "@yao-pkg/pkg": "^5.11.5",
-        "chai": "^4.4.1",
+        "chai": "^5.1.1",
         "esbuild": "^0.21.2",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
@@ -78,8 +78,8 @@
         "@node-rs/argon2": "^1.8.3",
         "better-sqlite3": "^10.0.0",
         "commander": "^12.0.0",
-        "got": "^11.8.6",
-        "inquirer": "^9.2.20",
+        "got": "^14.2.1",
+        "inquirer": "^9.2.21",
         "inquirer-search-list": "^1.2.6",
         "jsonpath-plus": "^9.0.0",
         "node-mac-auth": "^1.0.0",
