@@ -13,7 +13,6 @@ const platform = os.platform();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* eslint-disable no-console */
 async function main(argv = process.argv) {
     argv = argv.slice(2);
     const projectRoot = path.join(__dirname, '..');
@@ -80,6 +79,5 @@ async function main(argv = process.argv) {
     console.error(esbuildOptions);
     await esbuild.build(esbuildOptions);
 }
-/* eslint-enable no-console */
 
 void main();

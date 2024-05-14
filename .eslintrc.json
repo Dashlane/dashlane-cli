@@ -16,7 +16,7 @@
         "es6": true
     },
     "plugins": ["import"],
-    "ignorePatterns": ["documentation"],
+    "ignorePatterns": ["documentation", "scripts"],
     "rules": {
         "no-return-await": "error",
         "import/order": [
