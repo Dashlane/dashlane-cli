@@ -59,7 +59,7 @@
         "@typescript-eslint/eslint-plugin": "^7.8.0",
         "@typescript-eslint/parser": "^7.8.0",
         "@yao-pkg/pkg": "^5.11.5",
-        "chai": "^4.4.1",
+        "chai": "^5.1.1",
         "esbuild": "^0.21.2",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
