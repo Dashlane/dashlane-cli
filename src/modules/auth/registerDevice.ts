@@ -1,5 +1,6 @@
 import winston from 'winston';
 import { doSSOVerification } from './sso';
+import { doConfidentialSSOVerification } from './confidential-sso';
 import {
     completeDeviceRegistration,
     performDashlaneAuthenticatorVerification,
@@ -63,13 +64,15 @@ export const registerDevice = async (params: RegisterDevice) => {
         }));
     } else if (selectedVerificationMethod.type === 'sso') {
         if (selectedVerificationMethod.ssoInfo.isNitroProvider) {
-            throw new Error('Confidential SSO is currently not supported');
+            ({ authTicket, ssoSpKey } = await doConfidentialSSOVerification({
+                requestedLogin: login,
+            }));
+        } else {
+            ({ authTicket, ssoSpKey } = await doSSOVerification({
+                requestedLogin: login,
+                serviceProviderURL: selectedVerificationMethod.ssoInfo.serviceProviderUrl,
+            }));
         }
-
-        ({ authTicket, ssoSpKey } = await doSSOVerification({
-            requestedLogin: login,
-            serviceProviderURL: selectedVerificationMethod.ssoInfo.serviceProviderUrl,
-        }));
     } else {
         throw new Error('Auth verification method not supported: ' + selectedVerificationMethod.type);
     }
