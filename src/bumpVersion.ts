@@ -1,10 +1,10 @@
 import { Command } from 'commander';
-import * as fs from 'fs';
-import { CliVersion } from './types';
+import fs from 'fs';
+import { CliVersion } from './types.js';
 
 const DEFAULT_MAJOR = 6;
 
-const bumbProjectVersion = () => {
+const bumpProjectVersion = () => {
     allUpdates(computeNewVersion());
 };
 
@@ -78,8 +78,8 @@ const computeWeekOfYear = (date: Date) => {
     return 1 + Math.round(((dateCopy.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
 };
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     const commander = new Command();
     commander.version('0.0.1');
-    bumbProjectVersion();
+    bumpProjectVersion();
 }
