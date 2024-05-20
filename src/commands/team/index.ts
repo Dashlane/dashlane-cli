@@ -1,7 +1,7 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import { teamCredentialsCommands } from './credentials';
 import { CouldNotFindTeamCredentialsError } from '../../errors';
-import { runTeamLogs, runTeamMembers, runTeamReport } from '../../command-handlers';
+import { runTeamDarkWebInsightsReport, runTeamLogs, runTeamMembers, runTeamReport } from '../../command-handlers';
 import { customParseInt, customParseTimestampMilliseconds, getTeamDeviceCredentials } from '../../utils';
 
 export const teamCommands = (params: { program: Command }) => {
@@ -56,4 +56,18 @@ export const teamCommands = (params: { program: Command }) => {
         .description('Get team report')
         .argument('[days]', 'Number of days in history', customParseInt, 0)
         .action(runTeamReport);
+
+    teamGroup
+        .command('dark-web-insights')
+        .alias('dwi')
+        .description("Get Dark Web Insights detailed report for your team's domain (results are paginated)")
+        .argument('<domain>', 'Domain name')
+        .addOption(
+            new Option('--order-by <orderBy>', 'Order results by')
+                .choices(['DEFAULT', 'UNSEEN', 'TEAM_MEMBERS', 'PUBLISH_DATE'])
+                .default('DEFAULT')
+        )
+        .option('--count <count>', 'Results count per page', customParseInt, 100)
+        .option('--offset <offset>', 'Page offset', customParseInt, 0)
+        .action(runTeamDarkWebInsightsReport);
 };

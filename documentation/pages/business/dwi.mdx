@@ -1,0 +1,72 @@
+import { Callout } from 'nextra/components';
+
+# Dark Web Insights Reports
+
+<Callout emoji="💡">Needs team credentials to use this command.</Callout>
+
+Dark Web Insights can identify vulnerabilities across all employees in an organization, even employees who don't have a Dashlane account yet.
+It does this by monitoring the dark web for employee email addresses to find domain-wide breaches and by scanning the web for any compromised organization information.
+
+You can read more about Dark Web Insights [here](https://support.dashlane.com/hc/en-us/articles/5015658490514-Secure-compromised-accounts-in-your-organization-with-Dark-Web-Insights).
+
+## Fetch reports
+
+The following command fetches the latest report from Dark Web Insights for a given domain you have previously configured and verified in your admin console:
+
+```sh copy
+dcli t dwi your-domain.com
+```
+
+## Sort and paginate reports
+
+You can sort and paginate the reports using the `--order-by` and `--count` options.
+
+The `--order-by` option accepts the following values: `DEFAULT`, `UNSEEN`, `TEAM_MEMBERS`, `PUBLISH_DATE`.
+
+The `--count` option specifies the number of leaks to fetch. The default value is 100.
+You can also use the `--offset` option to skip a certain number of leaks.
+
+```sh copy
+dcli t dwi your-domain.com --order-by=PUBLISH_DATE --count=10 --offset=0
+```
+
+## DWI Report interface
+
+| Name                  | Description                                                   | Type       |
+| --------------------- | ------------------------------------------------------------- | ---------- |
+| `leaksCount`          | The total number of leaks detected                            | `number`   |
+| `emailsImpactedCount` | The total number of unique emails impacted by data breaches   | `number`   |
+| `allImpactedEmails`   | A list of all emails that have been impacted by data breaches | `string[]` |
+| `emails`              | Dataleaks grouped by each impacted email                      | `Array`    |
+
+### emails properties
+
+| Name                   | Description                                                        | Type                |
+| ---------------------- | ------------------------------------------------------------------ | ------------------- |
+| `emails.email`         | The email address that has been impacted by data breaches          | `string`            |
+| `emails.breachesCount` | The number of breaches associated with this email                  | `number`            |
+| `emails.leaks`         | A list of leaks associated with this email                         | `Array`             |
+| `emails.viewStatus`    | The status indicating whether the DWI notification has been viewed | `'new' \| 'viewed'` |
+
+### emails.leaks properties
+
+| Name                          | Description                                     | Type            |
+| ----------------------------- | ----------------------------------------------- | --------------- |
+| `emails.leaks.domain`         | The domain where the data breach occurred       | `string`        |
+| `emails.leaks.types`          | The types of data compromised in the breach     | `Array<string>` |
+| `emails.leaks.breachDateUnix` | The date of the breach in Unix timestamp format | `number`        |
+
+### emails.leaks.types possible values
+
+| Value          | Description                                        |
+| -------------- | -------------------------------------------------- |
+| `phone`        | Phone numbers compromised in the breach            |
+| `password`     | Passwords compromised in the breach                |
+| `email`        | Email addresses compromised in the breach          |
+| `username`     | Usernames compromised in the breach                |
+| `creditcard`   | Credit card information compromised in the breach  |
+| `address`      | Physical addresses compromised in the breach       |
+| `ip`           | IP addresses compromised in the breach             |
+| `geolocation`  | Geolocation data compromised in the breach         |
+| `personalinfo` | Personal information compromised in the breach     |
+| `social`       | Social media information compromised in the breach |
