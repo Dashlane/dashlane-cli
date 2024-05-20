@@ -1,6 +1,6 @@
 {
     "name": "@dashlane/cli-documentation",
-    "packageManager": "yarn@3.4.1",
+    "packageManager": "yarn@4.2.2",
     "dependencies": {
         "next": "^14.2.3",
         "nextra": "^2.13.4",
