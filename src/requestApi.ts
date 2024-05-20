@@ -7,6 +7,7 @@ interface RequestApi {
     payload: Record<string, unknown>;
     path: string;
     authentication: apiConnect.Authentication;
+    isNitroEncryptionService?: boolean;
 }
 
 interface DashlaneApiErrorResponse {
@@ -41,14 +42,14 @@ const makeStagingCloudflareHeaders = () =>
         : undefined;
 
 const requestApi = async <T>(params: RequestApi): Promise<T> => {
-    const { payload, path, authentication } = params;
+    const { payload, path, authentication, isNitroEncryptionService } = params;
 
     let response: Response<string>;
     try {
         response = await apiConnect.postRequestAPI<Response<string>>({
             requestFunction: gotImplementation,
             authentication,
-            path: 'v1/' + path,
+            path: (isNitroEncryptionService ? 'v1-nitro-encryption-service/' : 'v1/') + path,
             payload,
             userAgent: `Dashlane CLI v${cliVersionToString(CLI_VERSION)}`,
             customHeaders: makeStagingCloudflareHeaders(),
@@ -79,6 +80,7 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
 export interface RequestAppApi {
     payload: Record<string, unknown>;
     path: string;
+    isNitroEncryptionService?: boolean;
 }
 
 export const requestAppApi = async <T>(params: RequestAppApi): Promise<T> => {
