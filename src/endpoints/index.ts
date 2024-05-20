@@ -5,6 +5,7 @@ export * from './deactivateTeamDevice';
 export * from './getAuditLogs';
 export * from './getLatestContent';
 export * from './getStatus';
+export * from './getTeamDarkWebInsightsReport';
 export * from './getTeamMembers';
 export * from './getTeamReport';
 export * from './listDevices';

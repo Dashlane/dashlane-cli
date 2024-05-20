@@ -10,6 +10,7 @@ export * from './read';
 export * from './secrets';
 export * from './secureNotes';
 export * from './sync';
+export * from './teamDarkWebInsightsReport';
 export * from './teamDevices';
 export * from './teamLogs';
 export * from './teamMembers';
