@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
-import winston from 'winston';
 import { BackupEditTransaction, LocalConfiguration, SecretTransactionContent, VaultSecret } from '../types';
 import { decryptTransactions } from '../modules/crypto';
 import { askSecretChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
+import { logger } from '../logger';
 
 export const runSecret = async (filters: string[] | null, options: { output: 'text' | 'json' }) => {
     const { db, localConfiguration } = await connectAndPrepare({});
@@ -26,7 +26,7 @@ interface GetSecret {
 export const getSecret = async (params: GetSecret): Promise<void> => {
     const { localConfiguration, filters, db, output } = params;
 
-    winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
+    logger.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'SECRET' AND action = 'BACKUP_EDIT'`)
         .bind(localConfiguration.login)
@@ -49,7 +49,7 @@ export const getSecret = async (params: GetSecret): Promise<void> => {
 
     switch (output) {
         case 'json':
-            console.log(JSON.stringify(matchedSecrets));
+            logger.content(JSON.stringify(matchedSecrets));
             break;
         case 'text': {
             let selectedSecret: VaultSecret | null = null;
@@ -63,7 +63,7 @@ export const getSecret = async (params: GetSecret): Promise<void> => {
                 selectedSecret = await askSecretChoice({ matchedSecrets, hasFilters: Boolean(filters?.length) });
             }
 
-            console.log(selectedSecret.content);
+            logger.content(selectedSecret.content);
             break;
         }
         default:

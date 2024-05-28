@@ -1,11 +1,11 @@
 import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
-import winston from 'winston';
 import { AuthentifiantTransactionContent, BackupEditTransaction, LocalConfiguration, VaultCredential } from '../types';
 import { decryptTransactions } from '../modules/crypto';
 import { askCredentialChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
+import { logger } from '../logger';
 
 export const runPassword = async (
     filters: string[] | null,
@@ -18,7 +18,7 @@ export const runPassword = async (
     db.close();
 
     if (output === 'json') {
-        console.log(JSON.stringify(foundCredentials));
+        logger.content(JSON.stringify(foundCredentials));
         return;
     }
 
@@ -54,19 +54,19 @@ export const runPassword = async (
     }
 
     if (output === 'console') {
-        console.log(result);
+        logger.content(result);
     }
 
     const clipboard = new Clipboard();
     clipboard.setText(result);
-    console.log(
+    logger.content(
         `🔓 ${field} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
     );
 
     if (field === 'password' && selectedCredential.otpSecret) {
         const token = authenticator.generate(selectedCredential.otpSecret);
         const timeRemaining = authenticator.timeRemaining();
-        console.log(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+        logger.content(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
     }
 };
 
@@ -79,7 +79,7 @@ interface GetCredential {
 export const findCredentials = async (params: GetCredential): Promise<VaultCredential[]> => {
     const { localConfiguration, filters, db } = params;
 
-    winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
+    logger.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'AUTHENTIFIANT' AND action = 'BACKUP_EDIT'`)
         .bind(localConfiguration.login)

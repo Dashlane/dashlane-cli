@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { getVaultContent, initVaultContent } from '../modules/database';
+import { logger } from '../logger';
 
 interface InjectOpts {
     in: string;
@@ -78,6 +79,6 @@ const outputContent = (output: string, outputFilePath?: string) => {
     if (outputFilePath) {
         fs.writeFileSync(outputFilePath, output);
     } else {
-        console.log(output);
+        logger.content(output);
     }
 };

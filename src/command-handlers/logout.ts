@@ -1,13 +1,13 @@
 import { Database } from 'better-sqlite3';
-import winston from 'winston';
 import { deactivateDevices } from '../endpoints';
 import { connectAndPrepare, connect, reset } from '../modules/database';
 import { LocalConfiguration, DeviceConfiguration } from '../types';
 import { askConfirmReset } from '../utils';
+import { logger } from '../logger';
 
 export const runLogout = async (options: { ignoreRevocation: boolean }) => {
     if (options.ignoreRevocation) {
-        winston.info("The device credentials won't be revoked on Dashlane's servers");
+        logger.info("The device credentials won't be revoked on Dashlane's servers.");
     }
 
     const resetConfirmation = await askConfirmReset();
@@ -28,7 +28,7 @@ export const runLogout = async (options: { ignoreRevocation: boolean }) => {
         if (error instanceof Error) {
             errorMessage = error.message;
         }
-        winston.debug(`Unable to read device configuration during logout: ${errorMessage}`);
+        logger.debug(`Unable to read device configuration during logout: ${errorMessage}`);
 
         db = connect();
         db.serialize();
@@ -38,9 +38,9 @@ export const runLogout = async (options: { ignoreRevocation: boolean }) => {
             deviceIds: [deviceConfiguration.accessKey],
             login: deviceConfiguration.login,
             localConfiguration,
-        }).catch((error) => console.error('Unable to deactivate the device', error));
+        }).catch((error) => logger.error('Unable to deactivate the device', error));
     }
     reset({ db, localConfiguration });
-    console.log('The local Dashlane local storage has been reset and you have been logged out');
+    logger.success('The local Dashlane local storage has been reset and you have been logged out.');
     db.close();
 };

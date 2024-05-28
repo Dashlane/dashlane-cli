@@ -1,9 +1,9 @@
-import winston from 'winston';
 import { connectAndPrepare, reset } from '../modules/database';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints';
 import { askConfirmReset, epochTimestampToIso } from '../utils';
 import { registerDevice } from '../modules/auth';
 import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated';
+import { logger } from '../logger';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
     isCurrentDevice: boolean;
@@ -22,7 +22,7 @@ export async function listAllDevices(options: { json: boolean }) {
     );
 
     if (options.json) {
-        console.log(JSON.stringify(result));
+        logger.content(JSON.stringify(result));
     } else {
         // order by last activity, ascending.
         // we sort it only on non-json because it is likely that it will be used
@@ -127,14 +127,16 @@ export const registerNonInteractiveDevice = async (deviceName: string, options: 
     const serviceDeviceKeys = `dls_${deviceAccessKey}_${serviceDeviceKeysPayloadB64}`;
 
     if (options.json) {
-        console.log(
+        logger.content(
             JSON.stringify({
                 DASHLANE_SERVICE_DEVICE_KEYS: serviceDeviceKeys,
             })
         );
     } else {
-        winston.info('The device credentials have been generated, save and run the following command to export them:');
-        console.log(`export DASHLANE_SERVICE_DEVICE_KEYS=${serviceDeviceKeys}`);
+        logger.success(
+            'The device credentials have been generated, save and run the following command to export them:'
+        );
+        logger.content(`export DASHLANE_SERVICE_DEVICE_KEYS=${serviceDeviceKeys}`);
     }
 
     db.close();

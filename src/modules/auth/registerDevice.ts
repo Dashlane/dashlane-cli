@@ -1,4 +1,3 @@
-import winston from 'winston';
 import { doSSOVerification } from './sso';
 import { doConfidentialSSOVerification } from './confidential-sso';
 import {
@@ -10,6 +9,7 @@ import {
 } from '../../endpoints';
 import { askOtp, askToken, askVerificationMethod } from '../../utils';
 import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice';
+import { logger } from '../../logger';
 
 interface RegisterDevice {
     login: string;
@@ -18,7 +18,7 @@ interface RegisterDevice {
 
 export const registerDevice = async (params: RegisterDevice) => {
     const { login, deviceName } = params;
-    winston.debug('Registering the device...');
+    logger.debug('Registering the device...');
 
     // Log in via a compatible verification method
     const { verifications, accountType } = await getAuthenticationMethodsForDevice({ login });
@@ -41,10 +41,10 @@ export const registerDevice = async (params: RegisterDevice) => {
     }
 
     if (selectedVerificationMethod.type === 'duo_push') {
-        winston.info('Please accept the Duo push notification on your phone');
+        logger.info('Please accept the Duo push notification on your phone.');
         ({ authTicket } = await performDuoPushVerification({ login }));
     } else if (selectedVerificationMethod.type === 'dashlane_authenticator') {
-        winston.info('Please accept the Dashlane Authenticator push notification on your phone');
+        logger.info('Please accept the Dashlane Authenticator push notification on your phone.');
         ({ authTicket } = await performDashlaneAuthenticatorVerification({ login }));
     } else if (selectedVerificationMethod.type === 'totp') {
         const otp = await askOtp();
@@ -54,7 +54,7 @@ export const registerDevice = async (params: RegisterDevice) => {
         }));
     } else if (selectedVerificationMethod.type === 'email_token') {
         const urlEncodedLogin = encodeURIComponent(login);
-        winston.info(
+        logger.info(
             `Please open the following URL in your browser: https://www.dashlane.com/cli-device-registration?login=${urlEncodedLogin}`
         );
         const token = await askToken();

@@ -1,4 +1,5 @@
 import { getTeamDarkWebInsightsReport } from '../endpoints';
+import { logger } from '../logger';
 import { getTeamDeviceCredentials } from '../utils';
 
 export const runTeamDarkWebInsightsReport = async (
@@ -17,5 +18,5 @@ export const runTeamDarkWebInsightsReport = async (
         offset: offset ?? 0,
     });
 
-    console.log(JSON.stringify(response));
+    logger.content(JSON.stringify(response));
 };

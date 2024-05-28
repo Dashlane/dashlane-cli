@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
-import winston from 'winston';
 import { BackupEditTransaction, LocalConfiguration, SecureNoteTransactionContent, VaultNote } from '../types';
 import { decryptTransactions } from '../modules/crypto';
 import { askSecureNoteChoice, filterMatches } from '../utils';
 import { connectAndPrepare } from '../modules/database';
+import { logger } from '../logger';
 
 export const runSecureNote = async (filters: string[] | null, options: { output: 'text' | 'json' }) => {
     const { db, localConfiguration } = await connectAndPrepare({});
@@ -26,7 +26,7 @@ interface GetSecureNote {
 export const getNote = async (params: GetSecureNote): Promise<void> => {
     const { localConfiguration, filters, db, output } = params;
 
-    winston.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
+    logger.debug(`Retrieving: ${filters && filters.length > 0 ? filters.join(' ') : ''}`);
     const transactions = db
         .prepare(`SELECT * FROM transactions WHERE login = ? AND type = 'SECURENOTE' AND action = 'BACKUP_EDIT'`)
         .bind(localConfiguration.login)
@@ -49,7 +49,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
 
     switch (output) {
         case 'json':
-            console.log(JSON.stringify(matchedNotes));
+            logger.content(JSON.stringify(matchedNotes));
             break;
         case 'text': {
             let selectedNote: VaultNote | null = null;
@@ -63,7 +63,7 @@ export const getNote = async (params: GetSecureNote): Promise<void> => {
                 selectedNote = await askSecureNoteChoice({ matchedNotes, hasFilters: Boolean(filters?.length) });
             }
 
-            console.log(selectedNote.content);
+            logger.content(selectedNote.content);
             break;
         }
         default:
