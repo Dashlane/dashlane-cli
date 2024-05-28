@@ -7,7 +7,7 @@ import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash.js';
 import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
 import { BackupEditTransaction, LocalConfiguration, SymmetricKeyGetter } from '../../types';
-import { logger } from '../../logger';
+import { logger } from '../../logger.js';
 
 interface DecryptAesCbcHmac256Params {
     /** The cipher data to decrypt */
