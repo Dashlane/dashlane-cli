@@ -1,9 +1,9 @@
-import winston from 'winston';
 import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
 import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
 import { connectAndPrepare } from '../modules/database';
 import { parseBooleanString } from '../utils';
 import { DeviceConfiguration } from '../types';
+import { logger } from '../logger';
 
 export const configureSaveMasterPassword = async (boolean: string) => {
     let shouldNotSaveMasterPassword = !parseBooleanString(boolean);
@@ -23,7 +23,7 @@ export const configureSaveMasterPassword = async (boolean: string) => {
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
-            winston.warn(`Unable to delete the local key from the keychain: ${errorMessage}`);
+            logger.warn(`Unable to delete the local key from the keychain: ${errorMessage}`);
         }
     }
 

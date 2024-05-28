@@ -1,6 +1,7 @@
 import { performTotpVerification } from '../../endpoints';
 import { completeLoginWithAuthTicket } from '../../endpoints/completeLoginWithAuthTicket';
 import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
+import { logger } from '../../logger';
 import { askOtp } from '../../utils';
 
 interface Params {
@@ -16,7 +17,7 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
     try {
         twoFactorAuthStatus = await get2FAStatusUnauthenticated({ login });
     } catch (error) {
-        console.warn(
+        logger.warn(
             'Unable to check 2FA Status. This will prevent you from logging in if you are using 2FA at each login (OTP2)'
         );
         return;

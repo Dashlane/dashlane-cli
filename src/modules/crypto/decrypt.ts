@@ -1,5 +1,4 @@
 import * as argon2 from '@node-rs/argon2';
-import winston from 'winston';
 import * as xmlJs from 'xml-js';
 import crypto from 'crypto';
 import { promisify } from 'util';
@@ -8,6 +7,7 @@ import { CipherData, EncryptedData } from './types';
 import { hmacSha256, sha512 } from './hash.js';
 import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
 import { BackupEditTransaction, LocalConfiguration, SymmetricKeyGetter } from '../../types';
+import { logger } from '../../logger';
 
 interface DecryptAesCbcHmac256Params {
     /** The cipher data to decrypt */
@@ -62,7 +62,7 @@ export const decrypt = async (encryptedAsBase64: string, symmetricKeyGetter: Sym
         case 'memoize': {
             let symmetricKeyPromise = symmetricKeyGetter.derivates.get(derivationMethodBytes);
             if (!symmetricKeyPromise) {
-                winston.debug(`Computing new derivate with method: ${encryptedData.keyDerivation.algo}`);
+                logger.debug(`Computing new derivate with method: ${encryptedData.keyDerivation.algo}`);
                 symmetricKeyPromise = getDerivateUsingParametersFromEncryptedData(
                     symmetricKeyGetter.localConfiguration.masterPassword,
                     encryptedData

@@ -1,23 +1,14 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import winston from 'winston';
 
 import { cliVersionToString, CLI_VERSION } from './cliVersion';
 import { rootCommands } from './commands';
 import { initDeviceCredentials, initStagingCheck, initTeamDeviceCredentials } from './utils';
-
-const errorColor = (str: string) => {
-    // Add ANSI escape codes to display text in red.
-    return `\x1b[31m${str}\x1b[0m`;
-};
+import { errorColor, initLogger } from './logger';
 
 const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 
-winston.configure({
-    level: debugLevel,
-    format: winston.format.combine(winston.format.splat(), winston.format.cli()),
-    transports: [new winston.transports.Console({ stderrLevels: ['error', 'debug', 'info'] })],
-});
+initLogger({ debugLevel });
 
 initStagingCheck();
 initTeamDeviceCredentials();

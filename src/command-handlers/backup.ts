@@ -1,6 +1,6 @@
-import winston from 'winston';
 import fs from 'fs';
 import { connectAndPrepare, getDatabasePath } from '../modules/database';
+import { logger } from '../logger';
 
 export const runBackup = async (options: { directory: string; filename: string }) => {
     const { db } = await connectAndPrepare({ failIfNoDB: true, forceSync: true });
@@ -19,5 +19,5 @@ export const runBackup = async (options: { directory: string; filename: string }
 
     fs.copyFileSync(databasePath, backupPath);
 
-    winston.info(`Backup saved to ${backupPath}`);
+    logger.success(`Backup saved to ${backupPath}.`);
 };

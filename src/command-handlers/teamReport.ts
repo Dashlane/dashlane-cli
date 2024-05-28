@@ -1,4 +1,5 @@
 import { getTeamReport as getTeamReportRequest } from '../endpoints';
+import { logger } from '../logger';
 import { getTeamDeviceCredentials } from '../utils';
 
 interface GetTeamMembersParams {
@@ -14,5 +15,5 @@ export const runTeamReport = async (params: GetTeamMembersParams) => {
         days,
     });
 
-    console.log(JSON.stringify(response));
+    logger.content(JSON.stringify(response));
 };

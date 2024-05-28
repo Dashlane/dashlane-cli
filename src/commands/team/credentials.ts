@@ -1,8 +1,8 @@
-import winston from 'winston';
 import { Command } from 'commander';
 import { createTeamDevice, listAllTeamDevices } from '../../command-handlers';
 import { connectAndPrepare } from '../../modules/database';
 import { deactivateTeamDevice } from '../../endpoints';
+import { logger } from '../../logger';
 
 export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
     const { teamGroup } = params;
@@ -17,16 +17,16 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
             const teamDeviceKeys = await createTeamDevice();
 
             if (options.json) {
-                console.log(
+                logger.content(
                     JSON.stringify({
                         DASHLANE_TEAM_DEVICE_KEYS: teamDeviceKeys,
                     })
                 );
             } else {
-                winston.info(
+                logger.success(
                     'The credentials have been generated, run the following command to export them in your env:'
                 );
-                console.log(`export DASHLANE_TEAM_DEVICE_KEYS=${teamDeviceKeys}`);
+                logger.content(`export DASHLANE_TEAM_DEVICE_KEYS=${teamDeviceKeys}`);
             }
         });
 
@@ -45,6 +45,6 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
             await deactivateTeamDevice({ localConfiguration, teamDeviceAccessKey: accessKey });
             db.close();
 
-            console.log('The credentials have been revoked');
+            logger.success('The credentials have been revoked.');
         });
 };

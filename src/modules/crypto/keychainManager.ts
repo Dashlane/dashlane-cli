@@ -1,6 +1,5 @@
 import { Database } from 'better-sqlite3';
 import { Entry } from '@napi-rs/keyring';
-import winston from 'winston';
 import os from 'os';
 import crypto from 'crypto';
 import { decrypt, getDerivateUsingParametersFromEncryptedData } from './decrypt';
@@ -14,6 +13,7 @@ import { DeviceConfiguration, LocalConfiguration } from '../../types';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
 import { getDeviceCredentials } from '../../utils';
+import { logger } from '../../logger';
 
 const SERVICE = 'dashlane-cli';
 
@@ -203,7 +203,7 @@ const getLocalConfigurationWithoutKeychain = async (
 
     if (!deviceConfiguration.shouldNotSaveMasterPassword) {
         setLocalKey(login, localKey, (errorMessage) => {
-            winston.warn(`Unable to reach OS keychain because of error: "${errorMessage}". \
+            logger.warn(`Unable to reach OS keychain because of error: "${errorMessage}". \
 Install it or disable its usage via \`dcli configure save-master-password false\`.`);
         });
 
@@ -331,7 +331,7 @@ export const getLocalConfiguration = async (
 };
 
 export const warnUnreachableKeychainDisabled = (errorMessage: string) => {
-    winston.warn(`Unable to reach OS keychain because of error: "${errorMessage}", so its use has been disabled. \
+    logger.warn(`Unable to reach OS keychain because of error: "${errorMessage}", so its use has been disabled. \
 To retry using it, please execute \`dcli configure save-master-password true\`. \
 Until then, you will have to retype your master password each time you run the CLI.`);
 };

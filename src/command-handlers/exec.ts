@@ -1,7 +1,7 @@
 import { Command } from 'commander';
-import winston from 'winston';
 import { spawn } from 'child_process';
 import { getVaultContent, initVaultContent } from '../modules/database';
+import { logger } from '../logger';
 
 export const runExec = async (_options: unknown, program: Command) => {
     const command = program.args.join(' ');
@@ -26,6 +26,6 @@ export const runExec = async (_options: unknown, program: Command) => {
 
     // listen for process exit
     child.on('exit', (code) => {
-        winston.debug(`Child process exited with code ${code ?? 'unknown'}`);
+        logger.debug(`Child process exited with code ${code ?? 'unknown'}`);
     });
 };

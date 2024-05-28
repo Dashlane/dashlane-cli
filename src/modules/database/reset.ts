@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
-import winston from 'winston';
 import { deleteLocalKey } from '../crypto/keychainManager';
 import { LocalConfiguration } from '../../types';
+import { logger } from '../../logger';
 
 interface ResetDB {
     db: Database.Database;
@@ -15,7 +15,7 @@ export const reset = (params: ResetDB) => {
     db.prepare('DROP TABLE IF EXISTS transactions').run();
     db.prepare('DROP TABLE IF EXISTS device').run();
 
-    winston.debug('Database reset');
+    logger.debug('Database reset');
 
     if (localConfiguration) {
         try {
@@ -26,7 +26,7 @@ export const reset = (params: ResetDB) => {
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
-            winston.debug(`Unable to delete the local key from the keychain: ${errorMessage}`);
+            logger.debug(`Unable to delete the local key from the keychain: ${errorMessage}`);
         }
     }
 };

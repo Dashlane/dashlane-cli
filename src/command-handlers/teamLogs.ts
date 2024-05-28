@@ -1,7 +1,7 @@
-import winston from 'winston';
 import { StartAuditLogsQueryParams, startAuditLogsQuery, getAuditLogQueryResults } from '../endpoints';
 import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../utils';
 import { GenericLog } from '../types/logs';
+import { logger } from '../logger';
 
 export const runTeamLogs = async (options: {
     start: string;
@@ -33,11 +33,11 @@ export const runTeamLogs = async (options: {
     }
 
     if (options.csv) {
-        console.log(jsonToCsv(logs));
+        logger.content(jsonToCsv(logs));
         return;
     }
 
-    logs.forEach((log) => console.log(JSON.stringify(log)));
+    logs.forEach((log) => logger.content(JSON.stringify(log)));
 };
 
 const MAX_RESULT = 1000;
@@ -48,12 +48,12 @@ export const getAuditLogs = async (params: StartAuditLogsQueryParams): Promise<G
     const { queryExecutionId } = await startAuditLogsQuery(params);
 
     let result = await getAuditLogQueryResults({ teamDeviceCredentials, queryExecutionId, maxResults: MAX_RESULT });
-    winston.debug(`Query state: ${result.state}`);
+    logger.debug(`Query state: ${result.state}`);
 
     while (['QUEUED', 'RUNNING'].includes(result.state)) {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         result = await getAuditLogQueryResults({ teamDeviceCredentials, queryExecutionId, maxResults: MAX_RESULT });
-        winston.debug(`Query state: ${result.state}`);
+        logger.debug(`Query state: ${result.state}`);
     }
 
     if (result.state !== 'SUCCEEDED') {
@@ -68,7 +68,7 @@ export const getAuditLogs = async (params: StartAuditLogsQueryParams): Promise<G
             maxResults: MAX_RESULT,
             nextToken: result.nextToken,
         });
-        winston.debug(`Query state: ${result.state}`);
+        logger.debug(`Query state: ${result.state}`);
         logs = logs.concat(result.results);
     }
 

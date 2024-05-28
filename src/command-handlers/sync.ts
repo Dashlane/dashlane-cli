@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import winston from 'winston';
 import { connectAndPrepare } from '../modules/database';
 import { decrypt } from '../modules/crypto/decrypt';
 import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
@@ -8,11 +7,12 @@ import { getLatestContent } from '../endpoints';
 import type { DeviceConfiguration, LocalConfiguration } from '../types';
 import { notEmpty } from '../utils';
 import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
+import { logger } from '../logger';
 
 export const runSync = async () => {
     const { db, localConfiguration, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
     await sync({ db, localConfiguration, deviceConfiguration });
-    winston.info('Successfully synced');
+    logger.success('Successfully synced');
     db.close();
 };
 
@@ -25,7 +25,7 @@ interface Sync {
 export const sync = async (params: Sync) => {
     const { db } = params;
     let { localConfiguration } = params;
-    winston.debug('Start syncing...');
+    logger.debug('Start syncing...');
 
     const lastServerSyncTimestamp =
         (
@@ -64,7 +64,7 @@ export const sync = async (params: Sync) => {
                         if (error instanceof Error) {
                             errorMessage = error.message;
                         }
-                        winston.debug(`Unable to decrypt a transactions while sync: ${errorMessage}`);
+                        logger.debug(`Unable to decrypt a transactions while sync: ${errorMessage}`);
 
                         if (transac.identifier === 'SETTINGS_userId') {
                             if (!(await askReplaceIncorrectMasterPassword())) {
@@ -99,10 +99,10 @@ export const sync = async (params: Sync) => {
     const nbErrors = latestContent.transactions.length - values.length;
 
     if (nbErrors !== 0) {
-        winston.debug(`Ignored ${nbErrors} decryption errors`);
+        logger.debug(`Ignored ${nbErrors} decryption errors`);
     }
 
-    winston.debug(`Number of new updates: ${values.length}`);
+    logger.debug(`Number of new updates: ${values.length}`);
 
     const statement = db.prepare(
         'REPLACE INTO transactions (login, identifier, type, action, content) VALUES (?, ?, ?, ?, ?)'
@@ -120,11 +120,11 @@ export const sync = async (params: Sync) => {
         .bind(localConfiguration.login, Number(latestContent.timestamp), Math.floor(Date.now() / 1000))
         .run();
 
-    winston.debug(`Requested timestamp ${lastServerSyncTimestamp}, new timestamp ${latestContent.timestamp}`);
+    logger.debug(`Requested timestamp ${lastServerSyncTimestamp}, new timestamp ${latestContent.timestamp}`);
 
     const summaryCounted: Record<string, number> = {};
     Object.keys(latestContent.summary).forEach((key) => {
         summaryCounted[key] = Object.keys(latestContent.summary[key]).length;
     });
-    winston.debug(JSON.stringify(summaryCounted, null, 4));
+    logger.debug(JSON.stringify(summaryCounted, null, 4));
 };

@@ -1,4 +1,5 @@
 import { getTeamMembers as getTeamMembersRequest } from '../endpoints';
+import { logger } from '../logger';
 import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv, epochTimestampToIso } from '../utils';
 
 interface GetTeamMembersOpts {
@@ -36,11 +37,11 @@ export const runTeamMembers = async (page: number, limit: number, options: GetTe
 
     if (options.csv) {
         if (response.pages) {
-            console.log(`Page ${response.page + 1} of ${response.pages}`);
+            logger.content(`Page ${response.page + 1} of ${response.pages}`);
         }
-        console.log(jsonToCsv(flattenJsonArrayOfObject(response.members)));
+        logger.content(jsonToCsv(flattenJsonArrayOfObject(response.members)));
         return;
     }
 
-    console.log(JSON.stringify(response));
+    logger.content(JSON.stringify(response));
 };

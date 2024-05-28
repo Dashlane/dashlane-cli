@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import { makeCanonicalRequest } from './makeCanonicalRequest';
 import { Authentication, SignRequestParams } from './types';
+import { logger } from '../../logger';
 
 export const signRequest = (params: SignRequestParams) => {
     const { method, body, uri, headers, query, authentication } = params;
@@ -91,6 +92,6 @@ export const assertNever = (x: never): never => {
     if (isTestEnvironment) {
         throw new Error('Should have never been here');
     }
-    console.error('Should have never been here', x);
+    logger.error('Should have never been here', x);
     return x;
 };

@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import winston from 'winston';
 import { connect } from './connect';
 import { prepareDB } from './prepare';
 import { reset } from './reset';
@@ -15,6 +14,7 @@ import { DeviceConfiguration, LocalConfiguration } from '../../types';
 import { askIgnoreBreakingChanges } from '../../utils/dialogs';
 import { sync } from '../../command-handlers';
 import { userPresenceVerification } from '../auth';
+import { logger } from '../../logger';
 
 export interface ConnectAndPrepareParams {
     /* Is the vault automatically synchronized every hour */
@@ -47,7 +47,7 @@ export const connectAndPrepare = async (
     }
 
     await userPresenceVerification({ deviceConfiguration }).catch((error: Error) => {
-        winston.error(`User presence verification failed: ${error.message}`);
+        logger.error(`User presence verification failed: ${error.message}`);
         db.close();
         process.exit(1);
     });
@@ -69,7 +69,7 @@ export const connectAndPrepare = async (
         let breakingChanges = false;
         if (version instanceof Error) {
             breakingChanges = true;
-            winston.debug(`Error in CLI version: ${version.message}`);
+            logger.debug(`Error in CLI version: ${version.message}`);
         } else {
             breakingChanges = cliVersionLessThan(CLI_VERSION, version);
             for (const breakingVersion of breakingChangesVersions) {

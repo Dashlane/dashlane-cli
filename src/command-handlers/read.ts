@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { decryptTransactions } from '../modules/crypto';
 import { connectAndPrepare, findVaultContent } from '../modules/database';
 import {
@@ -62,5 +63,5 @@ export const runRead = async (path: string) => {
         secrets: decryptedSecrets,
     });
 
-    console.log(findVaultContent(secretsDecrypted, parsedPath));
+    logger.content(findVaultContent(secretsDecrypted, parsedPath));
 };
