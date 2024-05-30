@@ -1,13 +1,13 @@
-import { logger } from '../logger';
-import { decryptTransactions } from '../modules/crypto';
-import { connectAndPrepare, findVaultContent } from '../modules/database';
+import { logger } from '../logger.js';
+import { decryptTransactions } from '../modules/crypto/index.js';
+import { connectAndPrepare, findVaultContent } from '../modules/database/index.js';
 import {
     AuthentifiantTransactionContent,
     BackupEditTransaction,
     SecretTransactionContent,
     SecureNoteTransactionContent,
-} from '../types';
-import { beautifyContent, parsePath } from '../utils';
+} from '../types.js';
+import { beautifyContent, parsePath } from '../utils/index.js';
 
 export const runRead = async (path: string) => {
     const { db, localConfiguration } = await connectAndPrepare({});

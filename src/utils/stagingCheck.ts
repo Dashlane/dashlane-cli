@@ -1,4 +1,4 @@
-import { CloudflareStagingCredentialsNotSetError } from '../errors';
+import { CloudflareStagingCredentialsNotSetError } from '../errors.js';
 
 export const initStagingCheck = () => {
     if (process.env.DCLI_STAGING_HOST) {

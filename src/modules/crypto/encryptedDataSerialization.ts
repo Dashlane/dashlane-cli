@@ -4,7 +4,7 @@ import {
     EncryptedData,
     Pbkdf2DerivationConfig,
     SymmetricCipherConfig,
-} from './types';
+} from './types.js';
 
 const serializeArgon2DerivationConfig = (config: Argon2DerivationConfig): Buffer => {
     const { saltLength, tCost, mCost, parallelism } = config;

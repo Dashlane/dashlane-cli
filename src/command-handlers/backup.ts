@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { connectAndPrepare, getDatabasePath } from '../modules/database';
-import { logger } from '../logger';
+import { connectAndPrepare, getDatabasePath } from '../modules/database/index.js';
+import { logger } from '../logger.js';
 
 export const runBackup = async (options: { directory: string; filename: string }) => {
     const { db } = await connectAndPrepare({ failIfNoDB: true, forceSync: true });

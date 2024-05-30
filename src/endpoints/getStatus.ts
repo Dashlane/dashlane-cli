@@ -1,5 +1,5 @@
-import { LocalConfiguration } from '../types';
-import { requestUserApi } from '../requestApi';
+import { LocalConfiguration } from '../types.js';
+import { requestUserApi } from '../requestApi.js';
 
 interface GetPremiumStatusParams {
     localConfiguration: LocalConfiguration;

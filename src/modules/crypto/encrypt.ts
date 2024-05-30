@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { serializeEncryptedData } from './encryptedDataSerialization.js';
 import { hmacSha256, sha512 } from './hash.js';
-import { EncryptedData } from './types';
+import { EncryptedData } from './types.js';
 
 export const encryptAesCbcHmac256 = (originalKey: Buffer, content: Buffer): string => {
     const combinedKey = sha512(originalKey);

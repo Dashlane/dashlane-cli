@@ -1,15 +1,15 @@
-import { doSSOVerification } from './sso';
-import { doConfidentialSSOVerification } from './confidential-sso';
+import { doSSOVerification } from './sso/index.js';
+import { doConfidentialSSOVerification } from './confidential-sso/index.js';
 import {
     completeDeviceRegistration,
     performDashlaneAuthenticatorVerification,
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
-} from '../../endpoints';
-import { askOtp, askToken, askVerificationMethod } from '../../utils';
-import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice';
-import { logger } from '../../logger';
+} from '../../endpoints/index.js';
+import { askOtp, askToken, askVerificationMethod } from '../../utils/index.js';
+import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice.js';
+import { logger } from '../../logger.js';
 
 interface RegisterDevice {
     login: string;

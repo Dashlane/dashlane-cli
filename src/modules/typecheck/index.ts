@@ -1,7 +1,7 @@
 import * as Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { customizeAjv } from './customize_ajv';
+import { customizeAjv } from './customize_ajv.js';
 
 export class TypeCheckError extends Error {
     constructor(

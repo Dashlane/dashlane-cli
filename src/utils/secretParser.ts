@@ -5,7 +5,7 @@ import {
     VaultCredential,
     VaultNote,
     VaultSecret,
-} from '../types';
+} from '../types.js';
 
 /**
  * Transform entries [{_attributes: {key:xx}, _cdata: ww}] into an easier-to-use object

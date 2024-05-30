@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { getVaultContent, initVaultContent } from '../modules/database';
-import { logger } from '../logger';
+import { getVaultContent, initVaultContent } from '../modules/database/index.js';
+import { logger } from '../logger.js';
 
 interface InjectOpts {
     in: string;

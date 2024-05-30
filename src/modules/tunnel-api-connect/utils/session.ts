@@ -1,4 +1,4 @@
-import { RefreshSessionParams } from '../types';
+import { RefreshSessionParams } from '../types.js';
 
 export const makeOrRefreshSession = async ({ api, apiData }: RefreshSessionParams) => {
     if (apiData.clientHello && apiData.clientHello.tunnelUuid && apiData.terminateHello) {

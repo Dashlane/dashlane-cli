@@ -1,13 +1,13 @@
 import Database from 'better-sqlite3';
-import { connectAndPrepare } from '../modules/database';
-import { decrypt } from '../modules/crypto/decrypt';
-import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
-import { replaceMasterPassword } from '../modules/crypto/keychainManager';
-import { getLatestContent } from '../endpoints';
-import type { DeviceConfiguration, LocalConfiguration } from '../types';
-import { notEmpty } from '../utils';
-import { askReplaceIncorrectMasterPassword } from '../utils/dialogs';
-import { logger } from '../logger';
+import { connectAndPrepare } from '../modules/database/index.js';
+import { decrypt } from '../modules/crypto/decrypt.js';
+import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt.js';
+import { replaceMasterPassword } from '../modules/crypto/keychainManager.js';
+import { getLatestContent } from '../endpoints/index.js';
+import type { DeviceConfiguration, LocalConfiguration } from '../types.js';
+import { notEmpty } from '../utils/index.js';
+import { askReplaceIncorrectMasterPassword } from '../utils/dialogs.js';
+import { logger } from '../logger.js';
 
 export const runSync = async () => {
     const { db, localConfiguration, deviceConfiguration } = await connectAndPrepare({ autoSync: false });

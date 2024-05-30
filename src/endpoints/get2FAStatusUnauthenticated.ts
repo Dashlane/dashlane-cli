@@ -1,5 +1,5 @@
-import { requestAppApi } from '../requestApi';
-import { TwoFactorAuthenticationType } from '../types/two-factor-authentication';
+import { requestAppApi } from '../requestApi.js';
+import { TwoFactorAuthenticationType } from '../types/two-factor-authentication.js';
 
 interface Get2FAStatusParams {
     login: string;

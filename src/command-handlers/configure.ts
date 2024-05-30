@@ -1,9 +1,9 @@
-import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt';
-import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager';
-import { connectAndPrepare } from '../modules/database';
-import { parseBooleanString } from '../utils';
-import { DeviceConfiguration } from '../types';
-import { logger } from '../logger';
+import { encryptAesCbcHmac256 } from '../modules/crypto/encrypt.js';
+import { deleteLocalKey, setLocalKey, warnUnreachableKeychainDisabled } from '../modules/crypto/keychainManager.js';
+import { connectAndPrepare } from '../modules/database/index.js';
+import { parseBooleanString } from '../utils/index.js';
+import { DeviceConfiguration } from '../types.js';
+import { logger } from '../logger.js';
 
 export const configureSaveMasterPassword = async (boolean: string) => {
     let shouldNotSaveMasterPassword = !parseBooleanString(boolean);

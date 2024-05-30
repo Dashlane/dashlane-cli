@@ -3,7 +3,7 @@ import {
     configureDisableAutoSync,
     configureSaveMasterPassword,
     configureUserPresenceVerification,
-} from '../command-handlers';
+} from '../command-handlers/index.js';
 
 export const configureCommands = (params: { program: Command }) => {
     const { program } = params;

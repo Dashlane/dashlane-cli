@@ -1,7 +1,7 @@
 import os from 'os';
-import { signRequest } from './signRequest';
-import { PostRequestAPIParams } from './types';
-import { cliVersionToString, CLI_VERSION } from '../../cliVersion';
+import { signRequest } from './signRequest.js';
+import { PostRequestAPIParams } from './types.js';
+import { cliVersionToString, CLI_VERSION } from '../../cliVersion.js';
 
 export const postRequestAPI = <T>(params: PostRequestAPIParams<T>) => {
     const { path, authentication, payload, query, method, userAgent, customHeaders, customHost, requestFunction } =

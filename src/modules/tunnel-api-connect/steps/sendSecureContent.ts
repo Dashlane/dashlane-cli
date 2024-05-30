@@ -1,10 +1,10 @@
 import sodium from 'libsodium-wrappers';
-import { secureContentBodyDataSchema } from './schemas';
-import type { SecureContentRequest, SecureContentResponse, SendSecureContentParams } from './types';
-import { SecureTunnelNotInitialized, SendSecureContentDataDecryptionError } from '../errors';
-import type { ApiConnectInternalParams, ApiData, ApiRequestsDefault } from '../types';
-import { TypeCheck } from '../../typecheck';
-import { requestAppApi } from '../../../requestApi';
+import { secureContentBodyDataSchema } from './schemas.js';
+import type { SecureContentRequest, SecureContentResponse, SendSecureContentParams } from './types.js';
+import { SecureTunnelNotInitialized, SendSecureContentDataDecryptionError } from '../errors.js';
+import type { ApiConnectInternalParams, ApiData, ApiRequestsDefault } from '../types.js';
+import { TypeCheck } from '../../typecheck/index.js';
+import { requestAppApi } from '../../../requestApi.js';
 
 const verifySendSecureBodySchemaValidator = new TypeCheck<SecureContentResponse>(secureContentBodyDataSchema);
 

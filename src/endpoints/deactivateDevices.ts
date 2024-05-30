@@ -1,5 +1,5 @@
-import { requestUserApi } from '../requestApi';
-import { LocalConfiguration } from '../types';
+import { requestUserApi } from '../requestApi.js';
+import { LocalConfiguration } from '../types.js';
 
 interface DeactivateDevicesParams {
     localConfiguration: LocalConfiguration;

@@ -1,5 +1,5 @@
-import { requestAppApi } from '../requestApi';
-import { SupportedAuthenticationMethod } from '../types';
+import { requestAppApi } from '../requestApi.js';
+import { SupportedAuthenticationMethod } from '../types.js';
 
 const defaultSupportedMethods: SupportedAuthenticationMethod[] = [
     'email_token',

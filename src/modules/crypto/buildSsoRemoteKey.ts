@@ -1,7 +1,7 @@
-import { decryptAesCbcHmac256 } from './decrypt';
-import { deserializeEncryptedData } from './encryptedDataDeserialization';
-import { RemoteKey } from './types';
-import { xor } from './xor';
+import { decryptAesCbcHmac256 } from './decrypt.js';
+import { deserializeEncryptedData } from './encryptedDataDeserialization.js';
+import { RemoteKey } from './types.js';
+import { xor } from './xor.js';
 
 interface BuildSsoRemoteKey {
     ssoServerKey: string | undefined;

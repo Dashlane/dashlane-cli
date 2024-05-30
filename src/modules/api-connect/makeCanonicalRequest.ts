@@ -1,4 +1,4 @@
-import { MakeCanonicalRequestParams } from './types';
+import { MakeCanonicalRequestParams } from './types.js';
 
 /**
  * Canonicalize an HTTP request as described on AWS v4 documentation

@@ -1,3 +1,3 @@
-export { decryptTransaction, decryptTransactions } from './decrypt';
-export { getLocalConfiguration } from './keychainManager';
-export * from './xor';
+export { decryptTransaction, decryptTransactions } from './decrypt.js';
+export { getLocalConfiguration } from './keychainManager.js';
+export * from './xor.js';

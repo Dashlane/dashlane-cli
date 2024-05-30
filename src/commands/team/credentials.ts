@@ -1,8 +1,8 @@
 import { Command } from 'commander';
-import { createTeamDevice, listAllTeamDevices } from '../../command-handlers';
-import { connectAndPrepare } from '../../modules/database';
-import { deactivateTeamDevice } from '../../endpoints';
-import { logger } from '../../logger';
+import { createTeamDevice, listAllTeamDevices } from '../../command-handlers/index.js';
+import { connectAndPrepare } from '../../modules/database/index.js';
+import { deactivateTeamDevice } from '../../endpoints/index.js';
+import { logger } from '../../logger.js';
 
 export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
     const { teamGroup } = params;

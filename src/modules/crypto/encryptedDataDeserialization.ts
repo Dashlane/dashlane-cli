@@ -4,7 +4,7 @@ import {
     EncryptedData,
     Pbkdf2DerivationConfig,
     SymmetricCipherConfig,
-} from './types';
+} from './types.js';
 
 const extractNextEncryptedDataStringComponent = (
     encryptedDataString: string
