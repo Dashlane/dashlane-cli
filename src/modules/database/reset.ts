@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
-import { deleteLocalKey } from '../crypto/keychainManager';
-import { LocalConfiguration } from '../../types';
-import { logger } from '../../logger';
+import { deleteLocalKey } from '../crypto/keychainManager.js';
+import { LocalConfiguration } from '../../types.js';
+import { logger } from '../../logger.js';
 
 interface ResetDB {
     db: Database.Database;

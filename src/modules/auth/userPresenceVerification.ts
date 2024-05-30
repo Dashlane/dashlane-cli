@@ -1,4 +1,4 @@
-import { DeviceConfiguration } from '../../types';
+import { DeviceConfiguration } from '../../types.js';
 
 export const userPresenceVerification = async (params: { deviceConfiguration: DeviceConfiguration | null }) => {
     const { deviceConfiguration } = params;

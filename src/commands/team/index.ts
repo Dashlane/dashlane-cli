@@ -1,8 +1,13 @@
 import { Command, Option } from 'commander';
-import { teamCredentialsCommands } from './credentials';
-import { CouldNotFindTeamCredentialsError } from '../../errors';
-import { runTeamDarkWebInsightsReport, runTeamLogs, runTeamMembers, runTeamReport } from '../../command-handlers';
-import { customParseInt, customParseTimestampMilliseconds, getTeamDeviceCredentials } from '../../utils';
+import { teamCredentialsCommands } from './credentials.js';
+import { CouldNotFindTeamCredentialsError } from '../../errors.js';
+import {
+    runTeamDarkWebInsightsReport,
+    runTeamLogs,
+    runTeamMembers,
+    runTeamReport,
+} from '../../command-handlers/index.js';
+import { customParseInt, customParseTimestampMilliseconds, getTeamDeviceCredentials } from '../../utils/index.js';
 
 export const teamCommands = (params: { program: Command }) => {
     const { program } = params;

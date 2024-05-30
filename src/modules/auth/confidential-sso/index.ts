@@ -1,8 +1,8 @@
 import { chromium } from 'playwright-core';
-import { ConfirmLogin2Request, RequestLogin2Request } from './types';
-import { SAMLResponseNotFound } from './errors';
-import { apiConnect } from '../../tunnel-api-connect';
-import { performSSOVerification } from '../../../endpoints/performSSOVerification';
+import { ConfirmLogin2Request, RequestLogin2Request } from './types.js';
+import { SAMLResponseNotFound } from './errors.js';
+import { apiConnect } from '../../tunnel-api-connect/index.js';
+import { performSSOVerification } from '../../../endpoints/performSSOVerification.js';
 
 interface ConfidentialSSOParams {
     requestedLogin: string;

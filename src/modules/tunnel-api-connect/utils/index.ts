@@ -1,2 +1,2 @@
-export * from './clientKeyPair';
-export * from './session';
+export * from './clientKeyPair.js';
+export * from './session.js';

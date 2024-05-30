@@ -1,5 +1,5 @@
-import { requestTeamApi } from '../requestApi';
-import { TeamDeviceCredentials } from '../types';
+import { requestTeamApi } from '../requestApi.js';
+import { TeamDeviceCredentials } from '../types.js';
 
 export interface StartAuditLogsQueryParams {
     teamDeviceCredentials: TeamDeviceCredentials;

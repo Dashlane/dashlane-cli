@@ -1,4 +1,4 @@
-import { connectAndPrepare } from './connectAndPrepare';
+import { connectAndPrepare } from './connectAndPrepare.js';
 import {
     VaultContent,
     BackupEditTransaction,
@@ -6,9 +6,9 @@ import {
     SecureNoteTransactionContent,
     ParsedPath,
     SecretTransactionContent,
-} from '../../types';
-import { beautifyContent, parsePath } from '../../utils';
-import { decryptTransactions } from '../crypto';
+} from '../../types.js';
+import { beautifyContent, parsePath } from '../../utils/index.js';
+import { decryptTransactions } from '../crypto/index.js';
 
 let vaultContent: VaultContent | undefined = undefined;
 

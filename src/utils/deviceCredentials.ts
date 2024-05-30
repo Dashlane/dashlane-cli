@@ -1,5 +1,5 @@
-import { DeviceCredentialsWrongFormatError } from '../errors';
-import { DeviceCredentials } from '../types';
+import { DeviceCredentialsWrongFormatError } from '../errors.js';
+import { DeviceCredentials } from '../types.js';
 
 let deviceCredentials: DeviceCredentials | null = null;
 

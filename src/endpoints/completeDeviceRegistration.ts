@@ -1,5 +1,5 @@
-import { CLI_VERSION, cliVersionToString } from '../cliVersion';
-import { requestAppApi } from '../requestApi';
+import { CLI_VERSION, cliVersionToString } from '../cliVersion.js';
+import { requestAppApi } from '../requestApi.js';
 
 interface CompleteDeviceRegistration {
     login: string;

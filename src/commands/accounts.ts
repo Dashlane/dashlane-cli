@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { runWhoami } from '../command-handlers';
+import { runWhoami } from '../command-handlers/index.js';
 
 export const accountsCommands = (params: { program: Command }) => {
     const { program } = params;

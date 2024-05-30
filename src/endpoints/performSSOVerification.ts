@@ -1,4 +1,4 @@
-import { requestAppApi } from '../requestApi';
+import { requestAppApi } from '../requestApi.js';
 
 interface PerformSsoVerificationPayload {
     /** The login of the user */

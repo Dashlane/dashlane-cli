@@ -1,9 +1,9 @@
 import { Database } from 'better-sqlite3';
-import { deactivateDevices } from '../endpoints';
-import { connectAndPrepare, connect, reset } from '../modules/database';
-import { LocalConfiguration, DeviceConfiguration } from '../types';
-import { askConfirmReset } from '../utils';
-import { logger } from '../logger';
+import { deactivateDevices } from '../endpoints/index.js';
+import { connectAndPrepare, connect, reset } from '../modules/database/index.js';
+import { LocalConfiguration, DeviceConfiguration } from '../types.js';
+import { askConfirmReset } from '../utils/index.js';
+import { logger } from '../logger.js';
 
 export const runLogout = async (options: { ignoreRevocation: boolean }) => {
     if (options.ignoreRevocation) {

@@ -1,4 +1,4 @@
-import { CliVersion } from './types';
+import { CliVersion } from './types.js';
 
 export const CLI_VERSION: CliVersion = { major: 6, minor: 2421, patch: 0 };
 export const breakingChangesVersions: CliVersion[] = [];

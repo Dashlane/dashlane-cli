@@ -1,6 +1,6 @@
 import * as winston from 'winston';
-import { deleteLocalKey } from '../modules/crypto/keychainManager';
-import { connectAndPrepare } from '../modules/database';
+import { deleteLocalKey } from '../modules/crypto/keychainManager.js';
+import { connectAndPrepare } from '../modules/database/index.js';
 
 export const runLock = async () => {
     const { db, localConfiguration } = await connectAndPrepare({

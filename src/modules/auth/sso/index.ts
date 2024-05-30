@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
-import { DASHLANE_APP_REGEX, extractSsoInfoFromUrl } from './utils';
-import { performSSOVerification } from '../../../endpoints/performSSOVerification';
+import { DASHLANE_APP_REGEX, extractSsoInfoFromUrl } from './utils.js';
+import { performSSOVerification } from '../../../endpoints/performSSOVerification.js';
 
 interface SSOParams {
     requestedLogin: string;

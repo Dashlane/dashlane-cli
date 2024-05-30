@@ -1,20 +1,20 @@
 import Database from 'better-sqlite3';
-import { connect } from './connect';
-import { prepareDB } from './prepare';
-import { reset } from './reset';
+import { connect } from './connect.js';
+import { prepareDB } from './prepare.js';
+import { reset } from './reset.js';
 import {
     CLI_VERSION,
     breakingChangesVersions,
     cliVersionLessThan,
     cliVersionToString,
     stringToCliVersion,
-} from '../../cliVersion';
-import { getLocalConfiguration } from '../crypto';
-import { DeviceConfiguration, LocalConfiguration } from '../../types';
-import { askIgnoreBreakingChanges } from '../../utils/dialogs';
-import { sync } from '../../command-handlers';
-import { userPresenceVerification } from '../auth';
-import { logger } from '../../logger';
+} from '../../cliVersion.js';
+import { getLocalConfiguration } from '../crypto/index.js';
+import { DeviceConfiguration, LocalConfiguration } from '../../types.js';
+import { askIgnoreBreakingChanges } from '../../utils/dialogs.js';
+import { sync } from '../../command-handlers/index.js';
+import { userPresenceVerification } from '../auth/index.js';
+import { logger } from '../../logger.js';
 
 export interface ConnectAndPrepareParams {
     /* Is the vault automatically synchronized every hour */

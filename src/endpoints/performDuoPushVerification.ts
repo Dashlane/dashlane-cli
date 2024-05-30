@@ -1,4 +1,4 @@
-import { requestAppApi } from '../requestApi';
+import { requestAppApi } from '../requestApi.js';
 
 interface PerformDuoPushVerification {
     login: string;

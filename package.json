@@ -23,6 +23,7 @@
         "lint": "eslint src",
         "format": "prettier --write src && eslint --fix src",
         "start": "node dist/index.cjs",
+        "start:dev": "node build/index.js",
         "pkg:linux": "pkg . -t node18-linux-x64 -o bundle/dcli-linux -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
         "pkg:macos": "pkg . -t node18-macos-x64 -o bundle/dcli-macos -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
         "pkg:macos-arm": "pkg . -t node18-macos-arm64 -o bundle/dcli-macos-arm -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",

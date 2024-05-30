@@ -1,9 +1,9 @@
 import sodium from 'libsodium-wrappers';
-import type { ClientHelloParsedResponse, ClientHelloRequest, ClientHelloResponse } from './types';
-import { clientHelloResponseSchema } from './schemas';
-import type { ApiConnectInternalParams } from '../types';
-import { TypeCheck, TypeCheckError } from '../../typecheck';
-import { requestAppApi } from '../../../requestApi';
+import type { ClientHelloParsedResponse, ClientHelloRequest, ClientHelloResponse } from './types.js';
+import { clientHelloResponseSchema } from './schemas.js';
+import type { ApiConnectInternalParams } from '../types.js';
+import { TypeCheck, TypeCheckError } from '../../typecheck/index.js';
+import { requestAppApi } from '../../../requestApi.js';
 
 export const clientHelloRequestSchemaValidator = new TypeCheck<ClientHelloResponse>(clientHelloResponseSchema);
 

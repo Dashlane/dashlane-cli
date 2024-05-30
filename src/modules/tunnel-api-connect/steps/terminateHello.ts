@@ -1,11 +1,11 @@
 import { verifyAttestation } from '@dashlane/nsm-attestation';
 import sodium from 'libsodium-wrappers';
-import { attestationUserDataSchema } from './schemas';
-import { AttestationUserData, TerminateHelloParams, TerminateHelloRequest, TerminateHelloResponse } from './types';
-import { ApiConnectInternalParams, ApiData } from '../types';
-import { TypeCheck } from '../../typecheck';
-import { requestAppApi } from '../../../requestApi';
-import { SecureTunnelNotInitialized } from '../errors';
+import { attestationUserDataSchema } from './schemas.js';
+import { AttestationUserData, TerminateHelloParams, TerminateHelloRequest, TerminateHelloResponse } from './types.js';
+import { ApiConnectInternalParams, ApiData } from '../types.js';
+import { TypeCheck } from '../../typecheck/index.js';
+import { requestAppApi } from '../../../requestApi.js';
+import { SecureTunnelNotInitialized } from '../errors.js';
 
 const verifyAttestationUserDataSchemaValidator = new TypeCheck<AttestationUserData>(attestationUserDataSchema);
 

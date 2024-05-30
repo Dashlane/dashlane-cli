@@ -1,8 +1,8 @@
 import { Command, Option } from 'commander';
-import { devicesCommands } from './devices';
-import { teamCommands } from './team';
-import { configureCommands } from './configure';
-import { accountsCommands } from './accounts';
+import { devicesCommands } from './devices.js';
+import { teamCommands } from './team/index.js';
+import { configureCommands } from './configure.js';
+import { accountsCommands } from './accounts.js';
 import {
     runSync,
     runPassword,
@@ -14,7 +14,7 @@ import {
     runExec,
     runBackup,
     runSecret,
-} from '../command-handlers';
+} from '../command-handlers/index.js';
 
 export const rootCommands = (params: { program: Command }) => {
     const { program } = params;

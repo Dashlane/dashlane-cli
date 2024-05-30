@@ -1,4 +1,4 @@
-import { SSOAuthenticationInfo } from './types';
+import { SSOAuthenticationInfo } from './types.js';
 
 export const DASHLANE_APP_REGEX = /https:\/\/app.dashlane.com/;
 

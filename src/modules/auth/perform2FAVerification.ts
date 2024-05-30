@@ -1,8 +1,8 @@
-import { performTotpVerification } from '../../endpoints';
-import { completeLoginWithAuthTicket } from '../../endpoints/completeLoginWithAuthTicket';
-import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated';
-import { logger } from '../../logger';
-import { askOtp } from '../../utils';
+import { performTotpVerification } from '../../endpoints/index.js';
+import { completeLoginWithAuthTicket } from '../../endpoints/completeLoginWithAuthTicket.js';
+import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
+import { logger } from '../../logger.js';
+import { askOtp } from '../../utils/index.js';
 
 interface Params {
     login: string;

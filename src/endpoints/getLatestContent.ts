@@ -1,5 +1,5 @@
-import { requestUserApi } from '../requestApi';
-import type { BackupEditTransaction, BackupRemoveTransaction, LocalConfiguration } from '../types';
+import { requestUserApi } from '../requestApi.js';
+import type { BackupEditTransaction, BackupRemoveTransaction, LocalConfiguration } from '../types.js';
 
 interface GetLatestContent {
     login: string;

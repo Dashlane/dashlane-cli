@@ -1,7 +1,7 @@
 import * as sodium from 'libsodium-wrappers';
-import { clientHello, terminateHello, SendSecureContentParams, sendSecureContent } from './steps';
-import { ApiConnectParams, ApiConnect, ApiData, ApiRequestsDefault } from './types';
-import { makeClientKeyPair, makeOrRefreshSession } from './utils';
+import { clientHello, terminateHello, SendSecureContentParams, sendSecureContent } from './steps/index.js';
+import { ApiConnectParams, ApiConnect, ApiData, ApiRequestsDefault } from './types.js';
+import { makeClientKeyPair, makeOrRefreshSession } from './utils/index.js';
 
 /** Type predicates
  * https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates

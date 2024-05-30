@@ -1,6 +1,6 @@
-import { getTeamDarkWebInsightsReport } from '../endpoints';
-import { logger } from '../logger';
-import { getTeamDeviceCredentials } from '../utils';
+import { getTeamDarkWebInsightsReport } from '../endpoints/index.js';
+import { logger } from '../logger.js';
+import { getTeamDeviceCredentials } from '../utils/index.js';
 
 export const runTeamDarkWebInsightsReport = async (
     domain: string,

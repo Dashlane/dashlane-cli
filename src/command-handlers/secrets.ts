@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
-import { BackupEditTransaction, LocalConfiguration, SecretTransactionContent, VaultSecret } from '../types';
-import { decryptTransactions } from '../modules/crypto';
-import { askSecretChoice, filterMatches } from '../utils';
-import { connectAndPrepare } from '../modules/database';
-import { logger } from '../logger';
+import { BackupEditTransaction, LocalConfiguration, SecretTransactionContent, VaultSecret } from '../types.js';
+import { decryptTransactions } from '../modules/crypto/index.js';
+import { askSecretChoice, filterMatches } from '../utils/index.js';
+import { connectAndPrepare } from '../modules/database/index.js';
+import { logger } from '../logger.js';
 
 export const runSecret = async (filters: string[] | null, options: { output: 'text' | 'json' }) => {
     const { db, localConfiguration } = await connectAndPrepare({});

@@ -1,6 +1,6 @@
-import { getTeamReport as getTeamReportRequest } from '../endpoints';
-import { logger } from '../logger';
-import { getTeamDeviceCredentials } from '../utils';
+import { getTeamReport as getTeamReportRequest } from '../endpoints/index.js';
+import { logger } from '../logger.js';
+import { getTeamDeviceCredentials } from '../utils/index.js';
 
 interface GetTeamMembersParams {
     days: number;

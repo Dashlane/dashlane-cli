@@ -1,5 +1,5 @@
-import { TeamDeviceCredentials } from '../types';
-import { requestTeamApi } from '../requestApi';
+import { TeamDeviceCredentials } from '../types.js';
+import { requestTeamApi } from '../requestApi.js';
 
 interface GetTeamReportParams {
     teamDeviceCredentials: TeamDeviceCredentials;

@@ -1,11 +1,16 @@
 import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
 import { authenticator } from 'otplib';
-import { AuthentifiantTransactionContent, BackupEditTransaction, LocalConfiguration, VaultCredential } from '../types';
-import { decryptTransactions } from '../modules/crypto';
-import { askCredentialChoice, filterMatches } from '../utils';
-import { connectAndPrepare } from '../modules/database';
-import { logger } from '../logger';
+import {
+    AuthentifiantTransactionContent,
+    BackupEditTransaction,
+    LocalConfiguration,
+    VaultCredential,
+} from '../types.js';
+import { decryptTransactions } from '../modules/crypto/index.js';
+import { askCredentialChoice, filterMatches } from '../utils/index.js';
+import { connectAndPrepare } from '../modules/database/index.js';
+import { logger } from '../logger.js';
 
 export const runPassword = async (
     filters: string[] | null,
