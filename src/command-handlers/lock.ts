@@ -1,6 +1,6 @@
-import * as winston from 'winston';
 import { deleteLocalKey } from '../modules/crypto/keychainManager.js';
 import { connectAndPrepare } from '../modules/database/index.js';
+import { logger } from '../logger.js';
 
 export const runLock = async () => {
     const { db, localConfiguration } = await connectAndPrepare({
@@ -18,7 +18,7 @@ export const runLock = async () => {
         if (error instanceof Error) {
             errorMessage = error.message;
         }
-        winston.warn(`Unable to lock the vault: ${errorMessage}`);
+        logger.warn(`Unable to lock the vault: ${errorMessage}`);
     }
 
     db.prepare('UPDATE device SET masterPasswordEncrypted = ? WHERE login = ?')

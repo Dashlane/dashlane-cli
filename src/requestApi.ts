@@ -1,12 +1,12 @@
 import { Response, HTTPError } from 'got';
-import * as apiConnect from './modules/api-connect/index.js';
+import { Authentication, postRequestAPI } from './modules/api-connect/index.js';
 import { CLI_VERSION, cliVersionToString } from './cliVersion.js';
 import { gotImplementation } from './utils/index.js';
 
 interface RequestApi {
     payload: Record<string, unknown>;
     path: string;
-    authentication: apiConnect.Authentication;
+    authentication: Authentication;
     isNitroEncryptionService?: boolean;
 }
 
@@ -46,7 +46,7 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
 
     let response: Response<string>;
     try {
-        response = await apiConnect.postRequestAPI<Response<string>>({
+        response = await postRequestAPI<Response<string>>({
             requestFunction: gotImplementation,
             authentication,
             path: (isNitroEncryptionService ? 'v1-nitro-encryption-service/' : 'v1/') + path,

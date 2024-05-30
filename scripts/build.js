@@ -2,7 +2,7 @@
 
 import os from 'os';
 import fs from 'fs';
-import path, { format } from 'path';
+import path from 'path';
 import process from 'process';
 import childProcess from 'child_process';
 import esbuild from 'esbuild';
@@ -73,11 +73,13 @@ async function main(argv = process.argv) {
         // Minify and keep the original names
         minify: true,
         keepNames: true,
-        outfile: path.join(distPath, 'index.cjs')
+        outfile: path.join(distPath, 'index.cjs'),
+        metafile: true
     };
     console.error('Running esbuild:');
     console.error(esbuildOptions);
-    await esbuild.build(esbuildOptions);
+    const result = await esbuild.build(esbuildOptions);
+    fs.writeFileSync(path.join(distPath, 'index.meta.json'), JSON.stringify(result.metafile, null, 2));
 }
 
 void main();
