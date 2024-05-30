@@ -9,12 +9,12 @@
     },
     "pkg": {
         "assets": [
-            "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
-            "node_modules/@json2csv/plainjs/dist/**/*",
-            "node_modules/@json2csv/formatters/dist/**/*",
-            "node_modules/@json2csv/transforms/dist/**/*",
-            "node_modules/@streamparser/json/dist/**/*",
-            "node_modules/node-mac-auth/build/Release/auth.node"
+            "../node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+            "../node_modules/@json2csv/plainjs/dist/**/*",
+            "../node_modules/@json2csv/formatters/dist/**/*",
+            "../node_modules/@json2csv/transforms/dist/**/*",
+            "../node_modules/@streamparser/json/dist/**/*",
+            "../node_modules/node-mac-auth/build/Release/auth.node"
         ]
     },
     "scripts": {
@@ -24,10 +24,10 @@
         "format": "prettier --write src && eslint --fix src",
         "start": "node dist/index.cjs",
         "start:dev": "node build/index.js",
-        "pkg:linux": "pkg . -t node18-linux-x64 -o bundle/dcli-linux -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
-        "pkg:macos": "pkg . -t node18-macos-x64 -o bundle/dcli-macos -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
-        "pkg:macos-arm": "pkg . -t node18-macos-arm64 -o bundle/dcli-macos-arm -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
-        "pkg:win": "pkg . -t node18-win-x64 -o bundle/dcli-win.exe -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
+        "pkg:linux": "pkg ./dist -t node18-linux-x64 -o bundle/dcli-linux -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
+        "pkg:macos": "pkg ./dist -t node18-macos-x64 -o bundle/dcli-macos -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
+        "pkg:macos-arm": "pkg ./dist -t node18-macos-arm64 -o bundle/dcli-macos-arm -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode --no-native-build",
+        "pkg:win": "pkg ./dist -t node18-win-x64 -o bundle/dcli-win.exe -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
         "pkg": "yarn run build && yarn run pkg:linux && yarn run pkg:macos && yarn run pkg:win",
         "version:bump": "yarn run build && node ./build/bumpVersion.js",
         "prepare": "husky",
