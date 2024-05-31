@@ -1,4 +1,4 @@
-import * as commander from 'commander';
+import { InvalidArgumentError } from 'commander';
 import { Parser } from '@json2csv/plainjs';
 import { flatten } from '@json2csv/transforms';
 
@@ -19,7 +19,7 @@ export const customParseInt = (value: string, _dummyPrevious: unknown) => {
     // parseInt takes a string and a radix
     const parsedValue = parseInt(value, 10);
     if (isNaN(parsedValue)) {
-        throw new commander.InvalidArgumentError('Not a number.');
+        throw new InvalidArgumentError('Not a number.');
     }
     return parsedValue;
 };
@@ -35,11 +35,11 @@ export const customParseTimestampMilliseconds = (value: string, _dummyPrevious: 
     // parseInt takes a string and a radix
     const parsedValue = parseInt(value, 10);
     if (isNaN(parsedValue)) {
-        throw new commander.InvalidArgumentError('Not a number.');
+        throw new InvalidArgumentError('Not a number.');
     }
 
     if (parsedValue < 999999999999 || parsedValue > 100000000000000) {
-        throw new commander.InvalidArgumentError('Timestamp must be in milliseconds.');
+        throw new InvalidArgumentError('Timestamp must be in milliseconds.');
     }
     return parsedValue.toString();
 };

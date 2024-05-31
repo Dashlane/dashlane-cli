@@ -1,5 +1,5 @@
 import type { EnclavePcr } from '@dashlane/nsm-attestation';
-import type * as sodium from 'libsodium-wrappers';
+import type sodium from 'libsodium-wrappers';
 import type { ClientHelloParsedResponse, SendSecureContentParams, TerminateHelloResponse } from './steps/index.js';
 
 export interface ApiRequestsDefault {

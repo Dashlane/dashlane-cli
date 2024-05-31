@@ -1,9 +1,7 @@
-import got, { Response } from 'got';
-import * as apiConnect from '../modules/api-connect/index.js';
+import { got, Response } from 'got';
+import { RequestFunction, RequestFunctionOptions } from '../modules/api-connect/index.js';
 
-export const gotImplementation: apiConnect.RequestFunction<Response<string>> = (
-    options: apiConnect.RequestFunctionOptions
-) => {
+export const gotImplementation: RequestFunction<Response<string>> = (options: RequestFunctionOptions) => {
     const { headers, json, url } = options;
 
     return got.post(url, {

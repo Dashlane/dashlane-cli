@@ -1,6 +1,6 @@
-import * as Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
 import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 import { customizeAjv } from './customize_ajv.js';
 
 export class TypeCheckError extends Error {
@@ -22,7 +22,7 @@ export class JSONParsingError extends TypeCheckError {
 
 export class JSONValidationError extends TypeCheckError {
     constructor(
-        readonly reasonAjv: Ajv.ErrorObject,
+        readonly reasonAjv: ErrorObject,
         details?: string
     ) {
         super(
@@ -34,11 +34,11 @@ export class JSONValidationError extends TypeCheckError {
     }
 }
 
-export type DetailedAjvErrorObject = { errors: Ajv.ErrorObject[]; details: string };
+export type DetailedAjvErrorObject = { errors: ErrorObject[]; details: string };
 
-export const detailedErrorReportingOverride = (errors: Ajv.ErrorObject[]): DetailedAjvErrorObject => {
+export const detailedErrorReportingOverride = (errors: ErrorObject[]): DetailedAjvErrorObject => {
     const details = errors
-        .map((obj: Ajv.ErrorObject) => `[${obj.schemaPath}] [${JSON.stringify(obj.params)}] ${obj.message ?? ''}`)
+        .map((obj: ErrorObject) => `[${obj.schemaPath}] [${JSON.stringify(obj.params)}] ${obj.message ?? ''}`)
         .join('\n')
         .trim();
     return { errors, details };
@@ -47,11 +47,11 @@ export const detailedErrorReportingOverride = (errors: Ajv.ErrorObject[]): Detai
 type JSONSchema = Record<string, unknown>;
 
 export class TypeCheck<T> {
-    private validator: Ajv.ValidateFunction;
+    private validator: ValidateFunction;
 
     constructor(
         schema: JSONSchema,
-        readonly errorReportingOverride?: (errors: Ajv.ErrorObject[]) => DetailedAjvErrorObject,
+        readonly errorReportingOverride?: (errors: ErrorObject[]) => DetailedAjvErrorObject,
         openApiValidation?: boolean
     ) {
         if (openApiValidation) {
@@ -61,6 +61,7 @@ export class TypeCheck<T> {
                 strictTypes: false,
                 strictRequired: false,
                 allowMatchingProperties: true,
+                code: { esm: true },
             });
             ajv.addFormat('media-range', true); // used in OpenAPI 3.1
 
@@ -69,7 +70,7 @@ export class TypeCheck<T> {
 
             this.validator = ajv.compile(schema);
         } else {
-            const ajv = new Ajv.default({ allErrors: true });
+            const ajv = new Ajv({ allErrors: true, code: { esm: true } });
             addFormats(ajv);
             customizeAjv(ajv);
             this.validator = ajv.compile(schema);

@@ -2,7 +2,7 @@
 
 import os from 'os';
 import fs from 'fs';
-import path, { format } from 'path';
+import path from 'path';
 import process from 'process';
 import childProcess from 'child_process';
 import esbuild from 'esbuild';
@@ -73,11 +73,36 @@ async function main(argv = process.argv) {
         // Minify and keep the original names
         minify: true,
         keepNames: true,
-        outfile: path.join(distPath, 'index.cjs')
+        outfile: path.join(distPath, 'index.cjs'),
+        metafile: true
     };
     console.error('Running esbuild:');
     console.error(esbuildOptions);
-    await esbuild.build(esbuildOptions);
+    const result = await esbuild.build(esbuildOptions);
+    fs.writeFileSync(path.join(distPath, 'index.meta.json'), JSON.stringify(result.metafile, null, 2));
+
+    // Copy package.json
+    const pkgJson = cleanPkgJson(packageJSON);
+    fs.writeFileSync(path.join(distPath, 'package.json'), JSON.stringify(pkgJson, null, 2));
 }
+
+const cleanPkgJson = (json) => {
+    delete json.devDependencies;
+    delete json.optionalDependencies;
+    const oldDependencies = json.dependencies;
+    delete json.dependencies;
+    json.dependencies = {};
+
+    for (const [name, version] of Object.entries(oldDependencies)) {
+        if (Object.keys(json.nativeDependencies).includes(name)) {
+            json.dependencies[name] = version;
+        }
+    }
+    delete json.nativeDependencies;
+    delete json.scripts;
+    json.bin.dcli = 'index.cjs';
+    json.main = 'index.cjs';
+    return json;
+};
 
 void main();

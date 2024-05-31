@@ -1,4 +1,4 @@
-import type * as sodium from 'libsodium-wrappers';
+import type sodium from 'libsodium-wrappers';
 import { ApiRequestsDefault } from '../types.js';
 
 export interface ApiEndpointResponse<T> {

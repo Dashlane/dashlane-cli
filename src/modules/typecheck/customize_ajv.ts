@@ -1,11 +1,5 @@
-import Ajv, { SchemaObjCxt } from 'ajv';
-import {
-    AnySchemaObject,
-    DataValidateFunction,
-    DataValidationCxt,
-    ErrorObject,
-    KeywordDefinition,
-} from 'ajv/dist/types';
+import Ajv, { SchemaObjCxt, AnySchemaObject, ErrorObject, KeywordDefinition } from 'ajv';
+import type { DataValidateFunction, DataValidationCxt } from 'ajv/dist/types';
 
 // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L237
 const BYTE = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;

@@ -1,4 +1,4 @@
-import * as sodium from 'libsodium-wrappers';
+import sodium from 'libsodium-wrappers';
 import { clientHello, terminateHello, SendSecureContentParams, sendSecureContent } from './steps/index.js';
 import { ApiConnectParams, ApiConnect, ApiData, ApiRequestsDefault } from './types.js';
 import { makeClientKeyPair, makeOrRefreshSession } from './utils/index.js';

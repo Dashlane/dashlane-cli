@@ -1,5 +1,5 @@
-import * as argon2 from '@node-rs/argon2';
-import * as xmlJs from 'xml-js';
+import argon2 from '@node-rs/argon2';
+import xmlJs from 'xml-js';
 import crypto from 'crypto';
 import { promisify } from 'util';
 import zlib from 'zlib';
