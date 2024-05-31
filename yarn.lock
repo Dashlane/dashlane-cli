@@ -143,7 +143,7 @@ __metadata:
     "@types/better-sqlite3": "npm:^7.6.10"
     "@types/chai": "npm:^4.3.16"
     "@types/inquirer": "npm:^9.0.7"
-    "@types/libsodium-wrappers": "npm:^0"
+    "@types/libsodium-wrappers": "npm:^0.7.14"
     "@types/mocha": "npm:^10.0.6"
     "@types/node": "npm:^18.19.33"
     "@typescript-eslint/eslint-plugin": "npm:^7.8.0"
@@ -151,7 +151,7 @@ __metadata:
     "@yao-pkg/pkg": "npm:^5.11.5"
     ajv: "npm:^8.14.0"
     ajv-formats: "npm:^3.0.1"
-    better-sqlite3: "npm:^10.0.0"
+    better-sqlite3: "npm:^11.0.0"
     chai: "npm:^5.1.1"
     commander: "npm:^12.1.0"
     esbuild: "npm:^0.21.4"
@@ -1319,7 +1319,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/libsodium-wrappers@npm:^0":
+"@types/libsodium-wrappers@npm:^0.7.14":
   version: 0.7.14
   resolution: "@types/libsodium-wrappers@npm:0.7.14"
   checksum: 10/f29e4d2159c26ab00d7f0cc7a45bdccd086d9ece4c723f6d59f6d7e1dc35a7baf2b11de418b09dd69b94900bcfda621ef4f1ed9ffae51523978e432da67d911e
@@ -1921,14 +1921,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "better-sqlite3@npm:10.0.0"
+"better-sqlite3@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "better-sqlite3@npm:11.0.0"
   dependencies:
     bindings: "npm:^1.5.0"
     node-gyp: "npm:latest"
     prebuild-install: "npm:^7.1.1"
-  checksum: 10/3e86fda806a58acf83479b4f48e90d4e831d972c7275458f2ffe79cfc930756693683080c18bbba19d9034265f37e2a14f16d8b3e03601939c9538f07ebc1df5
+  checksum: 10/2fe3743ff5744cac0b76a7d4eb0b1318f576bdaf643ab994f4ae257082063c5649a878e3748e55ca2ae1b457afb327ca123d5961d0f6e4b53a165a91c024d1b3
   languageName: node
   linkType: hard
 

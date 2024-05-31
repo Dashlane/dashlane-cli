@@ -1,6 +1,6 @@
 import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
-import addFormats from 'ajv-formats';
 import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 import { customizeAjv } from './customize_ajv.js';
 
 export class TypeCheckError extends Error {
