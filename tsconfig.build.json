@@ -2,7 +2,7 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "rootDir": "./src",
-        "noEmit": false,
+        "noEmit": true,
         "stripInternal": true
     },
     "exclude": ["./documentation/**/*", "./scripts/**/*"]
