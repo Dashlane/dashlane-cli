@@ -41,7 +41,6 @@
     "contributors": [],
     "license": "Apache-2.0",
     "nativeDependencies": {
-        "@dashlane/nsm-attestation": "*",
         "better-sqlite3": "*",
         "@json2csv/plainjs": "*",
         "@json2csv/transforms": "*",
@@ -52,6 +51,7 @@
         "node-mac-auth": "*"
     },
     "devDependencies": {
+        "@aivenio/tsc-output-parser": "^2.1.1",
         "@types/async": "^3.2.24",
         "@types/better-sqlite3": "^7.6.10",
         "@types/chai": "^4.3.16",
@@ -67,6 +67,7 @@
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-import": "^2.29.1",
+        "execa": "^9.1.0",
         "husky": "^9.0.11",
         "mocha": "^10.4.0",
         "prettier": "^3.2.5",
@@ -74,7 +75,7 @@
         "typescript": "^5.4.5"
     },
     "dependencies": {
-        "@dashlane/nsm-attestation": "^1.0.1",
+        "@dashlane/nsm-attestation": "^1.0.2",
         "@inquirer/prompts": "^5.0.5",
         "@json2csv/plainjs": "^7.0.6",
         "@json2csv/transforms": "^7.0.6",
