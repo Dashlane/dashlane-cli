@@ -60,10 +60,10 @@ export const getVaultContent = (path: string): string => {
 };
 
 export const findVaultContent = (vaultContent: VaultContent, parsedPath: ParsedPath): string => {
-    let filteredVaultContent: VaultContent = {
+    const filteredVaultContent: VaultContent = {
         credentials: [],
         notes: [],
-        secrets: []
+        secrets: [],
     };
 
     if (parsedPath.title) {
@@ -75,12 +75,18 @@ export const findVaultContent = (vaultContent: VaultContent, parsedPath: ParsedP
     }
 
     if (parsedPath.itemId) {
-        filteredVaultContent.credentials = vaultContent.credentials.filter((credential) => credential.id === parsedPath.itemId);
+        filteredVaultContent.credentials = vaultContent.credentials.filter(
+            (credential) => credential.id === parsedPath.itemId
+        );
         filteredVaultContent.notes = vaultContent.notes.filter((note) => note.id === parsedPath.itemId);
         filteredVaultContent.secrets = vaultContent.secrets.filter((secret) => secret.id === parsedPath.itemId);
     }
 
-    if (filteredVaultContent.credentials.length === 0 && filteredVaultContent.notes.length === 0 && filteredVaultContent.secrets.length === 0) {
+    if (
+        filteredVaultContent.credentials.length === 0 &&
+        filteredVaultContent.notes.length === 0 &&
+        filteredVaultContent.secrets.length === 0
+    ) {
         throw new Error(`No matching item found for "${parsedPath.itemId ?? parsedPath.title ?? ''}"`);
     }
 
