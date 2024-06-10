@@ -1,6 +1,6 @@
 {
     "name": "@dashlane/cli",
-    "version": "6.2421.0",
+    "version": "6.2424.0",
     "description": "Manage your Dashlane vault through a CLI tool",
     "type": "module",
     "main": "dist/index.cjs",
@@ -32,7 +32,7 @@
         "pkg:macos-arm": "pkg ./dist -t node18-macos-arm64 -o bundle/dcli-macos-arm -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode --no-native-build",
         "pkg:win": "pkg ./dist -t node18-win-x64 -o bundle/dcli-win.exe -C GZip --public --public-packages tslib,thirty-two,node-hkdf-sync,vows --no-bytecode",
         "pkg": "yarn run build && yarn run pkg:linux && yarn run pkg:macos && yarn run pkg:win",
-        "version:bump": "yarn run build && node ./build/bumpVersion.js",
+        "version:bump": "node --loader ts-node/esm ./src/bumpVersion.ts",
         "prepare": "husky",
         "test": "mocha"
     },
