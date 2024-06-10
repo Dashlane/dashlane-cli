@@ -1,0 +1,49 @@
+import { Steps } from 'nextra/components';
+
+# GitHub Action for Dashlane
+
+This CI/CD GitHub Action allows developers to inject their secrets vault from Dashlane to their GitHub workflow.
+
+<Steps>
+### Register your device locally
+
+```sh
+dcli devices register "action-name"
+```
+
+For more details refer to Dashlane CLI documentation https://dashlane.github.io/dashlane-cli
+
+### Set GitHub Action environment secrets
+
+Set the environment variable prompted by the previous step in your GitHub repository's secrets and variables.
+
+![Github Secrets](https://github.com/Dashlane/load-secrets-action/blob/main/documentation/github_secrets.png?raw=true)
+
+### Create a job to load your secrets
+
+Set the same env variables in your pipeline as well as the ids of the secrets you want to read from Dashlane starting with `dl://`.
+
+```yml
+steps:
+    - uses: actions/checkout@v2
+    - name: Load secrets
+      id: load_secrets
+      uses: ./ # Dashlane/github-action@<version>
+      env:
+          ACTION_SECRET_PASSWORD: dl://918E3113-CA48-4642-8FAF-CE832BDED6BE/password
+          ACTION_SECRET_NOTE: dl://918E3113-CA48-4642-8FAF-CE832BDED6BE/note
+          DASHLANE_SERVICE_DEVICE_KEYS: ${{ secrets.DASHLANE_SERVICE_DEVICE_KEYS }}
+```
+
+### Retrieve your secrets in the next steps
+
+Get your secrets in any next step of your pipeline using `GITHUB_OUTPUT`.
+
+```yml
+- name: test secret values
+    env:
+      ACTION_SECRET_PASSWORD: ${{ steps.load_secrets.outputs.ACTION_SECRET_PASSWORD }}
+      ACTION_SECRET_NOTE: ${{ steps.load_secrets.outputs.ACTION_SECRET_NOTE }}
+```
+
+</Steps>

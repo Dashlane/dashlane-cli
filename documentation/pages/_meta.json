@@ -30,7 +30,9 @@
     "---3": {
         "type": "separator"
     },
-    "logout": "Logout",
+    "integrations": {
+        "title": "Integrations"
+    },
     "---4": {
         "type": "separator"
     },
