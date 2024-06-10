@@ -15,6 +15,9 @@
             "../node_modules/@json2csv/transforms/dist/**/*",
             "../node_modules/@streamparser/json/dist/**/*",
             "../node_modules/node-mac-auth/build/Release/auth.node"
+        ],
+        "ignore": [
+            "**/*/better-sqlite3/deps/**/*"
         ]
     },
     "scripts": {
@@ -62,7 +65,7 @@
         "@types/libsodium-wrappers": "^0.7.14",
         "@types/mocha": "^10.0.6",
         "@types/node": "^18.19.34",
-        "@yao-pkg/pkg": "^5.11.5",
+        "@yao-pkg/pkg": "^5.12.0",
         "chai": "^5.1.1",
         "esbuild": "^0.21.5",
         "eslint": "^9.4.0",
