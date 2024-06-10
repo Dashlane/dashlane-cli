@@ -44,6 +44,13 @@ yarn run pkg
 
 It outputs in `bundle` directory. Be aware you must use the same Node version as the target.
 
+> [!NOTE]
+> If you're using vscode, you need to enable eslint flat configuration in your settings `.vscode/settings.json`.
+>
+> ```
+> "eslint.experimental.useFlatConfig": true`
+> ```
+
 ### Debug mode
 
 You can use `--debug` to see all the debug logs of the CLI.
