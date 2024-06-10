@@ -60,26 +60,32 @@ export const getVaultContent = (path: string): string => {
 };
 
 export const findVaultContent = (vaultContent: VaultContent, parsedPath: ParsedPath): string => {
+    let filteredVaultContent: VaultContent = {
+        credentials: [],
+        notes: [],
+        secrets: []
+    };
+
     if (parsedPath.title) {
-        vaultContent.credentials = vaultContent.credentials.filter(
+        filteredVaultContent.credentials = vaultContent.credentials.filter(
             (credential) => credential.title === parsedPath.title
         );
-        vaultContent.notes = vaultContent.notes.filter((note) => note.title === parsedPath.title);
-        vaultContent.secrets = vaultContent.secrets.filter((secret) => secret.title === parsedPath.title);
+        filteredVaultContent.notes = vaultContent.notes.filter((note) => note.title === parsedPath.title);
+        filteredVaultContent.secrets = vaultContent.secrets.filter((secret) => secret.title === parsedPath.title);
     }
 
     if (parsedPath.itemId) {
-        vaultContent.credentials = vaultContent.credentials.filter((credential) => credential.id === parsedPath.itemId);
-        vaultContent.notes = vaultContent.notes.filter((note) => note.id === parsedPath.itemId);
-        vaultContent.secrets = vaultContent.secrets.filter((secret) => secret.id === parsedPath.itemId);
+        filteredVaultContent.credentials = vaultContent.credentials.filter((credential) => credential.id === parsedPath.itemId);
+        filteredVaultContent.notes = vaultContent.notes.filter((note) => note.id === parsedPath.itemId);
+        filteredVaultContent.secrets = vaultContent.secrets.filter((secret) => secret.id === parsedPath.itemId);
     }
 
-    if (vaultContent.credentials.length === 0 && vaultContent.notes.length === 0 && vaultContent.secrets.length === 0) {
+    if (filteredVaultContent.credentials.length === 0 && filteredVaultContent.notes.length === 0 && filteredVaultContent.secrets.length === 0) {
         throw new Error(`No matching item found for "${parsedPath.itemId ?? parsedPath.title ?? ''}"`);
     }
 
     const secretToRender: Record<string, any> =
-        vaultContent.secrets[0] ?? vaultContent.credentials[0] ?? vaultContent.notes[0];
+        filteredVaultContent.secrets[0] ?? filteredVaultContent.credentials[0] ?? filteredVaultContent.notes[0];
 
     if (parsedPath.field) {
         if (!secretToRender[parsedPath.field]) {
