@@ -68,7 +68,7 @@ Running those commands will create a simple container that pull your business ev
 
 ### Kubernetes
 
-A helm chart is provided by the repository to deploy the service on a Kubernetes.
+A helm chart is provided by the repository to deploy the service on Kubernetes.
 
 ```bash
 helm install dashlane-audit-logs dashlane-audit-logs/
@@ -80,7 +80,7 @@ Some example of configuration is provided in `example/`.
 
 ### Azure Log analytics workspace
 
-To send your Dashlane audit logs on Azure in a Log Analytics Workspace, you can use the template provided in this repository. The template will create a container instance that will automatically pull and run the Dashlane Docker image and send the logs in a **ContainerInstanceLog_CL** table in the Log Analytics Workspace of your choice. Before deploying the template you will have to provide:
+To send your Dashlane audit logs on Azure in a Log Analytics Workspace, you can use the template provided in the dashlane-audit-logs repository. The template will create a container instance that will automatically pull and run the Dashlane Docker image and send the logs in a **ContainerInstanceLog_CL** table in the Log Analytics Workspace of your choice. Before deploying the template you will have to provide:
 
 -   The location where you want your container to run (ex: "West Europe")
 -   Your Dashlane credentials
@@ -92,7 +92,7 @@ To send your Dashlane audit logs on Azure in a Log Analytics Workspace, you can 
 
 ### Azure blob storage
 
-If you want to send your logs to an Azure storage account, you can use the deployment template we provide in this repository, which will:
+If you want to send your logs to an Azure storage account, you can use the deployment template we provide in the dashlane-audit-logs repository, which will:
 
 -   Create a storage account and a file share to upload a custom FluentBit configuration file
 -   Create a container instance running the Docker image with your custom file
@@ -137,7 +137,7 @@ Then upload in the storage account you just created. In the Azure Portal, go to 
 
 ## Splunk
 
-If you want to send your logs on Splunk, you need to create a HEC (HTTP Event Collector) on your Splunk instance. As an example, we will show here how to create one on a Splunk Cloud instance.
+If you want to send your logs to Splunk, you need to create a HEC (HTTP Event Collector) on your Splunk instance. As an example, we will show here how to create one on a Splunk Cloud instance.
 
 1- On the Splunk console, go to **"Settings / Data input"** and click on **Add New** in the **HTTP Event Collector** line.
 
@@ -170,7 +170,6 @@ Finally, to send your Dashlane logs to Splunk, you need to customize your Fluent
     Host        splunk-instance.com
     Port        8088
     TLS         On
-    TLS.Verify  Off
     splunk_token ${SPLUNK_TOKEN}
 ```
 
