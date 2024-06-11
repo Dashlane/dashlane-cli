@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { spawn } from 'child_process';
+import { spawnSync } from 'child_process';
 import { getVaultContent, initVaultContent } from '../modules/database/index.js';
 import { logger } from '../logger.js';
 
@@ -18,14 +18,13 @@ export const runExec = async (_options: unknown, program: Command) => {
     }
 
     // spawn a new process with the command
-    const child = spawn(command, {
+    const child = spawnSync(command, {
         stdio: 'inherit',
         shell: true,
         env: environmentVariables,
     });
 
-    // listen for process exit
-    child.on('exit', (code) => {
-        logger.debug(`Child process exited with code ${code ?? 'unknown'}`);
-    });
+    if (child.error) {
+        logger.error(`Failed to execute command: ${child.error.message}`);
+    }
 };
