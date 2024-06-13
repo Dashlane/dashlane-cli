@@ -3,18 +3,18 @@
 ![GitHub](https://img.shields.io/github/license/Dashlane/dashlane-cli)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/Dashlane/dashlane-cli)
 [![Documentation Website](https://img.shields.io/badge/Documentation-Website)
-](https://dashlane.github.io/dashlane-cli)
+](https://cli.dashlane.com)
 
 ![Dashlane CLI Demo](./documentation/public/main.png)
 
 ## Install
 
-Follow our [installation guide](https://dashlane.github.io/dashlane-cli/install) to install the CLI on your computer or server.
+Follow our [installation guide](https://cli.dashlane.com/install) to install the CLI on your computer or server.
 
 ## How to use
 
--   [for Personal](https://dashlane.github.io/dashlane-cli/personal)
--   [for Business](https://dashlane.github.io/dashlane-cli/business)
+-   [for Personal](https://cli.dashlane.com/personal)
+-   [for Business](https://cli.dashlane.com/business)
 
 ## For development
 
