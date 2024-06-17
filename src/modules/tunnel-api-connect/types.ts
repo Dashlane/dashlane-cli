@@ -48,7 +48,7 @@ export interface ApiConnect {
     makeOrRefreshSession: (params: RefreshSessionParams) => Promise<void>;
     /** Reinitialize the tunnel when the session has expired (cookie) */
     sendSecureContent: <R extends ApiRequestsDefault>(
-        params: Pick<SendSecureContentParams<R>, 'path' | 'payload'>
+        params: Pick<SendSecureContentParams<R>, 'path' | 'payload' | 'authentication'>
     ) => Promise<R['output']>;
 }
 

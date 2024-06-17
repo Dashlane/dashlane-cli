@@ -101,6 +101,7 @@ export interface RequestUserApi {
         accessKey: string;
         secretKey: string;
     };
+    isNitroEncryptionService?: boolean;
 }
 
 export const requestUserApi = async <T>(params: RequestUserApi): Promise<T> => {
@@ -124,6 +125,7 @@ export interface RequestTeamApi {
         accessKey: string;
         secretKey: string;
     };
+    isNitroEncryptionService?: boolean;
 }
 
 export const requestTeamApi = async <T>(params: RequestTeamApi): Promise<T> => {

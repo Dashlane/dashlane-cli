@@ -20,6 +20,7 @@ export const doConfidentialSSOVerification = async ({ requestedLogin }: Confiden
         ...api,
         path: 'authentication/RequestLogin2',
         payload: { login: requestedLogin },
+        authentication: { type: 'app' },
     });
 
     const { idpAuthorizeUrl, spCallbackUrl, teamUuid, domainName } = requestLoginResponse;
@@ -56,6 +57,7 @@ export const doConfidentialSSOVerification = async ({ requestedLogin }: Confiden
         ...api,
         path: 'authentication/ConfirmLogin2',
         payload: { teamUuid, domainName, samlResponse },
+        authentication: { type: 'app' },
     });
 
     const ssoVerificationResult = await performSSOVerification({

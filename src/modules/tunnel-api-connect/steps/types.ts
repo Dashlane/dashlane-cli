@@ -25,11 +25,33 @@ export interface TerminateHelloRequest {
     tunnelUuid: string;
 }
 
+interface AppAuthenticationParams {
+    type: 'app';
+}
+
+interface UserDeviceAuthenticationParams {
+    type: 'userDevice';
+    login: string;
+    deviceKeys: { accessKey: string; secretKey: string };
+}
+
+interface TeamDeviceAuthenticationParams {
+    type: 'teamDevice';
+    teamUuid: string;
+    teamDeviceKeys: { accessKey: string; secretKey: string };
+}
+
+export type AuthenticationParams =
+    | AppAuthenticationParams
+    | UserDeviceAuthenticationParams
+    | TeamDeviceAuthenticationParams;
+
 export interface SendSecureContentParams<R extends ApiRequestsDefault> {
     path: R['path'];
     clientStateIn: sodium.StateAddress;
     clientStateOut: sodium.StateAddress;
     payload: R['input'];
+    authentication?: AuthenticationParams;
 }
 
 export interface TerminateHelloParams {
