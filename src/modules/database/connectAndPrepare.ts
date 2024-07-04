@@ -27,6 +27,12 @@ export interface ConnectAndPrepareParams {
 
     /* Force the synchronization of the vault */
     forceSync?: boolean;
+
+    recoveryOptions?: {
+        /** Allow prompting for ARK instead of MP */
+        promptForArk?: boolean;
+        displayMasterpassword?: boolean;
+    };
 }
 
 export const connectAndPrepare = async (
@@ -36,7 +42,7 @@ export const connectAndPrepare = async (
     localConfiguration: LocalConfiguration;
     deviceConfiguration: DeviceConfiguration | null;
 }> => {
-    const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB, forceSync } = params;
+    const { autoSync, shouldNotSaveMasterPasswordIfNoDeviceKeys, failIfNoDB, forceSync, recoveryOptions } = params;
     const db = connect();
     db.serialize();
 
@@ -52,11 +58,10 @@ export const connectAndPrepare = async (
         process.exit(1);
     });
 
-    const localConfiguration = await getLocalConfiguration(
-        db,
-        deviceConfiguration,
-        shouldNotSaveMasterPasswordIfNoDeviceKeys
-    );
+    const localConfiguration = await getLocalConfiguration(db, deviceConfiguration, {
+        shouldNotSaveMasterPasswordIfNoDeviceKeys,
+        recoveryOptions,
+    });
 
     // if the device was created for the first time we need to get the device credentials again
     if (!deviceConfiguration) {
