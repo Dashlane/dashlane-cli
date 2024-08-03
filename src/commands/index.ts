@@ -15,6 +15,7 @@ import {
     runBackup,
     runSecret,
 } from '../command-handlers/index.js';
+import { runAccountRecovery } from '../command-handlers/recovery.js';
 
 export const rootCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -112,6 +113,11 @@ export const rootCommands = (params: { program: Command }) => {
         .option('--filename <filename>', 'Filename of the backup ("dashlane-backup-<unix_timestamp>.db by default")')
         .description('Backup your local vault (will use the current directory by default)')
         .action(runBackup);
+
+    program
+        .command('recover-account')
+        .description('interactively login to an account with a recovery key')
+        .action(runAccountRecovery);
 
     program
         .command('lock')

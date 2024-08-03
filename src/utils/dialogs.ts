@@ -72,6 +72,19 @@ export const askConfirmReset = async () => {
     });
     return response;
 };
+export const askConfirmRecovery = async () => {
+    const response = await confirm({
+        message: 'Doing a recovery will delete all local data from this app. Continue?',
+    });
+    return response;
+};
+
+export const askConfirmShowMp = async () => {
+    const response = await confirm({
+        message: 'Do you want to see the masterpassword that will be unlocked by this recovery key?',
+    });
+    return response;
+};
 
 export const askCredentialChoice = async (params: { matchedCredentials: VaultCredential[]; hasFilters: boolean }) => {
     const message = params.hasFilters
@@ -136,6 +149,18 @@ export const askToken = async () => {
         message: 'Please enter the code you received by email:',
         validate(input: string) {
             return /^(\d{6})$/.test(input) ? true : 'Not a valid email token';
+        },
+    });
+    return response;
+};
+
+export const askAccountRecoveryKey = async () => {
+    const response = input({
+        message: 'Please enter your account recovery key:',
+        validate(input: string) {
+            // 28 characters alpha numeric, capslock,
+            // can contain dashes between groups of 4 symbols
+            return /^(([A-Z0-9]{4}-*){7})$/.test(input) ? true : 'Not a valid recovery key';
         },
     });
     return response;

@@ -8,7 +8,12 @@ import { sha512 } from './hash.js';
 import { EncryptedData } from './types.js';
 import { decryptSsoRemoteKey } from './buildSsoRemoteKey.js';
 import { CLI_VERSION, cliVersionToString } from '../../cliVersion.js';
-import { perform2FAVerification, registerDevice } from '../auth/index.js';
+import {
+    getAuthenticationTickets,
+    getMasterpasswordFromArkPrompt,
+    perform2FAVerification,
+    registerDevice,
+} from '../auth/index.js';
 import { DeviceConfiguration, LocalConfiguration } from '../../types.js';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
@@ -83,25 +88,33 @@ const getDerivationParametersForLocalKey = (login: string): EncryptedData => {
 const getLocalConfigurationWithoutDB = async (
     db: Database,
     login: string,
-    shouldNotSaveMasterPassword: boolean
+    shouldNotSaveMasterPassword: boolean,
+    recoveryOptions?: {
+        /** Allow prompting for ARK instead of MP */
+        promptForArk?: boolean;
+        displayMasterpassword?: boolean;
+    }
 ): Promise<LocalConfiguration> => {
     const localKey = generateLocalKey();
 
     // Register the user's device
     const deviceCredentials = getDeviceCredentials();
-    const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys } = deviceCredentials
-        ? {
-              deviceAccessKey: deviceCredentials.accessKey,
-              deviceSecretKey: deviceCredentials.secretKey,
-              serverKey: undefined,
-              ssoServerKey: undefined,
-              ssoSpKey: undefined,
-              remoteKeys: [],
-          }
-        : await registerDevice({
-              login,
-              deviceName: `${os.hostname()} - ${os.platform()}-${os.arch()}`,
-          });
+    const deviceName = `${os.hostname()} - ${os.platform()}-${os.arch()}`;
+    const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys, authTicket } =
+        deviceCredentials
+            ? {
+                  deviceAccessKey: deviceCredentials.accessKey,
+                  deviceSecretKey: deviceCredentials.secretKey,
+                  serverKey: undefined,
+                  ssoServerKey: undefined,
+                  ssoSpKey: undefined,
+                  remoteKeys: [],
+                  authTicket: undefined,
+              }
+            : await registerDevice({
+                  login,
+                  deviceName,
+              });
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
     // if non-interactive device, we consider it as email_token, so we don't need to call the API
@@ -116,7 +129,15 @@ const getLocalConfigurationWithoutDB = async (
     if (isSSO) {
         masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
     } else {
-        masterPassword = masterPasswordEnv ?? (await askMasterPassword());
+        if (recoveryOptions?.promptForArk) {
+            const freshAuthTicket = authTicket ?? (await getAuthenticationTickets(login)).authTicket;
+            masterPassword = await getMasterpasswordFromArkPrompt(freshAuthTicket, login);
+            if (recoveryOptions.displayMasterpassword) {
+                logger.info(`Recovered masterpassword ${masterPassword}`);
+            }
+        } else {
+            masterPassword = masterPasswordEnv ?? (await askMasterPassword());
+        }
 
         // In case of OTP2
         if (type === 'totp_login' && serverKey) {
@@ -281,10 +302,19 @@ export const replaceMasterPassword = async (
     };
 };
 
+export interface GetLocalConfigurationConfiguration {
+    shouldNotSaveMasterPasswordIfNoDeviceKeys?: boolean;
+    shouldAskForArk?: boolean;
+    recoveryOptions?: {
+        /** Allow prompting for ARK instead of MP */
+        promptForArk?: boolean;
+        displayMasterpassword?: boolean;
+    };
+}
 export const getLocalConfiguration = async (
     db: Database,
     deviceConfiguration: DeviceConfiguration | null,
-    shouldNotSaveMasterPasswordIfNoDeviceKeys = false
+    { shouldNotSaveMasterPasswordIfNoDeviceKeys = false, recoveryOptions }: GetLocalConfigurationConfiguration = {}
 ): Promise<LocalConfiguration> => {
     let login: string;
     if (deviceConfiguration) {
@@ -295,7 +325,7 @@ export const getLocalConfiguration = async (
 
     // If there are no configuration and secrets in the DB
     if (!deviceConfiguration) {
-        return getLocalConfigurationWithoutDB(db, login, shouldNotSaveMasterPasswordIfNoDeviceKeys);
+        return getLocalConfigurationWithoutDB(db, login, shouldNotSaveMasterPasswordIfNoDeviceKeys, recoveryOptions);
     }
 
     let localKey: Buffer | undefined = undefined;
