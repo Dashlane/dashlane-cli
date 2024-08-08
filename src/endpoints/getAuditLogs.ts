@@ -1,44 +1,17 @@
-import { requestTeamApi } from '../requestApi.js';
+import { apiConnect } from '../modules/tunnel-api-connect/apiconnect.js';
+import { logger } from '../logger.js';
 import { TeamDeviceCredentials } from '../types.js';
+import { GenericLog } from '../types/logs.js';
 
 export interface StartAuditLogsQueryParams {
-    teamDeviceCredentials: TeamDeviceCredentials;
-
     /**
      * The start of the date range to query audit logs by. The format is unix timestamp in seconds. Only the date is used, not the time.
      */
-    startDateRangeUnix: number;
+    startDateRangeUnixMs: number;
     /**
      * The end of the date range of to query audit logs by. The format is unix timestamp in seconds. Only the date is used, not the time.
      */
-    endDateRangeUnix: number;
-    /**
-     * The user ID of the author of the audit log.
-     */
-    authorUserId?: number;
-    /**
-     * The ID of the user targeted by the audit log action.
-     */
-    targetUserId?: number;
-    /**
-     * The ID of the sharing group targeted by the audit log action.
-     */
-    sharingGroupId?: number;
-    /**
-     * The types of audit logs to filter by.
-     */
-    logType?: string;
-    /**
-     * The categories audit logs to filter by.
-     */
-    category?: string;
-    /**
-     * Additional properties to filter by. Refer to the specific audit log schema for property details.
-     */
-    properties?: {
-        propName: string;
-        value: string;
-    }[];
+    endDateRangeUnixMs: number;
 }
 
 export interface StartAuditLogsQueryOutput {
@@ -48,22 +21,13 @@ export interface StartAuditLogsQueryOutput {
     queryExecutionId: string;
 }
 
-export const startAuditLogsQuery = (params: StartAuditLogsQueryParams) => {
-    const { teamDeviceCredentials, ...payload } = params;
-    return requestTeamApi<StartAuditLogsQueryOutput>({
-        path: 'auditlogs-teamdevice/StartAuditLogsQuery',
-        teamUuid: teamDeviceCredentials.uuid,
-        teamDeviceKeys: {
-            accessKey: teamDeviceCredentials.accessKey,
-            secretKey: teamDeviceCredentials.secretKey,
-        },
-        payload,
-    });
-};
+export interface StartAuditLogsQueryRequest {
+    path: 'logs-teamdevice/StartAuditLogsQuery';
+    input: StartAuditLogsQueryParams;
+    output: StartAuditLogsQueryOutput;
+}
 
 export interface GetAuditLogQueryResultsParams {
-    teamDeviceCredentials: TeamDeviceCredentials;
-
     /**
      * The ID associated with the query executed by the RequestAuditLogs endpoint.
      */
@@ -93,15 +57,63 @@ export interface GetAuditLogQueryResultsOutput {
     nextToken?: string;
 }
 
-export const getAuditLogQueryResults = (params: GetAuditLogQueryResultsParams) => {
-    const { teamDeviceCredentials, ...payload } = params;
-    return requestTeamApi<GetAuditLogQueryResultsOutput>({
-        path: 'auditlogs-teamdevice/GetAuditLogQueryResults',
-        teamUuid: teamDeviceCredentials.uuid,
-        teamDeviceKeys: {
-            accessKey: teamDeviceCredentials.accessKey,
-            secretKey: teamDeviceCredentials.secretKey,
-        },
-        payload,
+export interface GetAuditLogQueryResultsRequest {
+    path: 'logs-teamdevice/GetAuditLogQueryResults';
+    input: GetAuditLogQueryResultsParams;
+    output: GetAuditLogQueryResultsOutput;
+}
+
+const MAX_RESULT = 1000;
+
+export const getAuditLogs = async (params: {
+    queryParams: StartAuditLogsQueryParams;
+    teamDeviceCredentials: TeamDeviceCredentials;
+}): Promise<GenericLog[]> => {
+    const { teamDeviceCredentials, queryParams } = params;
+
+    const api = await apiConnect({
+        isProduction: true,
+        enclavePcrList: [
+            [3, 'dfb6428f132530b8c021bea8cbdba2c87c96308ba7e81c7aff0655ec71228122a9297fd31fe5db7927a7322e396e4c16'],
+            [8, '4dbb92401207e019e132d86677857081d8e4d21f946f3561b264b7389c6982d3a86bcf9560cef4a2327eac5c5c6ab820'],
+        ],
     });
+
+    const { queryExecutionId } = await api.sendSecureContent<StartAuditLogsQueryRequest>({
+        ...api,
+        path: 'logs-teamdevice/StartAuditLogsQuery',
+        payload: queryParams,
+        authentication: {
+            type: 'teamDevice',
+            teamDeviceKeys: teamDeviceCredentials,
+            teamUuid: teamDeviceCredentials.uuid,
+        },
+    });
+
+    let result: GetAuditLogQueryResultsOutput | undefined;
+    let logs: string[] = [];
+
+    do {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        result = await api.sendSecureContent<GetAuditLogQueryResultsRequest>({
+            ...api,
+            path: 'logs-teamdevice/GetAuditLogQueryResults',
+            payload: { queryExecutionId, maxResults: MAX_RESULT, nextToken: result?.nextToken },
+            authentication: {
+                type: 'teamDevice',
+                teamDeviceKeys: teamDeviceCredentials,
+                teamUuid: teamDeviceCredentials.uuid,
+            },
+        });
+        logger.debug(`Query state: ${result.state}`);
+        if (result.state === 'SUCCEEDED') {
+            logs = logs.concat(result.results);
+        } else if (['QUEUED', 'RUNNING'].includes(result.state)) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+            throw new Error(`Query execution did not succeed: ${result.state}`);
+        }
+    } while (result.state !== 'SUCCEEDED' || result.nextToken);
+
+    return logs.map((log) => JSON.parse(log) as GenericLog);
 };

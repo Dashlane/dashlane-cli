@@ -49,8 +49,6 @@ export const teamCommands = (params: { program: Command }) => {
             customParseTimestampMilliseconds,
             Date.now()
         )
-        .option('--type <type>', 'log type')
-        .option('--category <category>', 'log category')
         .option('--csv', 'Output in CSV format')
         .option('--human-readable', 'Output dates in human readable format')
         .action(runTeamLogs);
