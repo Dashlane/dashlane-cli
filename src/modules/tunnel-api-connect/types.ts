@@ -1,4 +1,3 @@
-import type { EnclavePcr } from '@dashlane/nsm-attestation';
 import type sodium from 'libsodium-wrappers';
 import type { ClientHelloParsedResponse, SendSecureContentParams, TerminateHelloResponse } from './steps/index.js';
 
@@ -23,9 +22,8 @@ export interface ApiData {
 }
 
 export interface ApiConnectParams {
-    isProduction: boolean;
+    useProductionCertificate: boolean;
     clientKeyPair?: sodium.KeyPair;
-    enclavePcrList: EnclavePcr<string>[];
 }
 
 export interface ApiConnectInternalParams extends ApiConnectParams {
