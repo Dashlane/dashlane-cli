@@ -17,12 +17,12 @@ export const terminateHello = async (
         throw new SecureTunnelNotInitialized();
     }
 
-    const { clientKeyPair, attestation, isProduction, enclavePcrList } = params;
+    const { clientKeyPair, attestation, useProductionCertificate, enclavePcrList } = params;
     const { tunnelUuid } = apiData.clientHello;
 
     const { userData } = await verifyAttestation({
         attestation,
-        useProductionCertificate: isProduction,
+        useProductionCertificate,
         pcrs: enclavePcrList,
     });
 

@@ -10,11 +10,7 @@ interface ConfidentialSSOParams {
 
 export const doConfidentialSSOVerification = async ({ requestedLogin }: ConfidentialSSOParams) => {
     const api = await apiConnect({
-        isProduction: true,
-        enclavePcrList: [
-            [3, 'dfb6428f132530b8c021bea8cbdba2c87c96308ba7e81c7aff0655ec71228122a9297fd31fe5db7927a7322e396e4c16'],
-            [8, '4dbb92401207e019e132d86677857081d8e4d21f946f3561b264b7389c6982d3a86bcf9560cef4a2327eac5c5c6ab820'],
-        ],
+        useProductionCertificate: true,
     });
     const requestLoginResponse = await api.sendSecureContent<RequestLogin2Request>({
         ...api,

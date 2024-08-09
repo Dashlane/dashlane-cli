@@ -1,5 +1,6 @@
 import type sodium from 'libsodium-wrappers';
 import { ApiRequestsDefault } from '../types.js';
+import { EnclavePcr } from '@dashlane/nsm-attestation';
 
 export interface ApiEndpointResponse<T> {
     requestId: string;
@@ -56,6 +57,7 @@ export interface SendSecureContentParams<R extends ApiRequestsDefault> {
 
 export interface TerminateHelloParams {
     attestation: Buffer;
+    enclavePcrList: EnclavePcr<string>[];
 }
 
 export interface TerminateHelloResponse {
