@@ -152,21 +152,26 @@ Note that a new key named `date_time_iso` will be added to the logs.
 
 You can turn on logging sensitive actions in the Policies section of Settings in the Admin Console. Read more about it in our [dedicated Help Center article](https://support.dashlane.com/hc/en-us/articles/4414606120210).
 
-| Type                                       | Event message                                                   |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| collect_sensitive_data_audit_logs_enabled  | (user) turned on additional activity logs (unencrypted)         |
-| collect_sensitive_data_audit_logs_disabled | (user) turned off additional activity logs (unencrypted)        |
-| user_shared_credential_with_group          | (user) shared %(rights [limited/full]) rights to the %(domain)s |
-| user_shared_credential_with_email          | (user) shared %(rights [limited/full]) rights to the %(domain)s |
-| user_shared_credential_with_external       | (user) shared %(rights [limited/full]) rights to the %(domain)s |
-| user_accepted_sharing_invite_credential    | (user) accepted a sharing invitation for the %(domain)s         |
-| user_rejected_sharing_invite_credential    | (user) rejected a sharing invitation for the %(domain)s         |
-| user_revoked_shared_credential_group       | (user) revoked access to the %(domain)s login                   |
-| user_revoked_shared_credential_external    | (user) revoked access to the %(domain)s login                   |
-| user_revoked_shared_credential_email       | (user) revoked access to the %(domain)s login                   |
-| user_created_credential                    | (user) created a login for %(domain)s                           |
-| user_modified_credential                   | (user) modified the login for %(domain)s                        |
-| user_deleted_credential                    | (user) deleted the login for %(domain)s                         |
+| Type                                       | Event message                                                                            |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| collect_sensitive_data_audit_logs_enabled  | (user) turned on additional activity logs (unencrypted)                                    |
+| collect_sensitive_data_audit_logs_disabled | (user) turned off additional activity logs (unencrypted)                                   |
+| user_shared_credential_with_group          | (user) shared %(rights [limited/full]) rights to the %(domain)s                            |
+| user_shared_credential_with_email          | (user) shared %(rights [limited/full]) rights to the %(domain)s                            |
+| user_shared_credential_with_external       | (user) shared %(rights [limited/full]) rights to the %(domain)s                            |
+| user_accepted_sharing_invite_credential    | (user) accepted a sharing invitation for the %(domain)s                                    |
+| user_revoked_shared_credential_group       | (user) revoked access to the %(domain)s login                                              |
+| user_revoked_shared_credential_external    | (user) revoked access to the %(domain)s login                                              |
+| user_revoked_shared_credential_email       | (user) revoked access to the %(domain)s login                                              |
+| user_created_credential                    | (user) created a login for %(domain)s                                                      |
+| user_modified_credential                   | (user) modified the login for %(domain)s                                                   |
+| user_deleted_credential                    | (user) deleted the login for %(domain)s                                                    |
+| user_performed_autofill_credential         | Autofilled %(credential_login)s login for %(credential_domain)s on %(autofilled_domain)s   |
+| user_performed_autofill_payment            | Autofilled %(item_type [bank_account/credit_card])s %(item_name)s on %(autofilled_domain)s |
+| user_authenticated_with_passkey            | Logged in with %(credential_login)s passkey for %(passkey_domain)s on %(current_domain)s   |
+| user_copied_credential_field               | Copied %(field)s for %(credential_login)s %(credential_domain)s login                      |
+| user_copied_credit_card_field              | Copied %(field)s for %(name)s credit card                                                  |
+| user_copied_bank_account_field             | Copied %(field)s for %(name)s bank account                                                 |
 
 ## Logs categories
 
@@ -176,6 +181,7 @@ You can turn on logging sensitive actions in the Policies section of Settings in
 | dark_web_monitoring |
 | groups              |
 | nudges              |
+| item_usage          |
 | sharing             |
 | team_account        |
 | team_settings       |
