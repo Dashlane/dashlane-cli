@@ -2,7 +2,6 @@ import { doSSOVerification } from './sso/index.js';
 import { doConfidentialSSOVerification } from './confidential-sso/index.js';
 import {
     completeDeviceRegistration,
-    performDashlaneAuthenticatorVerification,
     performDuoPushVerification,
     performEmailTokenVerification,
     performTotpVerification,
@@ -29,6 +28,9 @@ export const registerDevice = async (params: RegisterDevice) => {
 
     const nonEmptyVerifications = verifications.filter((method) => method.type);
 
+    // Remove dashlane_authenticator from the list of verification methods as it is a deprecated method
+    nonEmptyVerifications.filter((method) => method.type !== 'dashlane_authenticator');
+
     const selectedVerificationMethod =
         nonEmptyVerifications.length > 1
             ? await askVerificationMethod(nonEmptyVerifications)
@@ -43,9 +45,6 @@ export const registerDevice = async (params: RegisterDevice) => {
     if (selectedVerificationMethod.type === 'duo_push') {
         logger.info('Please accept the Duo push notification on your phone.');
         ({ authTicket } = await performDuoPushVerification({ login }));
-    } else if (selectedVerificationMethod.type === 'dashlane_authenticator') {
-        logger.info('Please accept the Dashlane Authenticator push notification on your phone.');
-        ({ authTicket } = await performDashlaneAuthenticatorVerification({ login }));
     } else if (selectedVerificationMethod.type === 'totp') {
         const otp = await askOtp();
         ({ authTicket } = await performTotpVerification({
