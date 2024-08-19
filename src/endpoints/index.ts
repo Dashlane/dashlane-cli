@@ -10,7 +10,6 @@ export * from './getTeamMembers.js';
 export * from './getTeamReport.js';
 export * from './listDevices.js';
 export * from './listTeamDevices.js';
-export * from './performDashlaneAuthenticatorVerification.js';
 export * from './performDuoPushVerification.js';
 export * from './performEmailTokenVerification.js';
 export * from './performTotpVerification.js';
