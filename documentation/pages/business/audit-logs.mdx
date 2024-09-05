@@ -1,8 +1,8 @@
-import { Callout } from 'nextra/components';
+import { TeamCredentialsBanner } from '../../src/banners';
 
 # Audit logs
 
-<Callout emoji="💡">Needs team credentials to use this command.</Callout>
+<TeamCredentialsBanner />
 
 The audit logs helps you trace and prevent security vulnerabilities for your organization.
 
@@ -152,7 +152,7 @@ Note that a new key named `date_time_iso` will be added to the logs.
 
 You can turn on logging sensitive actions in the Policies section of Settings in the Admin Console. Read more about it in our [dedicated Help Center article](https://support.dashlane.com/hc/en-us/articles/4414606120210).
 
-| Type                                       | Event message                                                                            |
+| Type                                       | Event message                                                                              |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | collect_sensitive_data_audit_logs_enabled  | (user) turned on additional activity logs (unencrypted)                                    |
 | collect_sensitive_data_audit_logs_disabled | (user) turned off additional activity logs (unencrypted)                                   |

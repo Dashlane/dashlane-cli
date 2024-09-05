@@ -68,11 +68,24 @@ Run the suggested commands on your target device (your server or CI) to set the 
 export DASHLANE_SERVICE_DEVICE_KEYS=dls_[deviceAccessKey]_[payload]
 ```
 
-On Windows, you can use the `set` command instead of `export`.
+---
 
-```sh
-set DASHLANE_SERVICE_DEVICE_KEYS=dls_[deviceAccessKey]_[payload]
+On **Windows**, you can use the following command instead of `export`.
+
+```powershell copy
+$env:DASHLANE_SERVICE_DEVICE_KEYS='dls_[deviceAccessKey]_[payload]'
 ```
+
+You can ensure that the variable is correctly set by running:
+
+```powershell copy
+Get-ChildItem Env:
+```
+
+---
+
+Make sure to **save the generated secret in a safe place** (like a secure note).
+Consider it as **highly sensitive information** as it grants access to your vault.
 
 <Callout type="info">
     The token you'll get is starting by `dls` in order to be easily identified by scanning tools.
