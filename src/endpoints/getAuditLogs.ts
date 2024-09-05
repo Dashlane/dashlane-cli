@@ -5,11 +5,11 @@ import { GenericLog } from '../types/logs.js';
 
 export interface StartAuditLogsQueryParams {
     /**
-     * The start of the date range to query audit logs by. The format is unix timestamp in seconds. Only the date is used, not the time.
+     * The start of the date range to query audit logs by. The format is unix timestamp in milliseconds. Only the date is used, not the time.
      */
     startDateRangeUnixMs: number;
     /**
-     * The end of the date range of to query audit logs by. The format is unix timestamp in seconds. Only the date is used, not the time.
+     * The end of the date range of to query audit logs by. The format is unix timestamp in milliseconds. Only the date is used, not the time.
      */
     endDateRangeUnixMs: number;
 }
