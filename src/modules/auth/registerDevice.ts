@@ -26,10 +26,11 @@ export const registerDevice = async (params: RegisterDevice) => {
         throw new Error('Master password-less is currently not supported');
     }
 
-    const nonEmptyVerifications = verifications.filter((method) => method.type);
-
+    // Remove empty verification type
     // Remove dashlane_authenticator from the list of verification methods as it is a deprecated method
-    nonEmptyVerifications.filter((method) => method.type !== 'dashlane_authenticator');
+    const nonEmptyVerifications = verifications.filter(
+        (method) => method.type && method.type !== 'dashlane_authenticator'
+    );
 
     const selectedVerificationMethod =
         nonEmptyVerifications.length > 1
