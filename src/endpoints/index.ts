@@ -1,5 +1,6 @@
 export * from './completeDeviceRegistration.js';
 export * from './completeLoginWithAuthTicket.js';
+export * from './createPublicAPIKey.js';
 export * from './deactivateDevices.js';
 export * from './deactivateTeamDevice.js';
 export * from './getAuditLogs.js';
@@ -9,8 +10,10 @@ export * from './getTeamDarkWebInsightsReport.js';
 export * from './getTeamMembers.js';
 export * from './getTeamReport.js';
 export * from './listDevices.js';
+export * from './listPublicAPIKeys.js';
 export * from './listTeamDevices.js';
 export * from './performDuoPushVerification.js';
 export * from './performEmailTokenVerification.js';
 export * from './performTotpVerification.js';
 export * from './registerTeamDevice.js';
+export * from './revokePublicAPIKey.js';
