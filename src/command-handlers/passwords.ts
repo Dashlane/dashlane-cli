@@ -29,6 +29,10 @@ export const runPassword = async (
 
     if (field === 'otp') {
         foundCredentials = foundCredentials.filter((credential) => credential.otpSecret);
+
+        if (foundCredentials.length === 0) {
+            throw new Error('No credential found with OTP.');
+        }
     }
 
     const selectedCredential = await selectCredential(foundCredentials, Boolean(filters?.length));
@@ -60,6 +64,7 @@ export const runPassword = async (
 
     if (output === 'console') {
         logger.content(result);
+        return;
     }
 
     const clipboard = new Clipboard();

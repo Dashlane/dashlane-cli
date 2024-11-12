@@ -27,7 +27,7 @@ export const rootCommands = (params: { program: Command }) => {
 
     program
         .command('read')
-        .description('Retrieve a secret from the local vault via its path')
+        .description('Retrieve a secret from the local vault via its path (using <id> is much more efficient)')
         .argument('<path>', 'Path to the secret (dl://<title>/<field> or dl://<id>/<field>)')
         .action(runRead);
 
