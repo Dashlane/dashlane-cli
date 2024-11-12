@@ -172,7 +172,7 @@ __metadata:
     execa: "npm:^9.2.0"
     got: "npm:^14.4.1"
     husky: "npm:^9.0.11"
-    jsonpath-plus: "npm:^9.0.0"
+    jsonpath-plus: "npm:^10.0.0"
     libsodium-wrappers: "npm:^0.7.13"
     mocha: "npm:^10.4.0"
     node-mac-auth: "npm:^1.1.0"
@@ -3541,10 +3541,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsep@npm:^1.3.8":
-  version: 1.3.8
-  resolution: "jsep@npm:1.3.8"
-  checksum: 10/ffbb24a01270139bb18886d235374110e35951a0e8b06b97b2a0ddd3b6d5fb68e696fdf18d444f1bc3a4db2fab418b354e077cdf6b36644e11ff08f069ad2b1c
+"jsep@npm:^1.3.9":
+  version: 1.3.9
+  resolution: "jsep@npm:1.3.9"
+  checksum: 10/c60d7064c3b5047f58345e65e7618bbaecf2f46338e56689244db057b0550bf8fb7c1457a7384dfd38aca9acde3ff851d062c3f182cc1fbc66c13cb2ca0b579d
   languageName: node
   linkType: hard
 
@@ -3598,17 +3598,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonpath-plus@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "jsonpath-plus@npm:9.0.0"
+"jsonpath-plus@npm:^10.0.0":
+  version: 10.1.0
+  resolution: "jsonpath-plus@npm:10.1.0"
   dependencies:
     "@jsep-plugin/assignment": "npm:^1.2.1"
     "@jsep-plugin/regex": "npm:^1.0.3"
-    jsep: "npm:^1.3.8"
+    jsep: "npm:^1.3.9"
   bin:
     jsonpath: bin/jsonpath-cli.js
     jsonpath-plus: bin/jsonpath-cli.js
-  checksum: 10/a7b8099e92a8d11896857e55c48ce898180b6b2fa6a1db819dcdacf9741ae03a8b4263ae844b40d6a8e171c2d54e37d8ee3d206777e90ee0127246bae2102ee5
+  checksum: 10/d872af63b667c43e7563095b4c88f61be5b298c1ddc1d019b3684f0ba1addcba24857e78058b00c52511f52044e3dfea16f83869facfd6ced7430ebd6257f7ab
   languageName: node
   linkType: hard
 
