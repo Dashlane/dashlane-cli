@@ -59,6 +59,10 @@ export const getVaultContent = (path: string): string => {
     return findVaultContent(vaultContent, parsedPath);
 };
 
+const compareStringCaseUnsensitive = (a: string | undefined, b: string | undefined): boolean => {
+    return a?.toLowerCase() === b?.toLowerCase();
+};
+
 export const findVaultContent = (vaultContent: VaultContent, parsedPath: ParsedPath): string => {
     const filteredVaultContent: VaultContent = {
         credentials: [],
@@ -67,11 +71,15 @@ export const findVaultContent = (vaultContent: VaultContent, parsedPath: ParsedP
     };
 
     if (parsedPath.title) {
-        filteredVaultContent.credentials = vaultContent.credentials.filter(
-            (credential) => credential.title === parsedPath.title
+        filteredVaultContent.credentials = vaultContent.credentials.filter((credential) =>
+            compareStringCaseUnsensitive(credential.title, parsedPath.title)
         );
-        filteredVaultContent.notes = vaultContent.notes.filter((note) => note.title === parsedPath.title);
-        filteredVaultContent.secrets = vaultContent.secrets.filter((secret) => secret.title === parsedPath.title);
+        filteredVaultContent.notes = vaultContent.notes.filter((note) =>
+            compareStringCaseUnsensitive(note.title, parsedPath.title)
+        );
+        filteredVaultContent.secrets = vaultContent.secrets.filter((secret) =>
+            compareStringCaseUnsensitive(secret.title, parsedPath.title)
+        );
     }
 
     if (parsedPath.itemId) {
