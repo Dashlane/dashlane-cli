@@ -46,7 +46,12 @@ const parseOtpauth = (uri: string): Otpauth => {
     };
 };
 
-export const generateOtpFromUri = (uri: string): { token: string; remainingTime: number | null } => {
+export interface GenerateOtpOutput {
+    token: string;
+    remainingTime: number | null;
+}
+
+export const generateOtpFromUri = (uri: string): GenerateOtpOutput => {
     const otpauth = parseOtpauth(uri);
 
     authenticator.resetOptions();
@@ -68,7 +73,7 @@ export const generateOtpFromUri = (uri: string): { token: string; remainingTime:
     }
 };
 
-export const generateOtpFromSecret = (secret: string): { token: string; remainingTime: number | null } => {
+export const generateOtpFromSecret = (secret: string): GenerateOtpOutput => {
     authenticator.resetOptions();
     return { token: authenticator.generate(secret), remainingTime: authenticator.timeRemaining() };
 };
