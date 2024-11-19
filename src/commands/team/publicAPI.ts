@@ -5,21 +5,23 @@ import { Command } from 'commander';
 export const PublicAPICommands = (params: { teamGroup: Command }) => {
     const { teamGroup } = params;
 
-    const PublicAPIGroup = teamGroup.command('public-api').description('Public API operations');
+    const publicAPIGroup = teamGroup.command('public-api').description('Public API operations');
 
-    PublicAPIGroup.command('create-key')
+    publicAPIGroup
+        .command('create-key')
         .description('Generate a new Public API key (Bearer token)')
         .argument('<description>', 'Description')
         .action(async (description: string) => {
-            const PublicAPIToken = await createPublicAPIKeyHandler(description);
+            const publicAPIToken = await createPublicAPIKeyHandler(description);
 
             logger.success(
                 'The new Public API key has been generated, you can use it as a Bearer token in your requests:'
             );
-            logger.content(`Bearer ${PublicAPIToken}`);
+            logger.content(`Bearer ${publicAPIToken}`);
         });
 
-    PublicAPIGroup.command('list-keys')
+    publicAPIGroup
+        .command('list-keys')
         .description('List all Public API keys')
         .option('--json', 'Output in JSON format')
         .action(async (options: { json: boolean }) => {
@@ -44,7 +46,8 @@ export const PublicAPICommands = (params: { teamGroup: Command }) => {
             }
         });
 
-    PublicAPIGroup.command('revoke-key')
+    publicAPIGroup
+        .command('revoke-key')
         .description('Revoke a Public API key')
         .argument('<accessKey>', 'Access key')
         .action(async (accessKey: string) => {

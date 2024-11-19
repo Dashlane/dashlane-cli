@@ -12,11 +12,11 @@ export interface CreatePublicAPIKeyOutput {
      */
     teamUuid: string;
     /**
-     * Report Api access key
+     * Public Api access key
      */
     accessKey: string;
     /**
-     * Report Api secret key
+     * Public Api secret key
      */
     secretKey: string;
 }

@@ -31,11 +31,11 @@ export interface ListPublicAPIKeysOutput {
          */
         description: string;
         /**
-         * Platform used to create the report api key
+         * Platform used to create the public api key
          */
         origin: string;
         /**
-         * Is the report api key activated or not
+         * Is the public api key activated or not
          */
         valid: boolean;
     }[];
