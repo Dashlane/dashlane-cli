@@ -17,6 +17,7 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
     try {
         twoFactorAuthStatus = await get2FAStatusUnauthenticated({ login });
     } catch (error) {
+        logger.debug(error);
         logger.warn(
             'Unable to check 2FA Status. This will prevent you from logging in if you are using 2FA at each login (OTP2)'
         );

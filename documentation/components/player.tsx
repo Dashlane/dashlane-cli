@@ -13,3 +13,5 @@ export const YoutubePlayer = (props: { videoId: string }) => {
         ></iframe>
     );
 };
+
+export default YoutubePlayer;
