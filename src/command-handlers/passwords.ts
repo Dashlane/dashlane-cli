@@ -1,13 +1,12 @@
 import Database from 'better-sqlite3';
 import { Clipboard } from '@napi-rs/clipboard';
-import { authenticator } from 'otplib';
 import {
     AuthentifiantTransactionContent,
     BackupEditTransaction,
     LocalConfiguration,
     VaultCredential,
 } from '../types.js';
-import { decryptTransactions } from '../modules/crypto/index.js';
+import { decryptTransactions, generateOtpFromSecret, generateOtpFromUri } from '../modules/crypto/index.js';
 import { askCredentialChoice, filterMatches } from '../utils/index.js';
 import { connectAndPrepare } from '../modules/database/index.js';
 import { logger } from '../logger.js';
@@ -28,7 +27,7 @@ export const runPassword = async (
     }
 
     if (field === 'otp') {
-        foundCredentials = foundCredentials.filter((credential) => credential.otpSecret);
+        foundCredentials = foundCredentials.filter((credential) => credential.otpSecret || credential.otpUrl);
 
         if (foundCredentials.length === 0) {
             throw new Error('No credential found with OTP.');
@@ -49,10 +48,15 @@ export const runPassword = async (
             result = selectedCredential.password;
             break;
         case 'otp':
-            if (!selectedCredential.otpSecret) {
+            if (!selectedCredential.otpSecret || !selectedCredential.otpUrl) {
                 throw new Error('No OTP found for this credential.');
             }
-            result = authenticator.generate(selectedCredential.otpSecret);
+            if (selectedCredential.otpSecret) {
+                result = generateOtpFromSecret(selectedCredential.otpSecret).token;
+            }
+            if (selectedCredential.otpUrl) {
+                result = generateOtpFromUri(selectedCredential.otpUrl).token;
+            }
             break;
         default:
             throw new Error('Unable to recognize the field.');
@@ -73,10 +77,20 @@ export const runPassword = async (
         `🔓 ${field} for "${selectedCredential.title || selectedCredential.url || 'N/C'}" copied to clipboard!`
     );
 
-    if (field === 'password' && selectedCredential.otpSecret) {
-        const token = authenticator.generate(selectedCredential.otpSecret);
-        const timeRemaining = authenticator.timeRemaining();
-        logger.content(`🔢 OTP code: ${token} \u001B[3m(expires in ${timeRemaining} seconds)\u001B[0m`);
+    if (field === 'password' && (selectedCredential.otpSecret || selectedCredential.otpUrl)) {
+        let token = '';
+        let remainingTime: number | null = null;
+        if (selectedCredential.otpSecret) {
+            ({ token, remainingTime } = generateOtpFromSecret(selectedCredential.otpSecret));
+        }
+        if (selectedCredential.otpUrl) {
+            ({ token, remainingTime } = generateOtpFromUri(selectedCredential.otpUrl));
+        }
+
+        logger.content(`🔢 OTP code: ${token}`);
+        if (remainingTime) {
+            logger.content(`⏳ Remaining time: ${remainingTime} seconds`);
+        }
     }
 };
 

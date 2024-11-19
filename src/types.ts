@@ -166,6 +166,7 @@ export interface VaultCredential {
     subdomainOnly: 'true' | 'false';
     useFixedUrl: 'true' | 'false';
     otpSecret?: string;
+    otpUrl?: string;
     appMetaData?: string; // info about linked mobile applications
     status: 'ACCOUNT_NOT_VERIFIED' | 'ACCOUNT_VERIFIED' | 'ACCOUNT_INVALID';
     numberUse: string; // number
