@@ -1,5 +1,6 @@
 import { Command, Option } from 'commander';
 import { teamCredentialsCommands } from './credentials.js';
+import { PublicAPICommands } from './publicAPI.js';
 import { CouldNotFindTeamCredentialsError } from '../../errors.js';
 import {
     runTeamDarkWebInsightsReport,
@@ -27,6 +28,8 @@ export const teamCommands = (params: { program: Command }) => {
     }
 
     teamCredentialsCommands({ teamGroup });
+
+    PublicAPICommands({ teamGroup });
 
     teamGroup
         .command('members')
