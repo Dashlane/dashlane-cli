@@ -1,5 +1,11 @@
 import { isUuid } from './strings.js';
-import { transformJsonPath, transformOtp, transformOtpAndExpiry } from './secretTransformation.js';
+import {
+    transformJsonPath,
+    transformOtp,
+    transformOtpAndExpiry,
+    transformOtpUri,
+    transformOtpUriAndExpiry,
+} from './secretTransformation.js';
 import { ParsedPath } from '../types.js';
 import { InvalidDashlanePathError } from '../errors.js';
 
@@ -54,6 +60,12 @@ export const parsePath = (path: string): ParsedPath => {
                 break;
             case 'otp+expiry':
                 transformation = transformOtpAndExpiry;
+                break;
+            case 'otp_uri':
+                transformation = transformOtpUri;
+                break;
+            case 'otp_uri+expiry':
+                transformation = transformOtpUriAndExpiry;
                 break;
             case 'json':
                 transformation = (json: string) => transformJsonPath(json, queryParamValue);

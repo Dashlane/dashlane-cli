@@ -1,14 +1,22 @@
 import { JSONPath } from 'jsonpath-plus';
-import { authenticator } from 'otplib';
+import { generateOtpFromSecret, generateOtpFromUri } from '../modules/crypto';
 
 export const transformOtp = (secret: string) => {
-    return authenticator.generate(secret);
+    return generateOtpFromSecret(secret).token;
 };
 
 export const transformOtpAndExpiry = (secret: string) => {
-    const otp = authenticator.generate(secret);
-    const expiry = authenticator.timeRemaining();
-    return `${otp} ${expiry}`;
+    const { token, remainingTime } = generateOtpFromSecret(secret);
+    return `${token} ${remainingTime}`;
+};
+
+export const transformOtpUri = (uri: string) => {
+    return generateOtpFromUri(uri).token;
+};
+
+export const transformOtpUriAndExpiry = (uri: string) => {
+    const { token, remainingTime } = generateOtpFromUri(uri);
+    return `${token} ${remainingTime}`;
 };
 
 export const transformJsonPath = (json: string, path: string) => {
