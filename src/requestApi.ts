@@ -2,6 +2,7 @@ import { Response, HTTPError } from 'got';
 import { Authentication, postRequestAPI } from './modules/api-connect/index.js';
 import { CLI_VERSION, cliVersionToString } from './cliVersion.js';
 import { gotImplementation } from './utils/index.js';
+import { logger } from './logger.js';
 
 interface RequestApi {
     payload: Record<string, unknown>;
@@ -61,7 +62,8 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
             let details;
             try {
                 details = (JSON.parse(error.response.body) as DashlaneApiErrorResponse).errors[0];
-            } catch (_) {
+            } catch (parseError) {
+                logger.debug('Failed to parse error response', parseError);
                 throw error;
             }
             if (details) {

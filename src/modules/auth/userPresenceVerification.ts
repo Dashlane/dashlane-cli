@@ -13,7 +13,7 @@ export const userPresenceVerification = async (params: { deviceConfiguration: De
 
     if (deviceConfiguration.userPresenceVerification === 'biometrics') {
         if (process.platform === 'darwin') {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            // eslint-disable-next-line  @typescript-eslint/no-require-imports
             const nodemacauth = require('node-mac-auth') as typeof import('node-mac-auth');
             const { canPromptTouchID, promptTouchID } = nodemacauth;
             if (canPromptTouchID()) {

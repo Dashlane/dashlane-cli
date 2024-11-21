@@ -42,10 +42,7 @@ export const customizeAjv = (ajv: Ajv) => {
             parentSchema: AnySchemaObject,
             it: SchemaObjCxt
         ): DataValidateFunction => {
-            const dataValidationFunction = (
-                data: any,
-                dataCxt?: DataValidationCxt<string | number> | undefined
-            ): boolean => {
+            const dataValidationFunction = (data: any, dataCxt?: DataValidationCxt<string | number>): boolean => {
                 if (schema !== true) {
                     // No validation when `base64` keyword is not true
                     return true;
@@ -107,10 +104,7 @@ export const customizeAjv = (ajv: Ajv) => {
             _parentSchema: AnySchemaObject,
             it: SchemaObjCxt
         ): DataValidateFunction => {
-            const dataValidationFunction = (
-                data: any,
-                dataCxt?: DataValidationCxt<string | number> | undefined
-            ): boolean => {
+            const dataValidationFunction = (data: any, dataCxt?: DataValidationCxt<string | number>): boolean => {
                 if (schema !== true) {
                     // No validation when `url` keyword is not true
                     return true;

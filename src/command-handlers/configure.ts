@@ -72,7 +72,7 @@ export const configureUserPresenceVerification = async (options: {
 
     if (method === 'biometrics') {
         if (process.platform === 'darwin') {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const nodemacauth = require('node-mac-auth') as typeof import('node-mac-auth');
             if (!nodemacauth.canPromptTouchID()) {
                 throw new Error('Biometrics are not supported on your device.');

@@ -36,7 +36,7 @@ const openIdPAndWaitForRedirectURL = async (serviceProviderURL: string, userLogi
                     .fill(userLogin)
                     .catch(() => null);
             } catch (error) {
-                reject(error);
+                reject(error as Error);
             }
         })();
     });

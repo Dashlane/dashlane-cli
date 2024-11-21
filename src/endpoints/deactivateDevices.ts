@@ -15,7 +15,7 @@ interface DeactivateDevicesParams {
     pairingGroupIds?: string[];
 }
 
-export interface DeactivateDevicesOutput {}
+export type DeactivateDevicesOutput = Record<string, never>;
 
 export const deactivateDevices = (params: DeactivateDevicesParams) =>
     requestUserApi<DeactivateDevicesOutput>({

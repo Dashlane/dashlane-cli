@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import esbuild from 'esbuild';
-import packageJSON from '../package.json' assert { type: 'json' };
+import packageJSON from '../package.json' with { type: 'json' };
 import { fileURLToPath } from 'url';
 import { $ } from "execa";
 import tscOutputParser from '@aivenio/tsc-output-parser';

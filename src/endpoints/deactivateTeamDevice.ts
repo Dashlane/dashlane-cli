@@ -19,4 +19,4 @@ export const deactivateTeamDevice = (params: DeactivateTeamDeviceParams) =>
         },
     });
 
-export interface DeactivateTeamDeviceOutput {}
+export type DeactivateTeamDeviceOutput = Record<string, never>;

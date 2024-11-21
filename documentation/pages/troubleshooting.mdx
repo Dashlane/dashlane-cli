@@ -1,4 +1,4 @@
-import { Tab, Tabs } from 'nextra-theme-docs';
+import { Tabs } from 'nextra/components';
 
 # Troubleshooting
 
@@ -22,27 +22,27 @@ In NodeJS the list of certificate authorities is hardcoded, read more here: [nod
 You can use an environment variable to add custom certs ([see documentation](https://nodejs.org/docs/latest-v16.x/api/cli.html#node_extra_ca_certsfile)):
 
 <Tabs items={['Bash', 'Powershell', 'Batch']}>
-    <Tab>
+    <Tabs.Tab>
 
     ```sh copy
     export NODE_EXTRA_CA_CERTS="/path/to/cert.pem"
     ```
 
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
 
     ```powershell copy
     $Env:NODE_EXTRA_CA_CERTS="C:\certs\root.crt"
     ```
 
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
 
     ```batch copy
     set NODE_EXTRA_CA_CERTS="C:\certs\root.crt"
     ```
 
-    </Tab>
+    </Tabs.Tab>
 
 </Tabs>
 

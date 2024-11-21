@@ -33,7 +33,7 @@ export const initLogger = (params: InitLogger) => {
         switch (level) {
             case 'error':
                 prefix = stack ? '' : errorColor('error: ');
-                coloredMessage = `${stack ?? message}`;
+                coloredMessage = `${JSON.stringify(stack) ?? coloredMessage}`;
                 break;
             case 'warn':
                 prefix = warnColor('warn: ');

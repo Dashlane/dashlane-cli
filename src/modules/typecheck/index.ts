@@ -2,6 +2,7 @@ import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { customizeAjv } from './customize_ajv.js';
+import { logger } from '../../logger.js';
 
 export class TypeCheckError extends Error {
     constructor(
@@ -82,6 +83,7 @@ export class TypeCheck<T> {
         try {
             value = JSON.parse(str) as T;
         } catch (error) {
+            logger.debug('Failed to parse JSON', error);
             return new JSONParsingError();
         }
 

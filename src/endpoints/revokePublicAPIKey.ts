@@ -6,7 +6,7 @@ interface RevokePublicAPIKey {
     localConfiguration: LocalConfiguration;
 }
 
-export interface RevokePublicAPIKeyOutput {}
+export type RevokePublicAPIKeyOutput = Record<string, never>;
 
 export const revokePublicAPIKey = (params: RevokePublicAPIKey) =>
     requestUserApi<RevokePublicAPIKeyOutput>({

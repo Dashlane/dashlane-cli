@@ -14,7 +14,7 @@ export default {
         link: 'https://github.com/Dashlane/dashlane-cli'
     },
     docsRepositoryBase: 'https://github.com/Dashlane/dashlane-cli/blob/master/documentation',
-    footer: { text: (<span>Apache {new Date().getFullYear()} © Dashlane, Inc.</span>) },
+    footer: { content: (<span>Apache {new Date().getFullYear()} © Dashlane, Inc.</span>) },
     useNextSeoProps() {
         const { asPath } = useRouter();
         if (asPath !== '/') {
