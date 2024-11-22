@@ -13,8 +13,8 @@ interface Otpauth {
     secret: string;
     algorithm: HashAlgorithms;
     digits: number;
-    period: number;
-    counter: number;
+    period?: number;
+    counter?: number;
 }
 
 const matchAlgorithm = (algorithm: string): HashAlgorithms => {
@@ -40,9 +40,9 @@ const parseOtpauth = (uri: string): Otpauth => {
         issuer: searchParams.get('issuer') ?? '',
         secret: searchParams.get('secret') ?? '',
         algorithm: matchAlgorithm(searchParams.get('algorithm') ?? 'SHA1'),
-        digits: Number(searchParams.get('digits') ?? 0),
-        period: Number(searchParams.get('period') ?? 0),
-        counter: Number(searchParams.get('counter') ?? 0),
+        digits: Number(searchParams.get('digits') ?? 6),
+        period: Number(searchParams.get('period')),
+        counter: Number(searchParams.get('counter')),
     };
 };
 
@@ -66,6 +66,9 @@ export const generateOtpFromUri = (uri: string): GenerateOtpOutput => {
             };
             return { token: authenticator.generate(otpauth.secret), remainingTime: authenticator.timeRemaining() };
         case 'hotp':
+            if (otpauth.counter === undefined) {
+                throw new Error('Counter is required for HOTP');
+            }
             hotp.options = { algorithm: otpauth.algorithm, digits: otpauth.digits };
             return { token: hotp.generate(otpauth.secret, otpauth.counter), remainingTime: null };
         default:

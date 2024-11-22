@@ -48,7 +48,7 @@ export const runPassword = async (
             result = selectedCredential.password;
             break;
         case 'otp':
-            if (!selectedCredential.otpSecret || !selectedCredential.otpUrl) {
+            if (!selectedCredential.otpSecret && !selectedCredential.otpUrl) {
                 throw new Error('No OTP found for this credential.');
             }
             if (selectedCredential.otpSecret) {

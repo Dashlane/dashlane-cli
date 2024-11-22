@@ -1,6 +1,6 @@
 {
     "name": "@dashlane/cli",
-    "version": "6.2447.1",
+    "version": "6.2447.2",
     "description": "Manage your Dashlane vault through a CLI tool",
     "type": "module",
     "main": "dist/index.cjs",
