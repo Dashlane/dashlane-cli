@@ -39,7 +39,7 @@ const parseOtpauth = (uri: string): Otpauth => {
         type: url.hostname,
         issuer: searchParams.get('issuer') ?? '',
         secret: searchParams.get('secret') ?? '',
-        algorithm: matchAlgorithm(searchParams.get('algorithm') ?? 'sha1'),
+        algorithm: matchAlgorithm(searchParams.get('algorithm') ?? 'SHA1'),
         digits: Number(searchParams.get('digits') ?? 0),
         period: Number(searchParams.get('period') ?? 0),
         counter: Number(searchParams.get('counter') ?? 0),
