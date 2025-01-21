@@ -14,6 +14,7 @@ export const reset = (params: ResetDB) => {
     db.prepare('DROP TABLE IF EXISTS syncUpdates').run();
     db.prepare('DROP TABLE IF EXISTS transactions').run();
     db.prepare('DROP TABLE IF EXISTS device').run();
+    db.prepare('VACUUM').run();
 
     logger.debug('Database reset');
 
