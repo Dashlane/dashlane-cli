@@ -7,7 +7,7 @@ jobs:
         strategy:
             matrix:
                 settings:
-                    - host: macos-12
+                    - host: macos-13
                       target: macos-x64
                     - host: macos-14
                       target: macos-arm64
@@ -27,7 +27,7 @@ jobs:
 
             - if: matrix.settings.host == 'macos-14'
               run: brew install python-setuptools
-            - if: matrix.settings.host == 'macos-12'
+            - if: matrix.settings.host == 'macos-13'
               run: pip install setuptools
             - run: yarn
             - run: yarn run build
