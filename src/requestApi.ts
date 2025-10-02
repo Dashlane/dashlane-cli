@@ -1,5 +1,5 @@
 import { Response, HTTPError } from 'got';
-import { Authentication, postRequestAPI } from './modules/api-connect/index.js';
+import { Authentication, postRequestAPI } from '@dashlane/apiconnect-worker';
 import { CLI_VERSION, cliVersionToString } from './cliVersion.js';
 import { gotImplementation } from './utils/index.js';
 import { logger } from './logger.js';
@@ -34,14 +34,6 @@ const dashlaneApiKeys = {
     appSecretKey: 'boUtXxmDgLUtNFaigCMQ3+u+LAx0tg1ePAUE13nkR7dto+Zwq1naOHZTwbxxM7iL',
 };
 
-const makeStagingCloudflareHeaders = () =>
-    process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS
-        ? {
-              'CF-Access-Client-Id': process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS ?? '',
-              'CF-Access-Client-Secret': process.env.CLOUDFLARE_SERVICE_TOKEN_SECRET ?? '',
-          }
-        : undefined;
-
 const requestApi = async <T>(params: RequestApi): Promise<T> => {
     const { payload, path, authentication, isNitroEncryptionService } = params;
 
@@ -53,7 +45,6 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
             path: (isNitroEncryptionService ? 'v1-nitro-encryption-service/' : 'v1/') + path,
             payload,
             userAgent: `Dashlane CLI v${cliVersionToString(CLI_VERSION)}`,
-            customHeaders: makeStagingCloudflareHeaders(),
             customHost: process.env.DCLI_STAGING_HOST,
         });
     } catch (error: unknown) {
