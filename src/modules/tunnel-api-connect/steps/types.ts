@@ -42,10 +42,21 @@ interface TeamDeviceAuthenticationParams {
     teamDeviceKeys: { accessKey: string; secretKey: string };
 }
 
+interface EnrolledDeviceAuthenticationParams {
+    type: 'enrolledDevice';
+    enrolledTeamDeviceKeys: {
+        nodeWSAccessKey: string;
+        nitroDeviceAccessKey: string;
+        nitroDeviceSecretKey: string;
+        secretKey: string;
+    };
+}
+
 export type AuthenticationParams =
     | AppAuthenticationParams
     | UserDeviceAuthenticationParams
-    | TeamDeviceAuthenticationParams;
+    | TeamDeviceAuthenticationParams
+    | EnrolledDeviceAuthenticationParams;
 
 export interface SendSecureContentParams<R extends ApiRequestsDefault> {
     path: R['path'];
