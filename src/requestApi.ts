@@ -133,3 +133,26 @@ export const requestTeamApi = async <T>(params: RequestTeamApi): Promise<T> => {
         },
     });
 };
+
+export interface RequestEnrolledDeviceApi {
+    payload: Record<string, unknown>;
+    path: string;
+    isNitroEncryptionService?: boolean;
+    enrolledTeamDeviceKeys: {
+        nodeWSAccessKey: string;
+        nitroDeviceAccessKey: string;
+        secretKey: string;
+    };
+}
+
+export const requestEnrolledDeviceApi = async <T>(params: RequestEnrolledDeviceApi): Promise<T> => {
+    const { enrolledTeamDeviceKeys, ...otherParams } = params;
+    return requestApi({
+        ...otherParams,
+        authentication: {
+            type: 'enrolledDevice',
+            ...dashlaneApiKeys,
+            ...enrolledTeamDeviceKeys,
+        },
+    });
+};
