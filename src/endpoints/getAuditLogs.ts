@@ -1,6 +1,6 @@
 import { apiConnect } from '../modules/tunnel-api-connect/apiconnect.js';
 import { logger } from '../logger.js';
-import { TeamDeviceCredentials } from '../types.js';
+import { EnrolledTeamDeviceCredentials } from '../types.js';
 import { GenericLog } from '../types/logs.js';
 
 export interface StartAuditLogsQueryParams {
@@ -22,7 +22,7 @@ export interface StartAuditLogsQueryOutput {
 }
 
 export interface StartAuditLogsQueryRequest {
-    path: 'logs-teamdevice/StartAuditLogsQuery';
+    path: 'cli/StartAuditLogsQuery';
     input: StartAuditLogsQueryParams;
     output: StartAuditLogsQueryOutput;
 }
@@ -58,18 +58,17 @@ export interface GetAuditLogQueryResultsOutput {
 }
 
 export interface GetAuditLogQueryResultsRequest {
-    path: 'logs-teamdevice/GetAuditLogQueryResults';
+    path: 'cli/GetAuditLogQueryResults';
     input: GetAuditLogQueryResultsParams;
     output: GetAuditLogQueryResultsOutput;
 }
-
 const MAX_RESULT = 1000;
 
 export const getAuditLogs = async (params: {
     queryParams: StartAuditLogsQueryParams;
-    teamDeviceCredentials: TeamDeviceCredentials;
+    enrolledTeamDeviceCredentials: EnrolledTeamDeviceCredentials;
 }): Promise<GenericLog[]> => {
-    const { teamDeviceCredentials, queryParams } = params;
+    const { enrolledTeamDeviceCredentials, queryParams } = params;
 
     const api = await apiConnect({
         useProductionCertificate: true,
@@ -77,12 +76,11 @@ export const getAuditLogs = async (params: {
 
     const { queryExecutionId } = await api.sendSecureContent<StartAuditLogsQueryRequest>({
         ...api,
-        path: 'logs-teamdevice/StartAuditLogsQuery',
+        path: 'cli/StartAuditLogsQuery',
         payload: queryParams,
         authentication: {
-            type: 'teamDevice',
-            teamDeviceKeys: teamDeviceCredentials,
-            teamUuid: teamDeviceCredentials.uuid,
+            type: 'enrolledDevice',
+            enrolledTeamDeviceKeys: enrolledTeamDeviceCredentials,
         },
     });
 
@@ -93,12 +91,11 @@ export const getAuditLogs = async (params: {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         result = await api.sendSecureContent<GetAuditLogQueryResultsRequest>({
             ...api,
-            path: 'logs-teamdevice/GetAuditLogQueryResults',
+            path: 'cli/GetAuditLogQueryResults',
             payload: { queryExecutionId, maxResults: MAX_RESULT, nextToken: result?.nextToken },
             authentication: {
-                type: 'teamDevice',
-                teamDeviceKeys: teamDeviceCredentials,
-                teamUuid: teamDeviceCredentials.uuid,
+                type: 'enrolledDevice',
+                enrolledTeamDeviceKeys: enrolledTeamDeviceCredentials,
             },
         });
         logger.debug(`Query state: ${result.state}`);
