@@ -1,8 +1,8 @@
-import { requestTeamApi } from '../requestApi.js';
-import { TeamDeviceCredentials } from '../types.js';
+import { requestEnrolledDeviceApi } from '../requestApi.js';
+import { EnrolledTeamDeviceCredentials } from '../types.js';
 
 interface GetTeamDarkWebInsightsReportParams {
-    teamDeviceCredentials: TeamDeviceCredentials;
+    enrolledTeamDeviceCredentials: EnrolledTeamDeviceCredentials;
     domain: string;
     orderBy: 'DEFAULT' | 'UNSEEN' | 'TEAM_MEMBERS' | 'PUBLISH_DATE';
     count: number;
@@ -10,13 +10,9 @@ interface GetTeamDarkWebInsightsReportParams {
 }
 
 export const getTeamDarkWebInsightsReport = async (params: GetTeamDarkWebInsightsReportParams) =>
-    requestTeamApi<GetTeamDarkWebInsightsReportOutput>({
-        path: 'teams-teamdevice/GetDarkWebInsightsReportDetails',
-        teamUuid: params.teamDeviceCredentials.uuid,
-        teamDeviceKeys: {
-            accessKey: params.teamDeviceCredentials.accessKey,
-            secretKey: params.teamDeviceCredentials.secretKey,
-        },
+    requestEnrolledDeviceApi<GetTeamDarkWebInsightsReportOutput>({
+        path: 'cli/GetDarkWebInsightsReportDetails',
+        enrolledTeamDeviceKeys: params.enrolledTeamDeviceCredentials,
         payload: {
             domain: params.domain,
             orderBy: 'DEFAULT',

@@ -1,6 +1,6 @@
 import { getTeamDarkWebInsightsReport } from '../endpoints/index.js';
 import { logger } from '../logger.js';
-import { getTeamDeviceCredentials } from '../utils/index.js';
+import { getEnrolledTeamDeviceCredentials } from '../utils/index.js';
 
 export const runTeamDarkWebInsightsReport = async (
     domain: string,
@@ -8,10 +8,10 @@ export const runTeamDarkWebInsightsReport = async (
 ) => {
     const { orderBy, count, offset } = options;
 
-    const teamDeviceCredentials = getTeamDeviceCredentials();
+    const enrolledTeamDeviceCredentials = getEnrolledTeamDeviceCredentials();
 
     const response = await getTeamDarkWebInsightsReport({
-        teamDeviceCredentials,
+        enrolledTeamDeviceCredentials,
         domain,
         orderBy: orderBy ?? 'DEFAULT',
         count: count ?? 100,
