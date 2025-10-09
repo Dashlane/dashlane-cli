@@ -1,5 +1,5 @@
 import { Callout } from 'nextra/components';
-import { AdminBanner } from '../../src/banners';
+import { AdminBanner, AdminFeatureBanner } from '../../src/banners';
 
 # Get started with Business Commands
 
@@ -10,24 +10,23 @@ The first step is to login with the personal account ([follow this guide](../per
 
 ## Generate credentials
 
-<AdminBanner />
+<AdminFeatureBanner />
 
+You will first need to access the Dashlane Admin Console. From there, navigate to Integrations > [Developer Access](https://universal.dashlane.com/developer-access) page to generate your CLI key with the desired scope(s) and expiration date (of maximum 12 months).
+
+After generating the key, you will receive a variable to export in your environment. Simply copy/paste it in your terminal.
+
+On **Linux / MacOS**, use the following:
 ```sh copy
-dcli t credentials generate
-```
-
-You will be prompted with a variable to export in your environment. Simply copy/paste it in your terminal.
-
-```sh copy
-export DASHLANE_TEAM_DEVICE_KEYS=dlt_[deviceAccessKey]_[payload]
+export DASHLANE_ENROLLED_TEAM_DEVICE_KEYS='XXX'
 ```
 
 ---
 
-On **Windows**, you can use the following command instead of `export`.
+On **Windows**, you can use:
 
 ```powershell copy
-$env:DASHLANE_TEAM_DEVICE_KEYS='dlt_[deviceAccessKey]_[payload]'
+$env:DASHLANE_ENROLLED_TEAM_DEVICE_KEYS='XXX'
 ```
 
 You can ensure that the variable is correctly set by running:
@@ -46,16 +45,12 @@ Make sure you save the generated secret in a safe place (use a secure note for i
 
 ## List credentials
 
-<AdminBanner />
+<AdminFeatureBanner />
 
-```sh copy
-dcli t credentials list
-```
+Go to the [Developer Access](https://universal.dashlane.com/developer-access) page in the Admin Console to see the list of credentials created across your organization.
 
 ## Revoke credentials
 
-<AdminBanner />
+<AdminFeatureBanner />
 
-```sh copy
-dcli t credentials revoke <DASHLANE_TEAM_ACCESS_KEY>
-```
+From the [Developer Access](https://universal.dashlane.com/developer-access) page in the Admin Console, you can easily revoke any previously generated credentials.
