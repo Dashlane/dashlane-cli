@@ -36,12 +36,6 @@ interface UserDeviceAuthenticationParams {
     deviceKeys: { accessKey: string; secretKey: string };
 }
 
-interface TeamDeviceAuthenticationParams {
-    type: 'teamDevice';
-    teamUuid: string;
-    teamDeviceKeys: { accessKey: string; secretKey: string };
-}
-
 interface EnrolledDeviceAuthenticationParams {
     type: 'enrolledDevice';
     enrolledTeamDeviceKeys: {
@@ -55,7 +49,6 @@ interface EnrolledDeviceAuthenticationParams {
 export type AuthenticationParams =
     | AppAuthenticationParams
     | UserDeviceAuthenticationParams
-    | TeamDeviceAuthenticationParams
     | EnrolledDeviceAuthenticationParams;
 
 export interface SendSecureContentParams<R extends ApiRequestsDefault> {
