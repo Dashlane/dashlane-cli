@@ -62,7 +62,6 @@ export interface GetAuditLogQueryResultsRequest {
     input: GetAuditLogQueryResultsParams;
     output: GetAuditLogQueryResultsOutput;
 }
-const MAX_RESULT = 1000;
 
 export const getAuditLogs = async (params: {
     queryParams: StartAuditLogsQueryParams;
@@ -92,7 +91,7 @@ export const getAuditLogs = async (params: {
         result = await api.sendSecureContent<GetAuditLogQueryResultsRequest>({
             ...api,
             path: 'cli/GetAuditLogQueryResults',
-            payload: { queryExecutionId, maxResults: MAX_RESULT, nextToken: result?.nextToken },
+            payload: { queryExecutionId, nextToken: result?.nextToken },
             authentication: {
                 type: 'enrolledDevice',
                 enrolledTeamDeviceKeys: enrolledTeamDeviceCredentials,
@@ -108,5 +107,5 @@ export const getAuditLogs = async (params: {
         }
     } while (result.state !== 'SUCCEEDED' || result.nextToken);
 
-    return logs.map((log) => JSON.parse(log) as GenericLog);
+    return logs as unknown as GenericLog[];
 };
