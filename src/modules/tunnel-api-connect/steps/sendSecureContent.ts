@@ -4,7 +4,7 @@ import type { SecureContentRequest, SecureContentResponse, SendSecureContentPara
 import { SecureTunnelNotInitialized, SendSecureContentDataDecryptionError } from '../errors.js';
 import type { ApiConnectInternalParams, ApiData, ApiRequestsDefault } from '../types.js';
 import { TypeCheck } from '../../typecheck/index.js';
-import { requestAppApi, requestEnrolledDeviceApi, requestTeamApi, requestUserApi } from '../../../requestApi.js';
+import { requestAppApi, requestEnrolledDeviceApi, requestUserApi } from '../../../requestApi.js';
 
 const verifySendSecureBodySchemaValidator = new TypeCheck<SecureContentResponse>(secureContentBodyDataSchema);
 
@@ -55,15 +55,6 @@ export const sendSecureContent = async <R extends ApiRequestsDefault>(
                 isNitroEncryptionService: true,
                 deviceKeys: authentication.deviceKeys,
                 login: authentication.login,
-            });
-            break;
-        case 'teamDevice':
-            response = await requestTeamApi<SecureContentResponse>({
-                path,
-                payload,
-                isNitroEncryptionService: true,
-                teamDeviceKeys: authentication.teamDeviceKeys,
-                teamUuid: authentication.teamUuid,
             });
             break;
         case 'enrolledDevice':

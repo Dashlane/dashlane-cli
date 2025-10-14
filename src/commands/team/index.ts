@@ -1,14 +1,18 @@
 import { Command, Option } from 'commander';
 import { teamCredentialsCommands } from './credentials.js';
 import { PublicAPICommands } from './publicAPI.js';
-import { CouldNotFindTeamCredentialsError } from '../../errors.js';
+import { CouldNotFindEnrolledTeamDeviceCredentialsError } from '../../errors.js';
 import {
     runTeamDarkWebInsightsReport,
     runTeamLogs,
     runTeamMembers,
     runTeamReport,
 } from '../../command-handlers/index.js';
-import { customParseInt, customParseTimestampMilliseconds, getTeamDeviceCredentials } from '../../utils/index.js';
+import {
+    customParseInt,
+    customParseTimestampMilliseconds,
+    getEnrolledTeamDeviceCredentials,
+} from '../../utils/index.js';
 
 export const teamCommands = (params: { program: Command }) => {
     const { program } = params;
@@ -16,13 +20,14 @@ export const teamCommands = (params: { program: Command }) => {
     const teamGroup = program.command('team').alias('t').description('Team related commands');
 
     try {
-        getTeamDeviceCredentials();
+        getEnrolledTeamDeviceCredentials();
     } catch (error) {
-        if (error instanceof CouldNotFindTeamCredentialsError) {
+        if (error instanceof CouldNotFindEnrolledTeamDeviceCredentialsError) {
             teamGroup.addHelpText(
                 'before',
-                '/!\\ Commands in this section (except credentials) require team credentials to be set in the environment.\n' +
-                    'Use `dcli team credentials generate` to generate some team credentials (requires to be a team administrator).\n'
+                '/!\\ Commands in this section require enrolled team device credentials to be set in the environment.\n' +
+                    'You will first need to access the Dashlane Admin Console. From there, navigate to Integrations > [Developer Access](https://universal.dashlane.com/developer-access) page to generate your CLI key with the desired scope(s) and expiration date (of maximum 12 months).\n' +
+                    'After generating the key, you will receive a variable to export to your environment. Simply copy/paste it into your terminal.'
             );
         }
     }

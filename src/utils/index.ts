@@ -7,5 +7,4 @@ export * from './secretPath.js';
 export * from './secretTransformation.js';
 export * from './stagingCheck.js';
 export * from './strings.js';
-export * from './teamDeviceCredentials.js';
 export * from './enrolledTeamDeviceCredentials.js';

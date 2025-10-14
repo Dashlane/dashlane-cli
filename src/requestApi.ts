@@ -110,30 +110,6 @@ export const requestUserApi = async <T>(params: RequestUserApi): Promise<T> => {
     });
 };
 
-export interface RequestTeamApi {
-    teamUuid: string;
-    payload: Record<string, unknown>;
-    path: string;
-    teamDeviceKeys: {
-        accessKey: string;
-        secretKey: string;
-    };
-    isNitroEncryptionService?: boolean;
-}
-
-export const requestTeamApi = async <T>(params: RequestTeamApi): Promise<T> => {
-    const { teamUuid, teamDeviceKeys, ...otherParams } = params;
-    return requestApi({
-        ...otherParams,
-        authentication: {
-            type: 'teamDevice',
-            ...dashlaneApiKeys,
-            teamUuid,
-            ...teamDeviceKeys,
-        },
-    });
-};
-
 export interface RequestEnrolledDeviceApi {
     payload: Record<string, unknown>;
     path: string;
