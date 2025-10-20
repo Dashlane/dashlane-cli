@@ -1,6 +1,6 @@
 import { getTeamReport as getTeamReportRequest } from '../endpoints/index.js';
 import { logger } from '../logger.js';
-import { getTeamDeviceCredentials } from '../utils/index.js';
+import { getEnrolledTeamDeviceCredentials } from '../utils/index.js';
 
 interface GetTeamMembersParams {
     days: number;
@@ -8,10 +8,10 @@ interface GetTeamMembersParams {
 
 export const runTeamReport = async (params: GetTeamMembersParams) => {
     const { days } = params;
-    const teamDeviceCredentials = getTeamDeviceCredentials();
+    const enrolledTeamDeviceCredentials = getEnrolledTeamDeviceCredentials();
 
     const response = await getTeamReportRequest({
-        teamDeviceCredentials,
+        enrolledTeamDeviceCredentials,
         days,
     });
 

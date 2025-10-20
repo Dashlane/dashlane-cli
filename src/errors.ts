@@ -1,12 +1,12 @@
-export class CouldNotFindTeamCredentialsError extends Error {
+export class CouldNotFindEnrolledTeamDeviceCredentialsError extends Error {
     constructor() {
-        super('Could not find team credentials');
+        super('Could not find enrolled team device credentials');
     }
 }
 
-export class TeamCredentialsWrongFormatError extends Error {
+export class EnrolledTeamDeviceCredentialsWrongFormatError extends Error {
     constructor() {
-        super('Team credentials has a wrong format');
+        super('Enrolled team device credentials has a wrong format');
     }
 }
 

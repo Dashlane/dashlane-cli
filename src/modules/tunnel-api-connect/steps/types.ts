@@ -36,16 +36,20 @@ interface UserDeviceAuthenticationParams {
     deviceKeys: { accessKey: string; secretKey: string };
 }
 
-interface TeamDeviceAuthenticationParams {
-    type: 'teamDevice';
-    teamUuid: string;
-    teamDeviceKeys: { accessKey: string; secretKey: string };
+interface EnrolledDeviceAuthenticationParams {
+    type: 'enrolledDevice';
+    enrolledTeamDeviceKeys: {
+        nodeWSAccessKey: string;
+        nitroDeviceAccessKey: string;
+        nitroDeviceSecretKey: string;
+        secretKey: string;
+    };
 }
 
 export type AuthenticationParams =
     | AppAuthenticationParams
     | UserDeviceAuthenticationParams
-    | TeamDeviceAuthenticationParams;
+    | EnrolledDeviceAuthenticationParams;
 
 export interface SendSecureContentParams<R extends ApiRequestsDefault> {
     path: R['path'];

@@ -1,20 +1,16 @@
-import { TeamDeviceCredentials } from '../types.js';
-import { requestTeamApi } from '../requestApi.js';
+import { EnrolledTeamDeviceCredentials } from '../types.js';
+import { requestEnrolledDeviceApi } from '../requestApi.js';
 
 interface GetTeamMembersParams {
-    teamDeviceCredentials: TeamDeviceCredentials;
+    enrolledTeamDeviceCredentials: EnrolledTeamDeviceCredentials;
     page: number;
     limit: number;
 }
 
 export const getTeamMembers = (params: GetTeamMembersParams) =>
-    requestTeamApi<GetTeamMembersOutput>({
-        path: 'teams-teamdevice/GetTeamMembers',
-        teamUuid: params.teamDeviceCredentials.uuid,
-        teamDeviceKeys: {
-            accessKey: params.teamDeviceCredentials.accessKey,
-            secretKey: params.teamDeviceCredentials.secretKey,
-        },
+    requestEnrolledDeviceApi<GetTeamMembersOutput>({
+        path: 'cli/GetTeamMembers',
+        enrolledTeamDeviceKeys: params.enrolledTeamDeviceCredentials,
         payload: {
             orderBy: 'login',
             page: params.page,

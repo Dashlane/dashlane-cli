@@ -1,13 +1,13 @@
 import { getAuditLogs } from '../endpoints/index.js';
-import { getTeamDeviceCredentials, jsonToCsv, epochTimestampToIso } from '../utils/index.js';
+import { jsonToCsv, epochTimestampToIso, getEnrolledTeamDeviceCredentials } from '../utils/index.js';
 import { logger } from '../logger.js';
 
 export const runTeamLogs = async (options: { start: string; end: string; csv: boolean; humanReadable: boolean }) => {
-    const teamDeviceCredentials = getTeamDeviceCredentials();
+    const enrolledTeamDeviceCredentials = getEnrolledTeamDeviceCredentials();
     const { start, end } = options;
 
     let logs = await getAuditLogs({
-        teamDeviceCredentials,
+        enrolledTeamDeviceCredentials,
         queryParams: {
             startDateRangeUnixMs: parseInt(start),
             endDateRangeUnixMs: parseInt(end),
