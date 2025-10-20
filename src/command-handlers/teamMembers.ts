@@ -1,6 +1,11 @@
 import { getTeamMembers as getTeamMembersRequest } from '../endpoints/index.js';
 import { logger } from '../logger.js';
-import { getTeamDeviceCredentials, flattenJsonArrayOfObject, jsonToCsv, epochTimestampToIso } from '../utils/index.js';
+import {
+    flattenJsonArrayOfObject,
+    jsonToCsv,
+    epochTimestampToIso,
+    getEnrolledTeamDeviceCredentials,
+} from '../utils/index.js';
 
 interface GetTeamMembersOpts {
     csv: boolean;
@@ -8,10 +13,10 @@ interface GetTeamMembersOpts {
 }
 
 export const runTeamMembers = async (page: number, limit: number, options: GetTeamMembersOpts) => {
-    const teamDeviceCredentials = getTeamDeviceCredentials();
+    const enrolledTeamDeviceCredentials = getEnrolledTeamDeviceCredentials();
 
     const response = await getTeamMembersRequest({
-        teamDeviceCredentials,
+        enrolledTeamDeviceCredentials,
         page,
         limit,
     });

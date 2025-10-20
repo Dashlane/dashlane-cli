@@ -59,7 +59,7 @@ This image can run on the platform of your choice. To make a simple test, you ca
 -   Delay between each log pull
 -   Default to `60` seconds
 
-`DASHLANE_TEAM_DEVICE_KEYS`
+`DASHLANE_ENROLLED_TEAM_DEVICE_KEYS`
 
 -   Secret key to authenticate against Dashlane servers as the team
 -   [Documentation to generate the credentials](https://cli.dashlane.com/business)
@@ -68,7 +68,7 @@ This image can run on the platform of your choice. To make a simple test, you ca
 
 ```
 docker pull dashlane/audit-logs
-docker run -e DASHLANE_TEAM_DEVICE_KEYS=XXX -it dashlane/audit-logs:latest
+docker run -e DASHLANE_ENROLLED_TEAM_DEVICE_KEYS=XXX -it dashlane/audit-logs:latest
 ```
 
 Running those commands will create a simple container that pull your business every minutes and and print them on the stdout of the container.

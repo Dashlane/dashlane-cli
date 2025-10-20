@@ -12,7 +12,6 @@ export * from './secrets.js';
 export * from './secureNotes.js';
 export * from './sync.js';
 export * from './teamDarkWebInsightsReport.js';
-export * from './teamDevices.js';
 export * from './teamLogs.js';
 export * from './teamMembers.js';
 export * from './teamReport.js';

@@ -4,7 +4,7 @@ import process from 'process';
 
 import { cliVersionToString, CLI_VERSION } from './cliVersion.js';
 import { rootCommands } from './commands/index.js';
-import { initDeviceCredentials, initStagingCheck, initTeamDeviceCredentials } from './utils/index.js';
+import { initDeviceCredentials, initEnrolledTeamDeviceCredentials, initStagingCheck } from './utils/index.js';
 import { errorColor, initLogger } from './logger.js';
 
 process.removeAllListeners('warning');
@@ -14,8 +14,8 @@ const debugLevel = process.argv.indexOf('--debug') !== -1 ? 'debug' : 'info';
 initLogger({ debugLevel });
 
 initStagingCheck();
-initTeamDeviceCredentials();
 initDeviceCredentials();
+initEnrolledTeamDeviceCredentials();
 
 const program = new Command();
 
