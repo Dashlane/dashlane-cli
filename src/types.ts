@@ -25,6 +25,17 @@ export interface TeamDeviceCredentials {
     secretKey: string;
 }
 
+export interface EnrolledTeamDeviceCredentials {
+    // Node WS Access Key
+    nodeWSAccessKey: string;
+    // Node WS Secret Key
+    secretKey: string;
+    // Nitro Access Key
+    nitroDeviceAccessKey: string;
+    // Nitro Secret Key
+    nitroDeviceSecretKey: string;
+}
+
 export interface DeviceCredentials {
     login: string;
     accessKey: string;

@@ -1,7 +1,4 @@
 import { Command } from 'commander';
-import { createTeamDevice, listAllTeamDevices } from '../../command-handlers/index.js';
-import { connectAndPrepare } from '../../modules/database/index.js';
-import { deactivateTeamDevice } from '../../endpoints/index.js';
 import { logger } from '../../logger.js';
 
 export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
@@ -11,40 +8,26 @@ export const teamCredentialsCommands = (params: { teamGroup: Command }) => {
 
     teamCredentialsGroup
         .command('generate')
-        .option('--json', 'Output in JSON format')
         .description('Generate new team credentials')
-        .action(async (options: { json: boolean }) => {
-            const teamDeviceKeys = await createTeamDevice();
-
-            if (options.json) {
-                logger.content(
-                    JSON.stringify({
-                        DASHLANE_TEAM_DEVICE_KEYS: teamDeviceKeys,
-                    })
-                );
-            } else {
-                logger.success(
-                    'The credentials have been generated, run the following command to export them in your env:'
-                );
-                logger.content(`export DASHLANE_TEAM_DEVICE_KEYS=${teamDeviceKeys}`);
-            }
+        .action(() => {
+            logger.content(`ACTION REQUIRED: The CLI credentials are **deprecated**. 
+For enhanced security and continued access, please create your new CLI keys in the Admin Console: https://universal.dashlane.com/developer-access`);
         });
 
     teamCredentialsGroup
         .command('list')
         .option('--json', 'Output in JSON format')
         .description('List all team credentials')
-        .action(listAllTeamDevices);
+        .action(() => {
+            logger.content(`ACTION REQUIRED: The CLI credentials are **deprecated**. 
+For enhanced security and continued access, please view your new CLI keys in the Admin Console: https://universal.dashlane.com/developer-access`);
+        });
 
     teamCredentialsGroup
         .command('revoke')
         .description('Revoke credentials by access key')
-        .argument('<accessKey>', 'Access key of the credentials to revoke')
-        .action(async (accessKey: string) => {
-            const { db, localConfiguration } = await connectAndPrepare({ autoSync: false });
-            await deactivateTeamDevice({ localConfiguration, teamDeviceAccessKey: accessKey });
-            db.close();
-
-            logger.success('The credentials have been revoked.');
+        .action(() => {
+            logger.content(`ACTION REQUIRED: The Team Device credentials are **deprecated**. 
+For enhanced security and continued access, please revoke your new CLI keys in the Admin Console: https://universal.dashlane.com/developer-access`);
         });
 };

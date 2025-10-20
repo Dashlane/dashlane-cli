@@ -1,11 +1,33 @@
-import { got, Response } from 'got';
-import { RequestFunction, RequestFunctionOptions } from '../modules/api-connect/index.js';
+import { RequestFunctionOptions } from '@dashlane/apiconnect-utils';
+import os from 'os';
+import { got } from 'got';
+import { cliVersionToString, CLI_VERSION } from '../cliVersion';
 
-export const gotImplementation: RequestFunction<Response<string>> = (options: RequestFunctionOptions) => {
+const makeStagingCloudflareHeaders = () =>
+    process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS
+        ? {
+              'CF-Access-Client-Id': process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS ?? '',
+              'CF-Access-Client-Secret': process.env.CLOUDFLARE_SERVICE_TOKEN_SECRET ?? '',
+          }
+        : undefined;
+
+const makeDashlaneClientAgent = () =>
+    JSON.stringify({
+        version: `${cliVersionToString(CLI_VERSION)}`,
+        platform: 'server_cli',
+        osversion: `${os.platform()}-${os.arch()}`,
+        partner: 'dashlane',
+    });
+
+export const gotImplementation = (options: RequestFunctionOptions) => {
     const { headers, json, url } = options;
 
     return got.post(url, {
-        headers,
+        headers: {
+            ...headers,
+            ...(process.env.CLOUDFLARE_SERVICE_TOKEN_ACCESS ? makeStagingCloudflareHeaders() : {}),
+            'dashlane-client-agent': makeDashlaneClientAgent(),
+        },
         json,
         retry: { limit: 3 },
         throwHttpErrors: false,

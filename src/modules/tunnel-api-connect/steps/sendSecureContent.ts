@@ -4,7 +4,7 @@ import type { SecureContentRequest, SecureContentResponse, SendSecureContentPara
 import { SecureTunnelNotInitialized, SendSecureContentDataDecryptionError } from '../errors.js';
 import type { ApiConnectInternalParams, ApiData, ApiRequestsDefault } from '../types.js';
 import { TypeCheck } from '../../typecheck/index.js';
-import { requestAppApi, requestTeamApi, requestUserApi } from '../../../requestApi.js';
+import { requestAppApi, requestEnrolledDeviceApi, requestUserApi } from '../../../requestApi.js';
 
 const verifySendSecureBodySchemaValidator = new TypeCheck<SecureContentResponse>(secureContentBodyDataSchema);
 
@@ -27,7 +27,18 @@ export const sendSecureContent = async <R extends ApiRequestsDefault>(
     const { path, clientStateIn, clientStateOut, payload: rawPayload, authentication = { type: 'app' } } = params;
     const { tunnelUuid } = apiData.clientHello;
 
-    const encryptedData = encryptData(clientStateOut, rawPayload);
+    // We assume that this section of the code will only be calling NodeWS Proxy with this authentication
+    // Inject the enrolledDeviceSecretKey when targeting NodeWS Enclave Proxy authentification
+    // to provide Nitro specific key
+    let injectedPayload = rawPayload;
+    if (authentication.type === 'enrolledDevice') {
+        injectedPayload = {
+            ...(typeof rawPayload === 'object' ? rawPayload : {}),
+            enrolledDeviceSecretKey: authentication.enrolledTeamDeviceKeys.nitroDeviceSecretKey,
+        };
+    }
+
+    const encryptedData = encryptData(clientStateOut, injectedPayload);
 
     const payload = {
         encryptedData: sodium.to_hex(encryptedData),
@@ -46,13 +57,12 @@ export const sendSecureContent = async <R extends ApiRequestsDefault>(
                 login: authentication.login,
             });
             break;
-        case 'teamDevice':
-            response = await requestTeamApi<SecureContentResponse>({
+        case 'enrolledDevice':
+            response = await requestEnrolledDeviceApi<SecureContentResponse>({
                 path,
                 payload,
                 isNitroEncryptionService: true,
-                teamDeviceKeys: authentication.teamDeviceKeys,
-                teamUuid: authentication.teamUuid,
+                enrolledTeamDeviceKeys: authentication.enrolledTeamDeviceKeys,
             });
             break;
         case 'app':
