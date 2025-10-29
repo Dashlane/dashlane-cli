@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[151],{8070:(_,e,s)=>{(window.__NEXT_P=window.__NEXT_P||[]).push(["/business/_meta",function(){return s(8075)}])},8075:(_,e,s)=>{"use strict";s.r(e),s.d(e,{__N_SSG:()=>u,default:()=>n});var u=!0;let n=()=>null}},_=>{_.O(0,[636,593,792],()=>_(_.s=8070)),_N_E=_.O()}]);
