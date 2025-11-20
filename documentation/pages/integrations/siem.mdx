@@ -80,63 +80,6 @@ Some example of configuration is provided in `example/`.
 
 ## SIEM configuration
 
-### Azure Log analytics workspace
-
-To send your Dashlane audit logs on Azure in a Log Analytics Workspace, you can use the template provided in the dashlane-audit-logs repository. The template will create a container instance that will automatically pull and run the Dashlane Docker image and send the logs in a **ContainerInstanceLog_CL** table in the Log Analytics Workspace of your choice. Before deploying the template you will have to provide:
-
--   The location where you want your container to run (ex: "West Europe")
--   Your Dashlane credentials
--   Your Log Analytics Workspace ID and Shared Key
-
-> **Click on the button to start the deployment**
->
-> [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDashlane%2Fdashlane-audit-logs%2Fmain%2FAzureTemplates%2FLog%20Analytics%20Workspace%2Fazuredeploy.json)
-
-### Azure blob storage
-
-If you want to send your logs to an Azure storage account, you can use the deployment template we provide in the dashlane-audit-logs repository, which will:
-
--   Create a storage account and a file share to upload a custom FluentBit configuration file
--   Create a container instance running the Docker image with your custom file
-
-You will need:
-
--   Your Dashlane credentials
--   A custom FluentBit configuration file
-
-> **Click on the button to start the deployment**
->
-> [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDashlane%2Fdashlane-audit-logs%2Fmain%2FAzureTemplates%2FBlob%20storage%2Fazuredeploy.json)
-
-Once your container is deployed, copy the following configuration into a file called "fluent-bit.conf".
-
-```
-[INPUT]
-    Name  stdin
-    Tag   dashlane
-
-[OUTPUT]
-    Name  stdout
-    Match *
-    Format json_lines
-
-[OUTPUT]
-    name                  azure_blob
-    match                 *
-    account_name          ${STORAGE_ACCOUNT_NAME}
-    shared_key            ${ACCESS_KEY}
-    container_name        audit-logs
-    auto_create_container on
-    tls                   on
-    blob_type             blockblob
-```
-
-Then upload in the storage account you just created. In the Azure Portal, go to **Storage accounts**, select the one you just created, go to **File shares**, select **fluentbit-configuration** and upload your configuration file.
-
-> The "blob_type" configuration specifies to create a blob for every log entry on the storage account, which facilitates the logs manipulation for eventual post-processing treatment.
-
-> The configuration provided above is meant to be working out of the box, but can be customized to suit your needs. You can refer to FluentBit's documentation to see all available options: https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob
-
 ## Splunk
 
 If you want to send your logs to Splunk, you need to create a HEC (HTTP Event Collector) on your Splunk instance. As an example, we will show here how to create one on a Splunk Cloud instance.
