@@ -3,7 +3,7 @@
     "type": "module",
     "packageManager": "yarn@4.5.1",
     "dependencies": {
-        "next": "^15.4.7",
+        "next": "^15.5.7",
         "nextra": "^3.2.3",
         "nextra-theme-docs": "^3.2.3",
         "react": "^18.3.1",
