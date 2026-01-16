@@ -1,111 +1,31 @@
-import { EnrolledDeviceCredentialsBanner } from '../../src/banners';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { CLI_VERSION, cliVersionToString } from '../cliVersion.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { getEnrolledTeamDeviceCredentials } from '../utils/index.js';
+import { getAuditLogs } from '../endpoints/index.js';
+import { logger } from '../logger.js';
 
-# Audit logs
+export const runTeamMcp = async () => {
+    const enrolledTeamDeviceCredentials = getEnrolledTeamDeviceCredentials();
 
-<EnrolledDeviceCredentialsBanner />
+    const server = new McpServer({
+        name: 'Dashlane Password Manager - Team MPC',
+        version: cliVersionToString(CLI_VERSION),
+    });
 
-The audit logs helps you trace and prevent security vulnerabilities for your organization.
+    // TODO Simple audit log type documentation is duplicated there. Ideally we would have a way to auto generate it from our internal JSON schemas
+    server.registerTool(
+        'get-audit-logs',
+        {
+            title: 'Get Dashlane audit logs',
+            description: `Fetch Dashlane audit logs between start and end (provided as ISO 8601 UTC timestamp). If end is not provided, "now" is assumed.
+            The output of this command can be very large, avoid fetching more than a month worth of logs at once, and don't try to read everything at once.
+            Prefer using tools such as jq if available to explore the data.
 
-You can read more about it in our [dedicated Help Center article](https://support.dashlane.com/hc/en-us/articles/4414606120210-Track-Starter-Team-or-Business-plan-activity).
+# Logs types
 
-## Fetching the logs
-
-You can query the audit logs using the `logs` command. For example:
-
-```sh copy
-dcli t logs
-```
-
-You can also save the logs to a file:
-
-```sh copy
-dcli t logs --start 0 --end now > logs.json
-```
-
-The logs are output in JSON format, each line is a new log entry.
-
-```json
-{"uuid": "e2d9ce5b-[..redacted..]-b6de479b3483", "team_id": 1315574321, "category": "authentication", "log_type": "user_device_added", "date_time": 1688629046919, "properties": {"device_name": "Dashlane CLI", "author_login": "admin@something.io", "device_platform": "server_standalone"}, "author_user_id": 28080685, "schema_version": "1.0.0"}
-{"uuid": "d2f5db34-[..redacted..]-1dfcc3bdf911", "team_id": 1315574321, "category": "authentication", "log_type": "user_device_added", "date_time": 1688628172021, "properties": {"device_name": "Chrome - Mac OS", "author_login": "admin@something.io", "device_platform": "server_standalone"}, "author_user_id": 28080685, "schema_version": "1.0.0"}
-{"uuid": "4ca3bb56-[..redacted..]-66cbb387cb54", "team_id": 1315574321, "category": "authentication", "log_type": "user_device_added", "date_time": 1683303544898, "properties": {"device_name": "Firefox - Ubuntu", "author_login": "user@something.io", "device_platform": "server_standalone"}, "author_user_id": 28086620, "schema_version": "1.0.0"}
-{"uuid": "68e70f62-[..redacted..]-1bb9830f9f18", "team_id": 1315574321, "category": "team_settings_sso", "log_type": "sso_service_provider_url_set", "date_time": 1671629557924, "properties": {"author_login": "admin@something.io", "service_provider_url": "https://sso.nitro.dashlane.com"}, "author_user_id": 28080685, "schema_version": "1.0.0"}
-```
-
-## Filtering the logs
-
-With the following options you can filter the logs by start and end date.
-
-```sh
-  --start <start>        start timestamp in ms (default: "0")
-  --end <end>            end timestamp in ms (default: "now")
-```
-
-### Filtering by date
-
-We use epoch timestamps in milliseconds, so you can use the `date` command to get the timestamp of a specific date:
-
-```sh
-# On Linux and Windows
-date -d "2021-09-01" +%s000
-
-# On macOS
-date -j -f "%Y-%m-%d" "2021-09-01" +%s000
-```
-
-The final command would look like this using `date`:
-
-```sh copy
-# On Linux and Windows
-dcli t logs --start $(date -d "2021-09-01" +%s000) --end $(date -d "2021-09-02" +%s000)
-
-# On macOS
-dcli t logs --start $(date -j -f "%Y-%m-%d" "2021-09-01" +%s000) --end $(date -j -f "%Y-%m-%d" "2021-09-02" +%s000)
-```
-
-In the output logs timestamps are in milliseconds, so you can use the `date` command to convert them to a human readable format:
-
-```sh
-# On Linux and Windows
-date -d @1688629046919
-
-# On macOS
-date -r 1688629046919
-```
-
-## Options
-
-### Export as CSV
-
-You can export the logs as CSV using the `--csv` option.
-
-```sh copy
-dcli t logs --csv --start 0 --end now > logs.csv
-```
-
-This allows you to open the logs in a spreadsheet editor like Excel or Google Sheets.
-Note that the `properties` field is kept as a JSON string in the CSV file because its content varies depending on the log type.
-
-### Human Readable dates
-
-You can use the `--human-readable` option to output the logs with human readable dates.
-
-```sh copy
-dcli t logs --human-readable
-```
-
-The date will be displayed in the ISO 8601 format.
-
-Note that a new key named `date_time_iso` will be added to the logs.
-
-### Query using an AI agent with Model Context Protocol (MCP)
-
-Dashlane audit logs can be queried by local AI agents supporting the Model Context Protocol. 
-
-See more details on [the corresponding integration page](/integrations/mcp)
-
-## Logs types
-
-### Default types
+## Default types
 
 | Type                                           | Event message                                          |
 | ---------------------------------------------- | ------------------------------------------------------ |
@@ -154,9 +74,7 @@ See more details on [the corresponding integration page](/integrations/mcp)
 | nudge_executed                                 | Nudged %(successes)s users for %(nudge_name)s          |
 | user_received_nudge                            | Received %(nudge_received)s nudge                      |
 
-### Sensitive types
-
-You can turn on logging sensitive actions in the Policies section of Settings in the Admin Console. Read more about it in our [dedicated Help Center article](https://support.dashlane.com/hc/en-us/articles/4414606120210).
+## Sensitive types
 
 | Type                                       | Event message                                                                              |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------ |
@@ -179,7 +97,7 @@ You can turn on logging sensitive actions in the Policies section of Settings in
 | user_copied_credit_card_field              | Copied %(field)s for %(name)s credit card                                                  |
 | user_copied_bank_account_field             | Copied %(field)s for %(name)s bank account                                                 |
 
-## Logs categories
+# Logs categories
 
 | Category            |
 | ------------------- |
@@ -195,37 +113,27 @@ You can turn on logging sensitive actions in the Policies section of Settings in
 | users               |
 | user_settings       |
 | vault_passwords     |
+`,
+            inputSchema: { start: z.string(), end: z.optional(z.string()) },
+        },
+        async ({ start, end }) => {
+            const logs = await getAuditLogs({
+                enrolledTeamDeviceCredentials,
+                queryParams: {
+                    startDateRangeUnixMs: new Date(start).getTime(),
+                    endDateRangeUnixMs: end ? new Date(end).getTime() : Date.now(),
+                },
+            });
 
-## Use cases
+            return { content: [{ type: 'text', text: JSON.stringify(logs) }] };
+        }
+    );
 
-### Sending audit logs to a SIEM or log management solution
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    logger.info('MCP server is running...');
 
-If you want to send the logs to a SIEM for instance, you can pull the logs periodically and only get the new logs by using the `--start` option.
-
-Here is an example of a cron job that pulls the latest logs of the day and append them to a file:
-
-```sh
-#!/bin/bash
-
-# Create the cron job
-# crontab -e
-# 0 0 * * * /path/to/script.sh
-
-# Get the latest pull date
-if [ -f "last_pull_date" ]; then
-  last_pull_date=$(cat last_pull_date)
-else
-  last_pull_date=0
-fi
-
-# Save the latest pull date
-date +%s000 > last_pull_date
-
-# Pull the logs
-dcli t logs --start $last_pull_date >> logs.json
-```
-
-Make sure to replace `/path/to/script.sh` with the actual path to the script.
-The other paths in the script are only examples and may not reflect the permissions of your system, you can change them to your needs.
-
-Configure your SIEM agent to watch the `logs.json` file changes.
+    await new Promise((resolve) => {
+        server.server.onclose = () => resolve(null);
+    });
+};

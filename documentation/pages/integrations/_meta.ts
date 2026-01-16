@@ -1,5 +1,6 @@
 export default {
+    mcp: 'AI Agents',
     'github-action': 'GitHub Action',
-    vscode: 'Visual Studio Code',
     siem: 'SIEM',
+    vscode: 'Visual Studio Code',
 };
