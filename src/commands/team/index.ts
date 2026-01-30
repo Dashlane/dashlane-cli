@@ -6,6 +6,7 @@ import {
     runTeamDarkWebInsightsReport,
     runTeamLogs,
     runTeamMembers,
+    runTeamMcp,
     runTeamReport,
 } from '../../command-handlers/index.js';
 import {
@@ -81,4 +82,6 @@ export const teamCommands = (params: { program: Command }) => {
         .option('--count <count>', 'Results count per page', customParseInt, 100)
         .option('--offset <offset>', 'Page offset', customParseInt, 0)
         .action(runTeamDarkWebInsightsReport);
+
+    teamGroup.command('mcp').description('Start the MCP server').action(runTeamMcp);
 };
