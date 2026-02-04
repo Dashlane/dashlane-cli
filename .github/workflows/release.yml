@@ -10,7 +10,7 @@ jobs:
         strategy:
             matrix:
                 settings:
-                    - host: macos-13
+                    - host: macos-15-intel
                       target: macos-x64
                     - host: macos-14
                       target: macos-arm64
