@@ -71,6 +71,12 @@ export const pageMap = [{
       "sidebarTitle": "GitHub Action"
     }
   }, {
+    name: "mcp",
+    route: "/integrations/mcp",
+    frontMatter: {
+      "sidebarTitle": "Mcp"
+    }
+  }, {
     name: "siem",
     route: "/integrations/siem",
     frontMatter: {
