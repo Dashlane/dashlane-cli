@@ -1,6 +1,6 @@
 import { confirm, input, password, select } from '@inquirer/prompts';
 import { removeUnderscoresAndCapitalize } from './strings.js';
-import { getDeviceCredentials } from './deviceCredentials.js';
+import { getEnvDeviceCredentials } from './deviceCredentials.js';
 import {
     PrintableVaultCredential,
     PrintableVaultNote,
@@ -12,7 +12,7 @@ import {
 import { GetAuthenticationMethodsForDeviceResult } from '../endpoints/getAuthenticationMethodsForDevice.js';
 
 export const askMasterPassword = async (): Promise<string> => {
-    const deviceCredentials = getDeviceCredentials();
+    const deviceCredentials = getEnvDeviceCredentials();
     if (deviceCredentials !== null) {
         return deviceCredentials.masterPassword;
     }
@@ -48,7 +48,7 @@ export const askIgnoreBreakingChanges = async () => {
 };
 
 export const askEmailAddress = async (): Promise<string> => {
-    const deviceCredentials = getDeviceCredentials();
+    const deviceCredentials = getEnvDeviceCredentials();
     if (deviceCredentials !== null) {
         return deviceCredentials.login;
     }
