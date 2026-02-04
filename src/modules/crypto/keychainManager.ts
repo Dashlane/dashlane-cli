@@ -8,12 +8,13 @@ import { sha512 } from './hash.js';
 import { EncryptedData } from './types.js';
 import { decryptSsoRemoteKey } from './buildSsoRemoteKey.js';
 import { CLI_VERSION, cliVersionToString } from '../../cliVersion.js';
-import { perform2FAVerification, registerDevice } from '../auth/index.js';
+import { perform2FAVerification, registerDevice } from '../auth';
 import { DeviceConfiguration, LocalConfiguration } from '../../types.js';
-import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
+import { askEmailAddress, askMasterPassword } from '../../utils';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
-import { getDeviceCredentials } from '../../utils/index.js';
+import { getDeviceCredentials } from '../../utils';
 import { logger } from '../../logger.js';
+import { twoFactorAuthEnforcedChecker } from '../auth/twoFactorAuthEnforcedChecker';
 
 const SERVICE = 'dashlane-cli';
 
@@ -105,7 +106,9 @@ const getLocalConfigurationWithoutDB = async (
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
     // if non-interactive device, we consider it as email_token, so we don't need to call the API
-    const { type } = deviceCredentials ? { type: 'email_token' } : await get2FAStatusUnauthenticated({ login });
+    const { type } = deviceCredentials
+        ? { type: 'email_token' as const }
+        : await get2FAStatusUnauthenticated({ login });
 
     let masterPassword = '';
     const masterPasswordEnv = process.env.DASHLANE_MASTER_PASSWORD;
@@ -142,6 +145,18 @@ const getLocalConfigurationWithoutDB = async (
         });
     }
 
+    const localConfiguration = {
+        login,
+        masterPassword,
+        shouldNotSaveMasterPassword,
+        isSSO,
+        localKey,
+        accessKey: deviceAccessKey,
+        secretKey: deviceSecretKey,
+    };
+
+    await twoFactorAuthEnforcedChecker(localConfiguration, type);
+
     db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
@@ -158,15 +173,7 @@ const getLocalConfigurationWithoutDB = async (
         )
         .run();
 
-    return {
-        login,
-        masterPassword,
-        shouldNotSaveMasterPassword,
-        isSSO,
-        localKey,
-        accessKey: deviceAccessKey,
-        secretKey: deviceSecretKey,
-    };
+    return localConfiguration;
 };
 
 const getLocalConfigurationWithoutKeychain = async (
@@ -319,7 +326,7 @@ export const getLocalConfiguration = async (
         await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
 
-    return {
+    const localConfiguration = {
         login,
         masterPassword,
         shouldNotSaveMasterPassword: deviceConfiguration.shouldNotSaveMasterPassword,
@@ -328,6 +335,12 @@ export const getLocalConfiguration = async (
         accessKey: deviceConfiguration.accessKey,
         secretKey,
     };
+
+    const { type } = await get2FAStatusUnauthenticated({ login });
+
+    await twoFactorAuthEnforcedChecker(localConfiguration, type);
+
+    return localConfiguration;
 };
 
 export const warnUnreachableKeychainDisabled = (errorMessage: string) => {

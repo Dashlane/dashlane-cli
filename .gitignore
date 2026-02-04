@@ -4,6 +4,7 @@ dist
 bundle
 build
 .DS_Store
+.idea
 
 # Yarn related files
 .pnp.*
