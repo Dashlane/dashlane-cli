@@ -86,7 +86,7 @@
         "@inquirer/prompts": "^7.1.0",
         "@json2csv/plainjs": "^7.0.6",
         "@json2csv/transforms": "^7.0.6",
-        "@modelcontextprotocol/sdk": "^1.13.2",
+        "@modelcontextprotocol/sdk": "^1.26.0",
         "@napi-rs/clipboard": "^1.1.2",
         "@napi-rs/keyring": "^1.1.6",
         "@node-rs/argon2": "^2.0.0",
