@@ -10,7 +10,7 @@ export const runTeamMcp = async () => {
     const enrolledTeamDeviceCredentials = getEnrolledTeamDeviceCredentials();
 
     const server = new McpServer({
-        name: 'Dashlane Password Manager - Team MPC',
+        name: 'Dashlane Password Manager - Team MCP',
         version: cliVersionToString(CLI_VERSION),
     });
 
