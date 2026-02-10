@@ -97,6 +97,7 @@ export interface GetPremiumStatusOutput {
                 ssoEnabled?: boolean;
                 ssoActivationType?: string;
                 ssoProvisioning?: string;
+                twoFAEnforced: 'disabled' | 'newDevice' | 'login' | '';
             };
         };
         pastTeams?: {
