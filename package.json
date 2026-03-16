@@ -90,7 +90,7 @@
         "@napi-rs/clipboard": "^1.1.2",
         "@napi-rs/keyring": "^1.1.6",
         "@node-rs/argon2": "^2.0.0",
-        "ajv": "^8.17.1",
+        "ajv": "^8.18.0",
         "ajv-formats": "^3.0.1",
         "better-sqlite3": "^11.5.0",
         "commander": "^12.1.0",
