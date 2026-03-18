@@ -84,28 +84,39 @@ export const getAuditLogs = async (params: {
     });
 
     let result: GetAuditLogQueryResultsOutput | undefined;
+    let nextToken: string | undefined;
     let logs: string[] = [];
 
     do {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         result = await api.sendSecureContent<GetAuditLogQueryResultsRequest>({
             ...api,
             path: 'cli/GetAuditLogQueryResults',
-            payload: { queryExecutionId, nextToken: result?.nextToken },
+            payload: { queryExecutionId, nextToken },
             authentication: {
                 type: 'enrolledDevice',
                 enrolledTeamDeviceKeys: enrolledTeamDeviceCredentials,
             },
         });
+
         logger.debug(`Query state: ${result.state}`);
-        if (result.state === 'SUCCEEDED') {
-            logs = logs.concat(result.results);
-        } else if (['QUEUED', 'RUNNING'].includes(result.state)) {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-        } else {
+
+        if (result.state === 'QUEUED') {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            continue;
+        }
+
+        if (result.state === 'RUNNING') {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            continue;
+        }
+
+        if (result.state !== 'SUCCEEDED') {
             throw new Error(`Query execution did not succeed: ${result.state}`);
         }
-    } while (result.state !== 'SUCCEEDED' || result.nextToken);
+
+        logs = logs.concat(result.results);
+        nextToken = result.nextToken;
+    } while (result.state !== 'SUCCEEDED' || nextToken);
 
     return logs as unknown as GenericLog[];
 };

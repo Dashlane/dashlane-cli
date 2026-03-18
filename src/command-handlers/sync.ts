@@ -8,9 +8,11 @@ import type { DeviceConfiguration, LocalConfiguration } from '../types.js';
 import { notEmpty } from '../utils/index.js';
 import { askReplaceIncorrectMasterPassword } from '../utils/dialogs.js';
 import { logger } from '../logger.js';
+import { twoFactorAuthEnforcedChecker } from '../modules/auth/twoFactorAuthEnforcedChecker.js';
 
 export const runSync = async () => {
     const { db, localConfiguration, deviceConfiguration } = await connectAndPrepare({ autoSync: false });
+    await twoFactorAuthEnforcedChecker(localConfiguration, localConfiguration.login);
     await sync({ db, localConfiguration, deviceConfiguration });
     logger.success('Successfully synced');
     db.close();

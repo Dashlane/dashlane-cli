@@ -12,7 +12,7 @@ import { perform2FAVerification, registerDevice } from '../auth/index.js';
 import { DeviceConfiguration, LocalConfiguration } from '../../types.js';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
-import { getDeviceCredentials } from '../../utils/index.js';
+import { getEnvDeviceCredentials, hasEnvDeviceCredentials } from '../../utils/index.js';
 import { logger } from '../../logger.js';
 
 const SERVICE = 'dashlane-cli';
@@ -88,7 +88,7 @@ const getLocalConfigurationWithoutDB = async (
     const localKey = generateLocalKey();
 
     // Register the user's device
-    const deviceCredentials = getDeviceCredentials();
+    const deviceCredentials = getEnvDeviceCredentials();
     const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys } = deviceCredentials
         ? {
               deviceAccessKey: deviceCredentials.accessKey,
@@ -105,7 +105,9 @@ const getLocalConfigurationWithoutDB = async (
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
     // if non-interactive device, we consider it as email_token, so we don't need to call the API
-    const { type } = deviceCredentials ? { type: 'email_token' } : await get2FAStatusUnauthenticated({ login });
+    const { type } = hasEnvDeviceCredentials()
+        ? { type: 'email_token' as const }
+        : await get2FAStatusUnauthenticated({ login });
 
     let masterPassword = '';
     const masterPasswordEnv = process.env.DASHLANE_MASTER_PASSWORD;
@@ -142,6 +144,16 @@ const getLocalConfigurationWithoutDB = async (
         });
     }
 
+    const localConfiguration = {
+        login,
+        masterPassword,
+        shouldNotSaveMasterPassword,
+        isSSO,
+        localKey,
+        accessKey: deviceAccessKey,
+        secretKey: deviceSecretKey,
+    };
+
     db.prepare('REPLACE INTO device VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .bind(
             login,
@@ -158,15 +170,7 @@ const getLocalConfigurationWithoutDB = async (
         )
         .run();
 
-    return {
-        login,
-        masterPassword,
-        shouldNotSaveMasterPassword,
-        isSSO,
-        localKey,
-        accessKey: deviceAccessKey,
-        secretKey: deviceSecretKey,
-    };
+    return localConfiguration;
 };
 
 const getLocalConfigurationWithoutKeychain = async (

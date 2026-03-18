@@ -1,6 +1,6 @@
 {
     "name": "@dashlane/cli",
-    "version": "6.2544.1",
+    "version": "6.2612.0",
     "description": "Manage your Dashlane vault through a CLI tool",
     "type": "module",
     "main": "dist/index.cjs",
@@ -86,10 +86,11 @@
         "@inquirer/prompts": "^7.1.0",
         "@json2csv/plainjs": "^7.0.6",
         "@json2csv/transforms": "^7.0.6",
+        "@modelcontextprotocol/sdk": "^1.26.0",
         "@napi-rs/clipboard": "^1.1.2",
         "@napi-rs/keyring": "^1.1.6",
         "@node-rs/argon2": "^2.0.0",
-        "ajv": "^8.17.1",
+        "ajv": "^8.18.0",
         "ajv-formats": "^3.0.1",
         "better-sqlite3": "^11.5.0",
         "commander": "^12.1.0",
@@ -101,7 +102,8 @@
         "playwright-core": "^1.49.0",
         "winston": "^3.17.0",
         "xml-js": "^1.6.11",
-        "zlib": "^1.0.5"
+        "zlib": "^1.0.5",
+        "zod": "^3.25.67"
     },
     "engines": {
         "node": ">=22",

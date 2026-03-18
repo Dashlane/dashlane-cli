@@ -1,0 +1,31 @@
+import { EnrolledDeviceCredentialsBanner } from '../../src/banners';
+
+# Explore Dashlane Audit logs with AI Agents
+
+<EnrolledDeviceCredentialsBanner />
+
+Dashlane audit logs can be queried by local AI agents supporting the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro).
+
+Learn more about Dashlane audit logs on [the audit logs documentation](/business/audit-logs)
+
+## Prerequisites
+
+As audit logs can be quite large, your agent should have access to a tool to explore large JSON files efficiently, such as `jq`.
+
+You can install `jq` using your operating system package manager. See [jq download page](https://jqlang.org/download/) for detailed instructions for main operating systems.
+
+## Example usage with Claude Code
+
+To use the Dashlane audit log MCP server with Claude Code, add the MCP to Claude code this way:
+
+```sh
+claude mcp add --transport stdio dashlane -- dcli team mcp
+```
+
+or to embed the credentials in the MCP config:
+
+```sh
+claude mcp add --transport stdio dashlane --env DASHLANE_ENROLLED_TEAM_DEVICE_KEYS=DASH_EDWSA_... -- dcli team mcp
+```
+
+You may then ask questions such as "Make a summary of phishing attempts detected by Dashlane this month".
