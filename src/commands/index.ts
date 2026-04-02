@@ -14,6 +14,7 @@ import {
     runExec,
     runBackup,
     runSecret,
+    runStatus,
 } from '../command-handlers/index.js';
 
 export const rootCommands = (params: { program: Command }) => {
@@ -24,6 +25,8 @@ export const rootCommands = (params: { program: Command }) => {
         .alias('s')
         .description('Manually synchronize the local vault with Dashlane')
         .action(runSync);
+
+    program.command('status').description('Get the status of the CLI (logged in, locked, etc.)').action(runStatus);
 
     program
         .command('read')
