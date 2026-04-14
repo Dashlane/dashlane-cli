@@ -11,6 +11,7 @@ export * from './read.js';
 export * from './publicAPI.js';
 export * from './secrets.js';
 export * from './secureNotes.js';
+export * from './status.js';
 export * from './sync.js';
 export * from './teamDarkWebInsightsReport.js';
 export * from './teamLogs.js';
