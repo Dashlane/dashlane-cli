@@ -23,7 +23,7 @@ export const askMasterPassword = async (): Promise<string> => {
         validate(input: string) {
             return input.length ? true : 'Master password cannot be empty';
         },
-    });
+    }, {output: process.stderr});
     return response;
 };
 
