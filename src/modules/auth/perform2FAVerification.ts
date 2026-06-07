@@ -1,4 +1,4 @@
-import { performTotpVerification } from '../../endpoints/index.js';
+import { performTokenVerification } from '../../endpoints/index.js';
 import { completeLoginWithAuthTicket } from '../../endpoints/completeLoginWithAuthTicket.js';
 import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
 import { logger } from '../../logger.js';
@@ -12,7 +12,7 @@ interface Params {
 export const perform2FAVerification = async ({ login, deviceAccessKey }: Params) => {
     // If the user is using 2FA at every login, we'll need to perform token authentication against the server
     // If the user is offline though, and not using 2FA at every login, let's not block them
-    let authTicket: string;
+    let ticket: string;
     let twoFactorAuthStatus: Get2FAStatusOutput;
     try {
         twoFactorAuthStatus = await get2FAStatusUnauthenticated({ login });
@@ -26,14 +26,18 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
 
     if (twoFactorAuthStatus.type === 'totp_login') {
         const otp = await askOtp();
-        ({ authTicket } = await performTotpVerification({
+        ({
+            authTicket: { ticket },
+        } = await performTokenVerification({
             login,
-            otp,
+            token: otp,
+            deviceAccessKey,
+            intent: 'new_device',
         }));
 
         const { ssoServerKey, serverKey } = await completeLoginWithAuthTicket({
             login,
-            authTicket,
+            authTicket: ticket,
             deviceAccessKey,
         });
         if (ssoServerKey) {
