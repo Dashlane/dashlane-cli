@@ -2,12 +2,10 @@ import { doSSOVerification } from './sso/index.js';
 import { doConfidentialSSOVerification } from './confidential-sso/index.js';
 import {
     completeDeviceRegistration,
-    performDuoPushVerification,
-    performEmailTokenVerification,
-    performTotpVerification,
+    getAuthenticationMethods,
+    performTokenVerification,
 } from '../../endpoints/index.js';
-import { askOtp, askToken, askVerificationMethod } from '../../utils/index.js';
-import { getAuthenticationMethodsForDevice } from '../../endpoints/getAuthenticationMethodsForDevice.js';
+import { askTokenRequestId, askToken } from '../../utils/index.js';
 import { logger } from '../../logger.js';
 
 interface RegisterDevice {
@@ -16,69 +14,71 @@ interface RegisterDevice {
 }
 
 export const registerDevice = async (params: RegisterDevice) => {
+    let authTicket: string | null = null;
+    let ssoSpKey: string | null = null;
     const { login, deviceName } = params;
     logger.debug('Registering the device...');
 
-    // Log in via a compatible verification method
-    const { verifications, accountType } = await getAuthenticationMethodsForDevice({ login });
-
-    if (accountType === 'invisibleMasterPassword') {
-        throw new Error('Master password-less is currently not supported');
-    }
-
-    // Remove empty verification type
-    // Remove dashlane_authenticator from the list of verification methods as it is a deprecated method
-    const nonEmptyVerifications = verifications.filter(
-        (method) => method.type && method.type !== 'dashlane_authenticator'
+    const urlEncodedLogin = encodeURIComponent(login);
+    logger.info(
+        `Please open the following URL in your browser: https://www.dashlane.com/cli-device-registration?login=${urlEncodedLogin}`
     );
+    const tokenRequestId = await askTokenRequestId();
+    const token = await askToken();
 
-    const selectedVerificationMethod =
-        nonEmptyVerifications.length > 1
-            ? await askVerificationMethod(nonEmptyVerifications)
-            : nonEmptyVerifications[0];
+    const {
+        authTicket: { ticket: deviceRegistrationAuthTicket },
+    } = await performTokenVerification({
+        login,
+        tokenRequestId,
+        token,
+        intent: 'new_device',
+    });
 
-    let authTicket: string;
-    let ssoSpKey: string | null = null;
-    if (!selectedVerificationMethod || Object.keys(selectedVerificationMethod).length === 0) {
-        throw new Error('No verification method selected');
+    // get authentication methods
+    const { localAuthentications } = await getAuthenticationMethods({
+        login,
+        authTicket: deviceRegistrationAuthTicket,
+    });
+
+    const isMPLessUser = localAuthentications.length === 0;
+    const isSKUser = localAuthentications.find((auth) => auth.type === 'securityKey');
+    const isMPUser = localAuthentications.find((auth) => auth.type === 'masterPassword');
+    const ssoInfo = localAuthentications.find((auth) => auth.type === 'sso');
+
+    if (isMPLessUser || isSKUser) {
+        throw new Error('Your account authentication methods is not supported yet');
     }
 
-    if (selectedVerificationMethod.type === 'duo_push') {
-        logger.info('Please accept the Duo push notification on your phone.');
-        ({ authTicket } = await performDuoPushVerification({ login }));
-    } else if (selectedVerificationMethod.type === 'totp') {
-        const otp = await askOtp();
-        ({ authTicket } = await performTotpVerification({
-            login,
-            otp,
-        }));
-    } else if (selectedVerificationMethod.type === 'email_token') {
-        const urlEncodedLogin = encodeURIComponent(login);
-        logger.info(
-            `Please open the following URL in your browser: https://www.dashlane.com/cli-device-registration?login=${urlEncodedLogin}`
-        );
-        const token = await askToken();
-        ({ authTicket } = await performEmailTokenVerification({
-            login,
-            token,
-        }));
-    } else if (selectedVerificationMethod.type === 'sso') {
-        if (selectedVerificationMethod.ssoInfo.isNitroProvider) {
-            ({ authTicket, ssoSpKey } = await doConfidentialSSOVerification({
+    if (ssoInfo) {
+        let response;
+        if (ssoInfo.isNitroProvider) {
+            response = await doConfidentialSSOVerification({
                 requestedLogin: login,
-            }));
+            });
         } else {
-            ({ authTicket, ssoSpKey } = await doSSOVerification({
+            response = await doSSOVerification({
                 requestedLogin: login,
-                serviceProviderURL: selectedVerificationMethod.ssoInfo.serviceProviderUrl,
-            }));
+                serviceProviderURL: ssoInfo.serviceProviderUrl,
+            });
         }
-    } else {
-        throw new Error('Auth verification method not supported: ' + selectedVerificationMethod.type);
+
+        authTicket = response.authTicket;
+        ssoSpKey = response.ssoSpKey;
+    } else if (isMPUser) {
+        authTicket = deviceRegistrationAuthTicket;
+    }
+
+    if (authTicket === null) {
+        throw new Error('Error while registering your device');
     }
 
     // Complete the device registration and save the result
-    const completeDeviceRegistrationResponse = await completeDeviceRegistration({ login, deviceName, authTicket });
+    const completeDeviceRegistrationResponse = await completeDeviceRegistration({
+        login,
+        deviceName,
+        authTicket,
+    });
 
     return { ...completeDeviceRegistrationResponse, ssoSpKey };
 };
