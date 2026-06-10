@@ -1,5 +1,4 @@
 import { confirm, input, password, select } from '@inquirer/prompts';
-import { removeUnderscoresAndCapitalize } from './strings.js';
 import { getEnvDeviceCredentials } from './deviceCredentials.js';
 import {
     PrintableVaultCredential,
@@ -9,7 +8,6 @@ import {
     VaultNote,
     VaultSecret,
 } from '../types.js';
-import { GetAuthenticationMethodsForDeviceResult } from '../endpoints/getAuthenticationMethodsForDevice.js';
 
 export const askMasterPassword = async (): Promise<string> => {
     const deviceCredentials = getEnvDeviceCredentials();
@@ -125,7 +123,7 @@ export const askOtp = async () => {
     const response = input({
         message: 'Please enter your OTP code:',
         validate(input: string) {
-            return /^(\d{4,16})$/.test(input) ? true : 'Not a valid OTP';
+            return /^(\d{6})$/.test(input) ? true : 'Not a valid OTP';
         },
     });
     return response;
@@ -133,7 +131,8 @@ export const askOtp = async () => {
 
 export const askToken = async () => {
     const response = await input({
-        message: 'Please enter the code you received by email:',
+        message:
+            'Please enter the code you received by email or the one from your authenticator if you set up 2FA on your account:',
         validate(input: string) {
             return /^(\d{6})$/.test(input) ? true : 'Not a valid email token';
         },
@@ -141,14 +140,13 @@ export const askToken = async () => {
     return response;
 };
 
-export const askVerificationMethod = async (
-    verificationMethods: GetAuthenticationMethodsForDeviceResult['verifications']
-) => {
-    const response = await select({
-        message: 'What second factor method would you like to use?',
-        choices: verificationMethods.map((method) => {
-            return { name: removeUnderscoresAndCapitalize(method.type), value: method };
-        }),
+export const askTokenRequestId = async () => {
+    const response = await input({
+        message: 'Please enter the token given in the browser:',
+        validate(input: string) {
+            return /^[0-9a-f-]{36}$/.test(input) ? true : 'Not a valid token';
+        },
     });
+
     return response;
 };
