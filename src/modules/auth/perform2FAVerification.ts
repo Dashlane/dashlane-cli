@@ -30,9 +30,11 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
             authTicket: { ticket },
         } = await performTokenVerification({
             login,
-            token: otp,
-            deviceAccessKey,
-            intent: 'new_device',
+            verification: {
+                token: otp,
+                intent: 'login',
+                deviceAccessKey,
+            },
         }));
 
         const { ssoServerKey, serverKey } = await completeLoginWithAuthTicket({

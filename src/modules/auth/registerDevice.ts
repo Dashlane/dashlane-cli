@@ -30,9 +30,11 @@ export const registerDevice = async (params: RegisterDevice) => {
         authTicket: { ticket: deviceRegistrationAuthTicket },
     } = await performTokenVerification({
         login,
-        tokenRequestId,
-        token,
-        intent: 'new_device',
+        verification: {
+            tokenRequestId,
+            token,
+            intent: 'new_device',
+        },
     });
 
     // get authentication methods
