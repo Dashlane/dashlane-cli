@@ -14,6 +14,7 @@ import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
 import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
 import { getEnvDeviceCredentials, hasEnvDeviceCredentials } from '../../utils/index.js';
 import { logger } from '../../logger.js';
+import { loginWithOpaque } from '../auth/opaque/utils.js';
 
 const SERVICE = 'dashlane-cli';
 
@@ -120,6 +121,17 @@ const getLocalConfigurationWithoutDB = async (
     } else {
         masterPassword = masterPasswordEnv ?? (await askMasterPassword());
 
+        // An opaque login is made before going further to make sure the password is correct
+        await loginWithOpaque(
+            {
+                accessKey: deviceAccessKey,
+                login,
+                masterPassword,
+                secretKey: deviceSecretKey,
+            },
+            db
+        );
+
         // In case of OTP2
         if (type === 'totp_login' && serverKey) {
             serverKeyEncrypted = encryptAesCbcHmac256(localKey, Buffer.from(serverKey));
@@ -205,6 +217,19 @@ const getLocalConfigurationWithoutKeychain = async (
         await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
 
+    // we do an Opaque Login to mark the device as PROVEN even if the MP was used correctly to retrieve the secret key
+    // this is needed when the user made the device registration at a time when the Opaque Enveloppe was not set yet but now there
+    // is an Opaque Enveloppe so the device should be marked as PROVEN as soon as the MP is verifed through Opaque
+    await loginWithOpaque(
+        {
+            login,
+            secretKey,
+            accessKey: deviceConfiguration.accessKey,
+            masterPassword,
+        },
+        db
+    );
+
     if (!deviceConfiguration.shouldNotSaveMasterPassword) {
         setLocalKey(login, localKey, (errorMessage) => {
             logger.warn(`Unable to reach OS keychain because of error: "${errorMessage}". \
@@ -254,6 +279,11 @@ export const replaceMasterPassword = async (
     }
 
     newMasterPassword += await askMasterPassword();
+
+    // notes : No Opaque Login is performed here as this code is not  reached if the user has an Opaque Enveloppe
+    // Indeed, this code is only reached if the user synced the data with a wrong MP which won't be possible as soon as an Opaque
+    // Enveloppe is set for an user.
+    // Consider removing this function and the review the check for the setting where it is used when Opaque is fully rolled-out.
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         newMasterPassword,
