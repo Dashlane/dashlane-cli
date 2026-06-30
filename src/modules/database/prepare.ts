@@ -40,6 +40,11 @@ export const prepareDB = (params: PrepareDB): DeviceConfiguration | null => {
             serverKeyEncrypted VARCHAR(255)
         );`
     ).run();
+    db.prepare(
+        `CREATE TABLE IF NOT EXISTS proven_devices (
+            login VARCHAR(255) PRIMARY KEY
+        );`
+    ).run();
 
     return db.prepare('SELECT * FROM device LIMIT 1').get() as DeviceConfiguration | null;
 };
