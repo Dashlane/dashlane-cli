@@ -18,6 +18,10 @@ export const loginWithOpaque = async (deviceInfo: DeviceCredentials, db: Databas
         return;
     }
 
+    // Opaque need to be ready before we go further
+    await opaque.ready;
+
+    // start the login flow
     const loginResult = opaque.client.startLogin({
         password: deviceInfo.masterPassword,
     });
