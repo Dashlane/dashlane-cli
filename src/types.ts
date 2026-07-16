@@ -121,7 +121,8 @@ export interface BackupRemoveTransaction {
 export type TransactionContent =
     | AuthentifiantTransactionContent
     | SecureNoteTransactionContent
-    | SecretTransactionContent;
+    | SecretTransactionContent
+    | PersonalInfoTransactionContent;
 
 export interface AuthentifiantTransactionContent {
     root: {
@@ -160,6 +161,36 @@ export interface SecretTransactionContent {
             }[];
         };
     };
+}
+
+/**
+ * Structured personal identity items (passport, ID card, identity, driver's license,
+ * social security id, fiscal statement). The root element name varies by type
+ * (KWPassport, KWIDCard, KWIdentity, ...), so it is keyed generically.
+ */
+export interface PersonalInfoTransactionContent {
+    root: Record<
+        string,
+        {
+            KWDataItem: {
+                _attributes: {
+                    key: string;
+                };
+                _cdata?: string;
+            }[];
+        }
+    >;
+}
+
+/**
+ * A decrypted personal identity item. Fields vary by item type, so all decrypted
+ * fields are exposed dynamically; `type` is the transaction type (PASSPORT, IDCARD, ...)
+ * and `kwType` is the content root element name (KWPassport, KWIDCard, ...).
+ */
+export interface VaultId {
+    type: string;
+    kwType: string;
+    [field: string]: string;
 }
 
 export interface VaultCredential {
