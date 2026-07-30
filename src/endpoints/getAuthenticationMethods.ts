@@ -10,28 +10,35 @@ type GetAuthenticationMethodsParams =
           deviceAccessKey: string;
       };
 
+export type LocalAuthenticationMethod =
+    | {
+          type: 'masterPassword' | 'securityKey' | 'pin' | 'passkey' | 'local';
+      }
+    | {
+          type: 'sso';
+          serviceProviderUrl: string;
+          migration: 'sso_member_to_admin' | 'mp_user_to_sso_member' | 'sso_member_to_mp_user';
+          isNitroProvider: boolean;
+      };
+
+export interface RemoteAuthenticationMethod {
+    type: 'emailToken' | 'totp' | 'securityKey';
+    requiredOnLogin: boolean;
+}
+
+export interface UserVerificationMethod {
+    type: 'masterPassword' | 'securityKey' | 'pin' | 'passkey' | 'local';
+}
+
+export interface RecoveryMethod {
+    type: 'aar' | 'ark' | 'd2d';
+}
+
 export interface GetAuthenticationMethodsResult {
-    localAuthentications: (
-        | {
-              type: 'masterPassword' | 'securityKey' | 'pin' | 'passkey' | 'local';
-          }
-        | {
-              type: 'sso';
-              serviceProviderUrl: string;
-              migration: 'sso_member_to_admin' | 'mp_user_to_sso_member' | 'sso_member_to_mp_user';
-              isNitroProvider: boolean;
-          }
-    )[];
-    remoteAuthentications: {
-        type: 'emailToken' | 'totp' | 'securityKey';
-        requiredOnLogin: boolean;
-    }[];
-    userVerificationMethods: {
-        type: 'masterPassword' | 'securityKey' | 'pin' | 'passkey' | 'local';
-    }[];
-    recoveryMethods: {
-        type: 'aar' | 'ark' | 'd2d';
-    }[];
+    localAuthentications: LocalAuthenticationMethod[];
+    remoteAuthentications: RemoteAuthenticationMethod[];
+    userVerificationMethods: UserVerificationMethod[];
+    recoveryMethods: RecoveryMethod[];
 }
 
 // Unused for now
