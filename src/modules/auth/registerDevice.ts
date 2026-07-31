@@ -11,12 +11,13 @@ import { logger } from '../../logger.js';
 interface RegisterDevice {
     login: string;
     deviceName: string;
+    isNonInteractiveDevice?: boolean;
 }
 
 export const registerDevice = async (params: RegisterDevice) => {
     let authTicket: string | null = null;
     let ssoSpKey: string | null = null;
-    const { login, deviceName } = params;
+    const { login, deviceName, isNonInteractiveDevice = false } = params;
     logger.debug('Registering the device...');
 
     const urlEncodedLogin = encodeURIComponent(login);
@@ -38,7 +39,7 @@ export const registerDevice = async (params: RegisterDevice) => {
     });
 
     // get authentication methods
-    const { localAuthentications } = await getAuthenticationMethods({
+    const { localAuthentications, remoteAuthentications } = await getAuthenticationMethods({
         login,
         authTicket: deviceRegistrationAuthTicket,
     });
@@ -47,9 +48,20 @@ export const registerDevice = async (params: RegisterDevice) => {
     const isSKUser = localAuthentications.find((auth) => auth.type === 'securityKey');
     const isMPUser = localAuthentications.find((auth) => auth.type === 'masterPassword');
     const ssoInfo = localAuthentications.find((auth) => auth.type === 'sso');
+    const isOTPAtLogin = remoteAuthentications.find((auth) => auth.type === 'totp' && auth.requiredOnLogin);
 
     if (isMPLessUser || isSKUser) {
         throw new Error('Your account authentication methods is not supported yet');
+    }
+
+    // We prevent non interactive devices for OTP2 and SSO
+    if (isNonInteractiveDevice) {
+        if (isOTPAtLogin) {
+            throw new Error("You can't register a non-interactive device when you have OTP at each login enabled.");
+        }
+        if (ssoInfo) {
+            throw new Error("You can't register a non-interactive device when you are using SSO.");
+        }
     }
 
     if (ssoInfo) {
