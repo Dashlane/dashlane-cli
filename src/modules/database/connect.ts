@@ -15,9 +15,16 @@ export const getDatabasePath = () => {
 };
 
 export const connect = () => {
-    // create the data folder if it doesn't exist
     if (!fs.existsSync(DB_PATH)) {
-        fs.mkdirSync(DB_PATH, { recursive: true });
+        const oldUmask = process.umask(0o077);
+        try {
+            fs.mkdirSync(DB_PATH, {
+                recursive: true,
+                mode: 0o700,
+            });
+        } finally {
+            process.umask(oldUmask);
+        }
     }
 
     const db = new Database(getDatabasePath());
