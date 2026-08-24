@@ -89,7 +89,15 @@ const getLocalConfigurationWithoutDB = async (
 
     // Register the user's device
     const deviceCredentials = getEnvDeviceCredentials();
-    const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys } = deviceCredentials
+    const {
+        deviceAccessKey,
+        deviceSecretKey,
+        serverKey,
+        ssoServerKey,
+        ssoSpKey,
+        remoteKeys,
+        masterPassword: masterpasswordDevice,
+    } = deviceCredentials
         ? {
               deviceAccessKey: deviceCredentials.accessKey,
               deviceSecretKey: deviceCredentials.secretKey,
@@ -97,6 +105,7 @@ const getLocalConfigurationWithoutDB = async (
               ssoServerKey: undefined,
               ssoSpKey: undefined,
               remoteKeys: [],
+              masterPassword: undefined,
           }
         : await registerDevice({
               login,
@@ -123,7 +132,7 @@ const getLocalConfigurationWithoutDB = async (
     if (isSSO) {
         masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
     } else {
-        masterPassword = masterPasswordEnv ?? (await askMasterPassword());
+        masterPassword = masterPasswordEnv ?? masterpasswordDevice ?? (await askMasterPassword());
 
         // In case of OTP2
         if (isTotpLogin && serverKey) {
