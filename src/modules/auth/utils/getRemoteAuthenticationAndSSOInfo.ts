@@ -27,7 +27,9 @@ export const getRemoteAuthenticationAndSSOInfo = async ({
 
     return {
         isSSO,
-        remoteAuthentication: getRemoteAuthenticationInfo(remoteAuthentications),
+        remoteAuthentication: isSSO
+            ? RemoteOrSSOAuthenticationType.none
+            : getRemoteAuthenticationInfo(remoteAuthentications),
     };
 };
 
