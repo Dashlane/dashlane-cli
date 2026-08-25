@@ -1,5 +1,5 @@
 import { chromium } from 'playwright-core';
-import { ConfirmLogin2Request, RequestLogin2Request } from './types.js';
+import { ConfirmLogin3Request, RequestLogin3Request } from './types.js';
 import { SAMLResponseNotFound } from './errors.js';
 import { apiConnect } from '../../tunnel-api-connect/index.js';
 import { performSSOVerificationWithAuthTicket } from '../../../endpoints/performSSOVerificationWithAuthTicket.js';
@@ -13,9 +13,9 @@ export const doConfidentialSSOVerification = async ({ authTicket, requestedLogin
     const api = await apiConnect({
         useProductionCertificate: true,
     });
-    const requestLoginResponse = await api.sendSecureContent<RequestLogin2Request>({
+    const requestLoginResponse = await api.sendSecureContent<RequestLogin3Request>({
         ...api,
-        path: 'authentication/RequestLogin2',
+        path: 'authentication/RequestLogin3',
         payload: { login: requestedLogin },
         authentication: { type: 'app' },
     });
@@ -50,9 +50,9 @@ export const doConfidentialSSOVerification = async ({ authTicket, requestedLogin
         throw new SAMLResponseNotFound();
     }
 
-    const confirmLoginResponse = await api.sendSecureContent<ConfirmLogin2Request>({
+    const confirmLoginResponse = await api.sendSecureContent<ConfirmLogin3Request>({
         ...api,
-        path: 'authentication/ConfirmLogin2',
+        path: 'authentication/ConfirmLogin3',
         payload: { teamUuid, domainName, samlResponse },
         authentication: { type: 'app' },
     });
