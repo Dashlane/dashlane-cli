@@ -12,6 +12,7 @@ export * from './getTeamMembers.js';
 export * from './getTeamReport.js';
 export * from './listDevices.js';
 export * from './listPublicAPIKeys.js';
+export * from './performSSOVerificationWithAuthTicket.js';
 export * from './performTokenVerification.js';
 export * from './requestOpaqueMPLoginWithAuthTicket.js';
 export * from './revokePublicAPIKey.js';

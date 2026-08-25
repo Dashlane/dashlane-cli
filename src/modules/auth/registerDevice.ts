@@ -70,10 +70,12 @@ export const registerDevice = async (params: RegisterDevice) => {
         let response;
         if (ssoInfo.isNitroProvider) {
             response = await doConfidentialSSOVerification({
+                authTicket: deviceRegistrationAuthTicket,
                 requestedLogin: login,
             });
         } else {
             response = await doSSOVerification({
+                authTicket: deviceRegistrationAuthTicket,
                 requestedLogin: login,
                 serviceProviderURL: ssoInfo.serviceProviderUrl,
             });
