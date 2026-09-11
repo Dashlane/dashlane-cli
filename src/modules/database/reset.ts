@@ -14,6 +14,8 @@ export const reset = (params: ResetDB) => {
     db.prepare('DROP TABLE IF EXISTS syncUpdates').run();
     db.prepare('DROP TABLE IF EXISTS transactions').run();
     db.prepare('DROP TABLE IF EXISTS device').run();
+
+    // 2026-08-19 - This line need to be removed in several versions ( starting 2027 should be ok )
     db.prepare('DROP TABLE IF EXISTS proven_devices').run();
     db.prepare('VACUUM').run();
 

@@ -1,6 +1,6 @@
 export * from './completeDeviceRegistration.js';
 export * from './completeLoginWithAuthTicket.js';
-export * from './completeOpaqueMPLogin.js';
+export * from './completeOpaqueMPLoginWithAuthTicket.js';
 export * from './createPublicAPIKey.js';
 export * from './deactivateDevices.js';
 export * from './getAuditLogs.js';
@@ -12,6 +12,7 @@ export * from './getTeamMembers.js';
 export * from './getTeamReport.js';
 export * from './listDevices.js';
 export * from './listPublicAPIKeys.js';
+export * from './performSSOVerificationWithAuthTicket.js';
 export * from './performTokenVerification.js';
-export * from './requestOpaqueMPLogin.js';
+export * from './requestOpaqueMPLoginWithAuthTicket.js';
 export * from './revokePublicAPIKey.js';

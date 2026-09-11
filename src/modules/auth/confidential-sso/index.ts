@@ -1,20 +1,21 @@
 import { chromium } from 'playwright-core';
-import { ConfirmLogin2Request, RequestLogin2Request } from './types.js';
+import { ConfirmLogin3Request, RequestLogin3Request } from './types.js';
 import { SAMLResponseNotFound } from './errors.js';
 import { apiConnect } from '../../tunnel-api-connect/index.js';
-import { performSSOVerification } from '../../../endpoints/performSSOVerification.js';
+import { performSSOVerificationWithAuthTicket } from '../../../endpoints/performSSOVerificationWithAuthTicket.js';
 
 interface ConfidentialSSOParams {
     requestedLogin: string;
+    authTicket: string;
 }
 
-export const doConfidentialSSOVerification = async ({ requestedLogin }: ConfidentialSSOParams) => {
+export const doConfidentialSSOVerification = async ({ authTicket, requestedLogin }: ConfidentialSSOParams) => {
     const api = await apiConnect({
         useProductionCertificate: true,
     });
-    const requestLoginResponse = await api.sendSecureContent<RequestLogin2Request>({
+    const requestLoginResponse = await api.sendSecureContent<RequestLogin3Request>({
         ...api,
-        path: 'authentication/RequestLogin2',
+        path: 'authentication/RequestLogin3',
         payload: { login: requestedLogin },
         authentication: { type: 'app' },
     });
@@ -49,14 +50,15 @@ export const doConfidentialSSOVerification = async ({ requestedLogin }: Confiden
         throw new SAMLResponseNotFound();
     }
 
-    const confirmLoginResponse = await api.sendSecureContent<ConfirmLogin2Request>({
+    const confirmLoginResponse = await api.sendSecureContent<ConfirmLogin3Request>({
         ...api,
-        path: 'authentication/ConfirmLogin2',
+        path: 'authentication/ConfirmLogin3',
         payload: { teamUuid, domainName, samlResponse },
         authentication: { type: 'app' },
     });
 
-    const ssoVerificationResult = await performSSOVerification({
+    const ssoVerificationResult = await performSSOVerificationWithAuthTicket({
+        authTicket,
         login: requestedLogin,
         ssoToken: confirmLoginResponse.ssoToken,
     });
