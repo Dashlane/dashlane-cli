@@ -5,8 +5,9 @@ import {
     getAuthenticationMethods,
     performTokenVerification,
 } from '../../endpoints/index.js';
-import { askTokenRequestId, askToken } from '../../utils/index.js';
+import { askTokenRequestId, askToken, askMasterPassword } from '../../utils/index.js';
 import { logger } from '../../logger.js';
+import { loginWithOpaque } from './opaque/utils.js';
 
 interface RegisterDevice {
     login: string;
@@ -34,7 +35,7 @@ export const registerDevice = async (params: RegisterDevice) => {
         verification: {
             tokenRequestId,
             token,
-            intent: 'new_device',
+            intent: 'token:new_device',
         },
     });
 
@@ -64,14 +65,17 @@ export const registerDevice = async (params: RegisterDevice) => {
         }
     }
 
+    let masterPassword: string | undefined;
     if (ssoInfo) {
         let response;
         if (ssoInfo.isNitroProvider) {
             response = await doConfidentialSSOVerification({
+                authTicket: deviceRegistrationAuthTicket,
                 requestedLogin: login,
             });
         } else {
             response = await doSSOVerification({
+                authTicket: deviceRegistrationAuthTicket,
                 requestedLogin: login,
                 serviceProviderURL: ssoInfo.serviceProviderUrl,
             });
@@ -80,7 +84,8 @@ export const registerDevice = async (params: RegisterDevice) => {
         authTicket = response.authTicket;
         ssoSpKey = response.ssoSpKey;
     } else if (isMPUser) {
-        authTicket = deviceRegistrationAuthTicket;
+        masterPassword = await askMasterPassword();
+        authTicket = await loginWithOpaque(login, masterPassword, deviceRegistrationAuthTicket);
     }
 
     if (authTicket === null) {
@@ -94,5 +99,5 @@ export const registerDevice = async (params: RegisterDevice) => {
         authTicket,
     });
 
-    return { ...completeDeviceRegistrationResponse, ssoSpKey };
+    return { ...completeDeviceRegistrationResponse, ssoSpKey, masterPassword };
 };

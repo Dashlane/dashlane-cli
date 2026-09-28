@@ -34,10 +34,14 @@ const isVaultLocked = (deviceConfiguration: DeviceConfiguration): boolean => {
     return true;
 };
 
+const printLoggedInStatus = (loggedIn: boolean) => logger.content(`Logged in: ${loggedIn ? 'Yes' : 'No'}`);
+const printLogin = (login: string) => logger.content(`Login: ${login}`);
+const printLockedStatus = (locked: boolean) => logger.content(`Locked: ${locked ? 'Yes' : 'No'}`);
+
 export const runStatus = (): void => {
     const dbPath = getDatabasePath();
     if (!fs.existsSync(dbPath)) {
-        logger.content('Logged in: no');
+        printLoggedInStatus(false);
         return;
     }
 
@@ -53,15 +57,17 @@ export const runStatus = (): void => {
         const deviceConfiguration = db.prepare('SELECT * FROM device LIMIT 1').get() as DeviceConfiguration | undefined;
 
         if (!deviceConfiguration) {
-            logger.content('Logged in: no');
+            printLoggedInStatus(false);
             return;
         }
 
         const locked = isVaultLocked(deviceConfiguration);
 
-        logger.content(`Logged in: yes`);
-        logger.content(`Login: ${deviceConfiguration.login}`);
-        logger.content(`Locked: ${locked ? 'yes' : 'no'}`);
+        printLoggedInStatus(true);
+        printLogin(deviceConfiguration.login);
+        printLockedStatus(locked);
+    } catch {
+        printLoggedInStatus(false);
     } finally {
         db.close();
     }

@@ -1,6 +1,6 @@
 import { connectAndPrepare, reset } from '../modules/database/index.js';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints/index.js';
-import { askConfirmReset, askEmailAddress, askMasterPassword, epochTimestampToIso } from '../utils/index.js';
+import { askConfirmReset, askEmailAddress, epochTimestampToIso } from '../utils/index.js';
 import { registerDevice } from '../modules/auth/index.js';
 import { logger } from '../logger.js';
 
@@ -97,13 +97,12 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
 export const registerNonInteractiveDevice = async (deviceName: string, options: { json: boolean }) => {
     const login = await askEmailAddress();
 
-    const { deviceAccessKey, deviceSecretKey } = await registerDevice({
+    const { deviceAccessKey, deviceSecretKey, masterPassword } = await registerDevice({
         login,
         deviceName: `Non-Interactive - ${deviceName}`,
         isNonInteractiveDevice: true,
     });
 
-    const masterPassword = await askMasterPassword();
     const serviceDeviceKeysPayload = {
         login,
         deviceSecretKey,

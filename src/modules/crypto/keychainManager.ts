@@ -13,7 +13,6 @@ import { DeviceConfiguration, LocalConfiguration } from '../../types.js';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
 import { getEnvDeviceCredentials, hasEnvDeviceCredentials } from '../../utils/index.js';
 import { logger } from '../../logger.js';
-import { loginWithOpaque } from '../auth/opaque/utils.js';
 import { getRemoteAuthenticationAndSSOInfo, RemoteOrSSOAuthenticationType } from '../auth/utils';
 
 const SERVICE = 'dashlane-cli';
@@ -90,7 +89,15 @@ const getLocalConfigurationWithoutDB = async (
 
     // Register the user's device
     const deviceCredentials = getEnvDeviceCredentials();
-    const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys } = deviceCredentials
+    const {
+        deviceAccessKey,
+        deviceSecretKey,
+        serverKey,
+        ssoServerKey,
+        ssoSpKey,
+        remoteKeys,
+        masterPassword: masterpasswordDevice,
+    } = deviceCredentials
         ? {
               deviceAccessKey: deviceCredentials.accessKey,
               deviceSecretKey: deviceCredentials.secretKey,
@@ -98,6 +105,7 @@ const getLocalConfigurationWithoutDB = async (
               ssoServerKey: undefined,
               ssoSpKey: undefined,
               remoteKeys: [],
+              masterPassword: undefined,
           }
         : await registerDevice({
               login,
@@ -124,18 +132,7 @@ const getLocalConfigurationWithoutDB = async (
     if (isSSO) {
         masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
     } else {
-        masterPassword = masterPasswordEnv ?? (await askMasterPassword());
-
-        // An opaque login is made before going further to make sure the password is correct
-        await loginWithOpaque(
-            {
-                accessKey: deviceAccessKey,
-                login,
-                masterPassword,
-                secretKey: deviceSecretKey,
-            },
-            db
-        );
+        masterPassword = masterPasswordEnv ?? masterpasswordDevice ?? (await askMasterPassword());
 
         // In case of OTP2
         if (isTotpLogin && serverKey) {
@@ -221,19 +218,6 @@ const getLocalConfigurationWithoutKeychain = async (
     const secretKey = (
         await decrypt(deviceConfiguration.secretKeyEncrypted, { type: 'alreadyComputed', symmetricKey: localKey })
     ).toString('hex');
-
-    // we do an Opaque Login to mark the device as PROVEN even if the MP was used correctly to retrieve the secret key
-    // this is needed when the user made the device registration at a time when the Opaque Enveloppe was not set yet but now there
-    // is an Opaque Enveloppe so the device should be marked as PROVEN as soon as the MP is verifed through Opaque
-    await loginWithOpaque(
-        {
-            login,
-            secretKey,
-            accessKey: deviceConfiguration.accessKey,
-            masterPassword,
-        },
-        db
-    );
 
     if (!deviceConfiguration.shouldNotSaveMasterPassword) {
         setLocalKey(login, localKey, (errorMessage) => {
