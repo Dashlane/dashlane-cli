@@ -14,5 +14,7 @@ export * from './listDevices.js';
 export * from './listPublicAPIKeys.js';
 export * from './performSSOVerificationWithAuthTicket.js';
 export * from './performTokenVerification.js';
+export * from './proposeMembers.js';
+export * from './removeMembers.js';
 export * from './requestOpaqueMPLoginWithAuthTicket.js';
 export * from './revokePublicAPIKey.js';
