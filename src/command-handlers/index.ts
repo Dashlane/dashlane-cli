@@ -16,5 +16,7 @@ export * from './sync.js';
 export * from './teamDarkWebInsightsReport.js';
 export * from './teamLogs.js';
 export * from './teamMembers.js';
+export * from './teamProposeMembers.js';
+export * from './teamRemoveMembers.js';
 export * from './teamReport.js';
 export * from './whoami.js';
