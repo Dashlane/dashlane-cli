@@ -4,5 +4,6 @@ export default {
     dwi: 'Dark Web Insights',
     members: 'Members',
     'manage-members': 'Add & Remove Members',
+    'ad-sync': 'Active Directory Sync',
     reports: 'Reports',
 };

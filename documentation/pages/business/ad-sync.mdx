@@ -1,0 +1,389 @@
+import { Callout } from 'nextra/components';
+import { EnrolledDeviceCredentialsBanner } from '../../src/banners';
+
+# Syncing members with Active Directory
+
+<EnrolledDeviceCredentialsBanner />
+
+This page provides a sample PowerShell script that keeps your Dashlane team roster in sync with one
+or more Active Directory groups, using [`propose-members` and `remove-members`](./manage-members.mdx).
+
+It replaces the former ADSync tool. There is no server-side sync engine anymore: **this script is the
+sync**. It owns the diff and you own the script, so you can adapt it to your own source of truth —
+a different AD attribute, several domains, or a directory that isn't AD at all.
+
+## How it works
+
+1. Collect every valid member of the configured AD groups, and lower-case their email.
+2. Page through `dcli team members` to build the current Dashlane roster.
+3. Diff the two lists into an *add* plan and a *remove* plan.
+4. Apply the plan with `dcli team propose-members` and `dcli team remove-members`, batching logins so
+   each direction takes as few calls as possible.
+
+## Requirements
+
+- The **ActiveDirectory** PowerShell module (RSAT) on the machine running the script.
+- **dcli** installed and on `PATH`, with `DASHLANE_ENROLLED_TEAM_DEVICE_KEYS` set in the environment
+  of the account running the script ([see Get Started](./index.mdx)).
+
+<Callout type="info">
+    When scheduling the script, remember that `DASHLANE_ENROLLED_TEAM_DEVICE_KEYS` must be readable by
+    the service account the scheduled task runs as, not only by your interactive session.
+</Callout>
+
+## Safety guardrails
+
+A sync script that deprovisions accounts is only as safe as its worst AD query. Three guardrails are
+built in, and all of them are worth keeping:
+
+| Guardrail            | Behavior                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Empty extract         | If the AD extraction returns zero valid members, the script aborts instead of removing the whole team.         |
+| Removal threshold     | If the plan removes more than `$MaxRemovalPercent` of the current team, the script aborts unless `-Force`.     |
+| Excluded logins       | Logins in `$ExcludedLogins` are never removed — put the script's own account and your break-glass admins here. |
+
+A group that fails to read also aborts the run. Skipping it would make its members look absent from
+AD and queue them for removal, and a single group is often a small enough share of the team to slip
+under the removal threshold unnoticed.
+
+## Usage
+
+Always start with a dry run, which computes and logs the plan without applying it:
+
+```powershell copy
+.\dashlane-ad-sync.ps1 -DryRun
+```
+
+Once the plan looks right, run it for real:
+
+```powershell copy
+.\dashlane-ad-sync.ps1
+```
+
+Use `-Force` to bypass the removal threshold when a large removal is intentional, for instance after
+deliberately emptying an AD group:
+
+```powershell copy
+.\dashlane-ad-sync.ps1 -Force
+```
+
+### Exit codes
+
+Codes `2` and `3` keep the meaning they had in the previous ADSync script, so existing
+scheduled-task monitoring keeps reading correctly.
+
+| Code | Meaning                                                                          |
+| ----- | ---------------------------------------------------------------------------------- |
+| `0`  | Sync completed, no failures                                                        |
+| `1`  | Refused to run for safety (empty AD extract, or removals over the threshold)        |
+| `2`  | Active Directory side failed (module missing, or a group could not be read)          |
+| `3`  | Dashlane side failed (dcli missing, or a dcli command failed)                        |
+
+A run that fails partway is never reported as success: a failing `dcli` command still exits `3` after
+the remaining batches have been attempted.
+
+## The script
+
+Save it as `dashlane-ad-sync.ps1` and edit the `CONFIGURATION` section before scheduling it.
+
+```powershell copy filename="dashlane-ad-sync.ps1"
+<#
+.SYNOPSIS
+    Sample script: sync Dashlane team membership from Active Directory group membership.
+
+.DESCRIPTION
+    Extracts members from one or more AD groups, diffs them against your current
+    Dashlane team roster, and adds/removes members via the Dashlane CLI (dcli).
+
+    This replaces the old ADSync PowerShell script. There is no server-side sync
+    engine anymore: this script IS the sync - it owns the diff, and you own this
+    script. Review the CONFIGURATION section below before scheduling it.
+
+.NOTES
+    Requires:
+      - The ActiveDirectory PowerShell module (RSAT) on the machine running this script.
+      - dcli (Dashlane CLI) installed and enrolled against your team.
+
+    Exit codes. 2 and 3 keep the meaning they had in the previous ADSync script
+    (2 = AD side, 3 = Dashlane side), so existing scheduled-task monitoring still
+    reads correctly; 1 is new, because this script can now refuse to apply a plan.
+      0 - sync completed, no failures
+      1 - refused to run for safety (empty AD extract, or removals over the threshold)
+      2 - Active Directory side failed (module missing, or a group could not be read)
+      3 - Dashlane side failed (dcli missing, or a dcli command failed)
+
+    A run that fails partway is never reported as success: any dcli command failure
+    still exits 3 after the remaining batches are attempted.
+
+.PARAMETER DryRun
+    Compute and log the add/remove plan, but make no changes.
+
+.PARAMETER Force
+    Bypass the removal safety threshold below.
+#>
+
+[CmdletBinding()]
+param(
+    [switch]$DryRun,
+    [switch]$Force
+)
+
+# ============================================================
+# CONFIGURATION - edit for your environment
+# ============================================================
+
+# AD groups whose members should be Dashlane team members.
+$Groups = @(
+    "Dashlane Users",
+    "Dashlane Admins"
+)
+
+# AD attribute holding each user's Dashlane login (their email).
+$DASHLANE_LOGIN_ATTR = "mail"
+
+# Logins that must NEVER be removed by this script, even if they
+# disappear from the AD groups above - e.g. the account this script
+# runs as, billing/team owners, break-glass admins.
+$ExcludedLogins = @(
+    "admin@example.com"
+)
+
+# Refuse to remove more than this percentage of the current team in
+# one run. This is the main guardrail against a broken AD query (wrong
+# permissions, renamed group, empty result) silently deprovisioning
+# everyone. Override with -Force when a large removal is intentional.
+$MaxRemovalPercent = 20
+
+$LogPath = Join-Path $env:TEMP "dashlane-ad-sync.log"
+
+# Page size used when paging through `dcli team members` to build the current roster.
+$TeamMembersPageSize = 300
+
+# ============================================================
+# Implementation - safe to leave as-is, or adapt if your source of
+# truth isn't plain AD group membership (e.g. a different attribute,
+# multiple domains, a non-AD directory).
+# ============================================================
+
+function Write-Log {
+    param([string]$Message)
+    $line = "[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Message
+    Write-Host $line
+    # File logging is best-effort: a permission/path problem on $LogPath must
+    # not take down the actual sync. Falls back to console-only and warns once.
+    try {
+        Add-Content -Path $LogPath -Value $line -ErrorAction Stop
+    } catch {
+        if (-not $script:LogFileWarned) {
+            Write-Host "WARNING: could not write to log file '$LogPath': $($_.Exception.Message). Continuing with console-only logging."
+            $script:LogFileWarned = $true
+        }
+    }
+}
+
+function Assert-ActiveDirectoryModule {
+    # Do not rely on PowerShell module auto-loading: it is disabled in some hardened
+    # and service-account environments, and the failure there is a confusing
+    # "command not recognized" on the first Get-ADGroupMember call.
+    try {
+        Import-Module ActiveDirectory -ErrorAction Stop
+    } catch {
+        Write-Log "FATAL: could not load the ActiveDirectory module (RSAT): $($_.Exception.Message)"
+        exit 2
+    }
+}
+
+function Assert-DcliAvailable {
+    if (-not (Get-Command "dcli" -ErrorAction SilentlyContinue)) {
+        Write-Log "FATAL: dcli was not found on PATH. Install and enroll the Dashlane CLI first."
+        exit 3
+    }
+}
+
+function Get-AdGroupValidMembers {
+    param([string[]]$GroupNames, [string]$LoginAttribute)
+
+    $members = @()
+    foreach ($group in ($GroupNames | Select-Object -Unique)) {
+        try {
+            $groupMembers = Get-ADGroupMember -Identity $group | Get-ADUser -Properties $LoginAttribute
+        } catch {
+            # Abort the whole run, exactly as the previous ADSync script did. Skipping a
+            # group that failed to read would make its members look absent from AD, and
+            # they would then be queued for removal below. $MaxRemovalPercent does not
+            # protect against this: one failed group is usually a small enough share of
+            # the team to slip under the threshold and be deprovisioned silently.
+            Write-Log "FATAL: could not read AD group '$group': $($_.Exception.Message)"
+            Write-Log "Refusing to continue with a partial AD extract."
+            exit 2
+        }
+
+        # Same validity rule as the previous ADSync script: filter to
+        # anything email-shaped, then lower-case/trim for consistency
+        # with how Dashlane normalizes logins server-side.
+        $valid = $groupMembers |
+            Where-Object { ($_ | Select-Object -ExpandProperty $LoginAttribute) -like '*@*.*' } |
+            Select-Object @{
+                Name       = 'Login'
+                Expression = { ($_ | Select-Object -ExpandProperty $LoginAttribute).ToLower().Trim() }
+            }
+
+        Write-Log "AD group '$group': $($valid.Count) valid member(s) of $($groupMembers.Count) total"
+        $members += $valid.Login
+    }
+
+    return $members | Sort-Object -Unique
+}
+
+function Get-DashlaneCurrentMembers {
+    $logins = @()
+    $page = 0
+
+    do {
+        $raw = & dcli team members $page $TeamMembersPageSize 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            # Without the current roster there is no trustworthy diff to apply, so stop
+            # here rather than fall through to a removal plan built on partial data.
+            Write-Log "FATAL: dcli team members failed (exit code $LASTEXITCODE): $raw"
+            exit 3
+        }
+
+        $response = $raw | ConvertFrom-Json
+        $logins += $response.members | ForEach-Object { $_.login.ToLower().Trim() }
+
+        $page++
+    } while ($page -lt $response.pages)
+
+    return $logins | Sort-Object -Unique
+}
+
+function Get-Chunks {
+    # Always returns an array of chunk-arrays, even when everything fits in a
+    # single chunk. PowerShell auto-unwraps a function's result when it emits
+    # exactly one pipeline object; without the explicit ", $chunks" below, a
+    # single-chunk call would hand the caller that one chunk's raw login list
+    # instead of "one chunk containing it", and the caller's foreach would then
+    # iterate per login instead of per chunk.
+    param([string[]]$Items, [int]$Size = 300)
+    $chunks = @()
+    for ($i = 0; $i -lt $Items.Count; $i += $Size) {
+        $chunks += , $Items[$i..([Math]::Min($i + $Size - 1, $Items.Count - 1))]
+    }
+    return , $chunks
+}
+
+function Report-DcliResult {
+    param([string]$RawJson, [string]$Operation)
+    try {
+        $result = $RawJson | ConvertFrom-Json
+    } catch {
+        Write-Log "  (could not parse dcli JSON output for logging, see above)"
+        return
+    }
+    foreach ($prop in @('refusedMembers', 'accountCreationRequiredMembers', 'unproposedMembers')) {
+        $value = $result.$prop
+        if ($value -and (($value.PSObject.Properties.Count -gt 0) -or ($value.Count -gt 0))) {
+            Write-Log "  $Operation - $prop`: $($value | ConvertTo-Json -Compress)"
+        }
+    }
+}
+
+function Invoke-DashlaneBatch {
+    # Shared by add and remove: join every login for that direction into as few
+    # dcli calls as possible, splitting only where a batch would exceed the
+    # server's per-call limit (see $Size on Get-Chunks).
+    param(
+        [string[]]$Logins,
+        [string]$Command,    # dcli subcommand: 'propose-members' or 'remove-members'
+        [string]$Operation,  # 'add' or 'remove' - used for the result report
+        [string]$VerbLabel   # 'Adding' or 'Removing' - used for the log line
+    )
+    if ($Logins.Count -eq 0) {
+        Write-Log "Nothing to $Operation."
+        return
+    }
+
+    foreach ($chunk in (Get-Chunks -Items $Logins)) {
+        Write-Log "$VerbLabel $($chunk.Count) member(s): $($chunk -join ', ')"
+        if ($DryRun) { continue }
+
+        $result = & dcli team $Command $chunk 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Log "ERROR: dcli team $Command failed (exit code $LASTEXITCODE): $result"
+            # Keep going so one bad chunk does not block the rest, but remember the
+            # failure so the script does not report success at the end.
+            $script:DcliFailed = $true
+            continue
+        }
+        Report-DcliResult -RawJson $result -Operation $Operation
+    }
+}
+
+# ============================================================
+# Main
+# ============================================================
+
+Write-Log "=== Dashlane AD member sync started ==="
+if ($DryRun) { Write-Log "Running with -DryRun: no changes will be applied." }
+
+$script:DcliFailed = $false
+
+try {
+    Assert-ActiveDirectoryModule
+    Assert-DcliAvailable
+
+    $desired = Get-AdGroupValidMembers -GroupNames $Groups -LoginAttribute $DASHLANE_LOGIN_ATTR
+
+    if ($desired.Count -eq 0) {
+        Write-Log ("ABORT: AD extraction returned zero valid members. This usually means a " +
+                    "permissions issue or a renamed/emptied group - not that everyone should " +
+                    "be removed. Refusing to proceed.")
+        exit 1
+    }
+
+    $current = Get-DashlaneCurrentMembers
+
+    $toAdd    = $desired | Where-Object { $_ -notin $current }
+    $toRemove = $current | Where-Object { ($_ -notin $desired) -and ($_ -notin $ExcludedLogins) }
+
+    Write-Log "AD groups: $($desired.Count) desired member(s). Dashlane team: $($current.Count) current member(s)."
+    Write-Log "Plan: add $($toAdd.Count), remove $($toRemove.Count)."
+
+    if ($current.Count -gt 0 -and $toRemove.Count -gt 0) {
+        $removalPercent = [Math]::Round((100 * $toRemove.Count) / $current.Count, 1)
+        if (($removalPercent -gt $MaxRemovalPercent) -and (-not $Force)) {
+            Write-Log ("ABORT: planned removals ($removalPercent% of the team) exceed the safety " +
+                        "threshold ($MaxRemovalPercent%). Re-run with -Force if this is expected " +
+                        "(e.g. after intentionally emptying an AD group).")
+            exit 1
+        }
+    }
+
+    Invoke-DashlaneBatch -Logins $toAdd -Command 'propose-members' -Operation 'add' -VerbLabel 'Adding'
+    Invoke-DashlaneBatch -Logins $toRemove -Command 'remove-members' -Operation 'remove' -VerbLabel 'Removing'
+
+    if ($script:DcliFailed) {
+        Write-Log "=== Dashlane AD member sync finished WITH ERRORS (see above) ==="
+        exit 3
+    }
+
+    Write-Log "=== Dashlane AD member sync finished ==="
+} catch {
+    Write-Log "FATAL: $($_.Exception.Message)"
+    exit 1
+}
+```
+
+## Scheduling it
+
+On Windows, register it as a scheduled task running as an account that has both AD read access and
+the `DASHLANE_ENROLLED_TEAM_DEVICE_KEYS` variable set. A daily run is usually enough; the script is
+idempotent, so running it more often is harmless.
+
+```powershell copy
+schtasks /create /tn "Dashlane AD Sync" /sc daily /st 03:00 `
+    /tr "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\scripts\dashlane-ad-sync.ps1"
+```
+
+Each run appends to `$LogPath` (`%TEMP%\dashlane-ad-sync.log` by default), so monitor that file along
+with the task's exit code.
