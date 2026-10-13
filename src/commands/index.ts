@@ -7,6 +7,7 @@ import {
     runSync,
     runPassword,
     runSecureNote,
+    runId,
     runLock,
     runLogout,
     runRead,
@@ -100,6 +101,22 @@ export const rootCommands = (params: { program: Command }) => {
             'Filter secrets based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
         )
         .action(runSecret);
+
+    program
+        .command('id')
+        .description(
+            'Retrieve a personal ID item (passport, ID card, identity, driver license, tax number, ...) from the local vault'
+        )
+        .addOption(
+            new Option('-o, --output <type>', 'How to print the IDs. The JSON option outputs all the matching items')
+                .choices(['text', 'json'])
+                .default('text')
+        )
+        .argument(
+            '[filters...]',
+            'Filter items based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to type and name fields'
+        )
+        .action(runId);
 
     accountsCommands({ program });
 
