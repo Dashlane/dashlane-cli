@@ -7,6 +7,7 @@ export * from './lock.js';
 export * from './logout.js';
 export * from './teamMcp.js';
 export * from './passwords.js';
+export * from './personalInfo.js';
 export * from './read.js';
 export * from './publicAPI.js';
 export * from './secrets.js';
