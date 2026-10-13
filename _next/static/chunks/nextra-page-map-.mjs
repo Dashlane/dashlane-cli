@@ -11,6 +11,12 @@ export const pageMap = [{
   children: [{
     data: business_meta
   }, {
+    name: "ad-sync",
+    route: "/business/ad-sync",
+    frontMatter: {
+      "sidebarTitle": "Ad Sync"
+    }
+  }, {
     name: "audit-logs",
     route: "/business/audit-logs",
     frontMatter: {
@@ -27,6 +33,12 @@ export const pageMap = [{
     route: "/business",
     frontMatter: {
       "sidebarTitle": "Index"
+    }
+  }, {
+    name: "manage-members",
+    route: "/business/manage-members",
+    frontMatter: {
+      "sidebarTitle": "Manage Members"
     }
   }, {
     name: "members",
