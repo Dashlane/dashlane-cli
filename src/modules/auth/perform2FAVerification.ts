@@ -1,8 +1,8 @@
 import { performTokenVerification } from '../../endpoints/index.js';
 import { completeLoginWithAuthTicket } from '../../endpoints/completeLoginWithAuthTicket.js';
-import { Get2FAStatusOutput, get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
 import { logger } from '../../logger.js';
 import { askOtp } from '../../utils/index.js';
+import { getRemoteAuthenticationAndSSOInfo, RemoteOrSSOAuthenticationType } from './utils';
 
 interface Params {
     login: string;
@@ -13,9 +13,10 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
     // If the user is using 2FA at every login, we'll need to perform token authentication against the server
     // If the user is offline though, and not using 2FA at every login, let's not block them
     let ticket: string;
-    let twoFactorAuthStatus: Get2FAStatusOutput;
+    let remoteAuthentication: RemoteOrSSOAuthenticationType;
     try {
-        twoFactorAuthStatus = await get2FAStatusUnauthenticated({ login });
+        const authInfo = await getRemoteAuthenticationAndSSOInfo({ login, deviceAccessKey });
+        remoteAuthentication = authInfo.remoteAuthentication;
     } catch (error) {
         logger.debug(error);
         logger.warn(
@@ -24,7 +25,7 @@ export const perform2FAVerification = async ({ login, deviceAccessKey }: Params)
         return;
     }
 
-    if (twoFactorAuthStatus.type === 'totp_login') {
+    if (remoteAuthentication === RemoteOrSSOAuthenticationType.totp_login) {
         const otp = await askOtp();
         ({
             authTicket: { ticket },
