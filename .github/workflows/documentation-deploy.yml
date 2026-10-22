@@ -2,11 +2,22 @@ name: Documentation Website Deploy CI
 
 on:
     push:
-        tags:
-            - 'v*.*.*'
+        branches:
+            - master
+        paths:
+            - 'documentation/**'
+            - '.github/workflows/documentation-deploy.yml'
+    # Allows deploying the current state of master from the Actions tab,
+    # for instance to retry a failed deploy.
+    workflow_dispatch:
 
 permissions:
     contents: write
+
+# Never let two deploys write to gh-pages at the same time; queue them instead.
+concurrency:
+    group: documentation-deploy
+    cancel-in-progress: false
 
 jobs:
     build:
