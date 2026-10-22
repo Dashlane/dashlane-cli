@@ -15,10 +15,12 @@ a different AD attribute, several domains, or a directory that isn't AD at all.
 ## How it works
 
 1. Collect every valid member of the configured AD groups, and lower-case their email.
-2. Page through `dcli team members` to build the current Dashlane roster.
+2. Page through `dcli team members` to build the current Dashlane roster, leaving out former members
+   (statuses listed in `$InactiveMemberStatuses`).
 3. Diff the two lists into an *add* plan and a *remove* plan.
-4. Apply the plan with `dcli team propose-members` and `dcli team remove-members`, batching logins so
-   each direction takes as few calls as possible.
+4. Apply the plan with `dcli team remove-members` first, then `dcli team propose-members`, so seats
+   freed by departures are available to new members. Logins are batched so each direction takes as
+   few calls as possible.
 
 ## Requirements
 
@@ -159,6 +161,11 @@ $LogPath = Join-Path $env:TEMP "dashlane-ad-sync.log"
 # Page size used when paging through `dcli team members` to build the current roster.
 $TeamMembersPageSize = 300
 
+# Member statuses that mean "no longer on the team". Members in these statuses are
+# left out of the current roster: they are never removed again, and they are
+# proposed again if they reappear in AD.
+$InactiveMemberStatuses = @("removed", "unproposed", "revoked")
+
 # ============================================================
 # Implementation - safe to leave as-is, or adapt if your source of
 # truth isn't plain AD group membership (e.g. a different attribute,
@@ -236,7 +243,11 @@ function Get-AdGroupValidMembers {
 }
 
 function Get-DashlaneCurrentMembers {
+    # `dcli team members` also lists former members. Counting them as current would
+    # queue them for removal again (inflating the removal threshold math), and would
+    # stop a returning user from ever being re-proposed, since they look present.
     $logins = @()
+    $statusCounts = @{}
     $page = 0
 
     do {
@@ -249,10 +260,19 @@ function Get-DashlaneCurrentMembers {
         }
 
         $response = $raw | ConvertFrom-Json
-        $logins += $response.members | ForEach-Object { $_.login.ToLower().Trim() }
+        foreach ($member in $response.members) {
+            $status = "$($member.status)".ToLower().Trim()
+            $statusCounts[$status] = 1 + $statusCounts[$status]
+            if ($status -notin $InactiveMemberStatuses) {
+                $logins += $member.login.ToLower().Trim()
+            }
+        }
 
         $page++
     } while ($page -lt $response.pages)
+
+    $breakdown = ($statusCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Value)" }) -join ', '
+    Write-Log "Dashlane roster by status: $breakdown (ignoring: $($InactiveMemberStatuses -join ', '))"
 
     return $logins | Sort-Object -Unique
 }
@@ -359,6 +379,9 @@ try {
         }
     }
 
+    # Remove before adding, so seats freed by departures are available to new members
+    # when the team is at its seat limit.
+    Invoke-DashlaneBatch -Logins $toRemove -Command 'remove-members' -Operation 'remove' -VerbLabel 'Removing'
     Invoke-DashlaneBatch -Logins $toAdd -Command 'propose-members' -Operation 'add' -VerbLabel 'Adding'
     Invoke-DashlaneBatch -Logins $toRemove -Command 'remove-members' -Operation 'remove' -VerbLabel 'Removing'
 
