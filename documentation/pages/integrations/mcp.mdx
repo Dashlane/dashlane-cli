@@ -1,14 +1,34 @@
+import { Callout } from 'nextra/components';
 import { EnrolledDeviceCredentialsBanner } from '../../src/banners';
 
-# Explore Dashlane Audit logs with AI Agents
+# Explore your Dashlane team data with AI Agents
 
 <EnrolledDeviceCredentialsBanner />
 
-Dashlane audit logs can be queried by local AI agents supporting the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro).
+Dashlane team data can be queried by local AI agents supporting the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro).
 
-Learn more about Dashlane audit logs on [the audit logs documentation](/business/audit-logs)
+Running `dcli team mcp` starts a local MCP server that exposes the following tools to your agent:
+
+- **Audit logs**: the `get-audit-logs` tool fetches your team audit logs over a date range. Learn more about Dashlane audit logs on [the audit logs documentation](/business/audit-logs).
+- **AI advisor tools**: read-only tools that report on your team data. The list of tools, their descriptions and their parameters are provided by Dashlane servers, so new tools become available without updating the CLI.
+
+All the tools are read-only: your agent cannot modify your team or its members through this MCP server.
 
 ## Prerequisites
+
+### CLI key scopes
+
+The MCP server uses your CLI key, so your agent can only access the data allowed by the scopes of that key. When generating your key in the Admin Console (see [CLI keys generation](/business)), select:
+
+- the audit logs scope, to use the `get-audit-logs` tool
+- the tools listing and tools execution scopes, to use the AI advisor tools
+
+<Callout type="info">
+    AI advisor tools may not be available on all plans. If your plan or your CLI key does not give access to them, the
+    MCP server still starts and only exposes the audit logs tool.
+</Callout>
+
+### Exploring large outputs
 
 As audit logs can be quite large, your agent should have access to a tool to explore large JSON files efficiently, such as `jq`.
 
@@ -16,7 +36,7 @@ You can install `jq` using your operating system package manager. See [jq downlo
 
 ## Example usage with Claude Code
 
-To use the Dashlane audit log MCP server with Claude Code, add the MCP to Claude code this way:
+To use the Dashlane MCP server with Claude Code, add the MCP to Claude code this way:
 
 ```sh
 claude mcp add --transport stdio dashlane -- dcli team mcp
@@ -28,4 +48,17 @@ or to embed the credentials in the MCP config:
 claude mcp add --transport stdio dashlane --env DASHLANE_ENROLLED_TEAM_DEVICE_KEYS=DASH_EDWSA_... -- dcli team mcp
 ```
 
-You may then ask questions such as "Make a summary of phishing attempts detected by Dashlane this month".
+You may then ask questions such as:
+
+- "Make a summary of phishing attempts detected by Dashlane this month"
+- "What tools do you have to analyze my Dashlane team?"
+
+## Troubleshooting
+
+If your agent does not see the AI advisor tools:
+
+- check that your CLI key was generated with the tools listing and tools execution scopes
+- check that your plan includes AI advisor tools
+- restart the MCP server from your agent, the list of tools is fetched when the agent first asks for it
+
+The reason why the tools are unavailable is printed on the MCP server standard error output, which most agents show in their MCP logs.
