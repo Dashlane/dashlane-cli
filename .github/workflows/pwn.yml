@@ -1,0 +1,48 @@
+
+name: Download Artifact Zip Slip Lab
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  producer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create harmless marker
+        run: |
+          mkdir -p output
+          echo "ZIP_SLIP_LAB_MARKER" > output/marker.txt
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmless-test
+          path: output/marker.txt
+
+  consumer:
+    needs: producer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: harmless-test
+          path: extracted
+
+      - name: Verify extraction
+        run: |
+          echo "Checking expected marker..."
+
+          if [ -f extracted/marker.txt ]; then
+            echo "PASS: Marker extracted successfully"
+            cat extracted/marker.txt
+          else
+            echo "FAIL: Marker missing"
+            exit 1
+          fi
