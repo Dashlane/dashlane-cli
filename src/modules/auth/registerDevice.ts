@@ -5,18 +5,20 @@ import {
     getAuthenticationMethods,
     performTokenVerification,
 } from '../../endpoints/index.js';
-import { askTokenRequestId, askToken } from '../../utils/index.js';
+import { askTokenRequestId, askToken, askMasterPassword } from '../../utils/index.js';
 import { logger } from '../../logger.js';
+import { loginWithOpaque } from './opaque/utils.js';
 
 interface RegisterDevice {
     login: string;
     deviceName: string;
+    isNonInteractiveDevice?: boolean;
 }
 
 export const registerDevice = async (params: RegisterDevice) => {
     let authTicket: string | null = null;
     let ssoSpKey: string | null = null;
-    const { login, deviceName } = params;
+    const { login, deviceName, isNonInteractiveDevice = false } = params;
     logger.debug('Registering the device...');
 
     const urlEncodedLogin = encodeURIComponent(login);
@@ -33,12 +35,12 @@ export const registerDevice = async (params: RegisterDevice) => {
         verification: {
             tokenRequestId,
             token,
-            intent: 'new_device',
+            intent: 'token:new_device',
         },
     });
 
     // get authentication methods
-    const { localAuthentications } = await getAuthenticationMethods({
+    const { localAuthentications, remoteAuthentications } = await getAuthenticationMethods({
         login,
         authTicket: deviceRegistrationAuthTicket,
     });
@@ -47,19 +49,33 @@ export const registerDevice = async (params: RegisterDevice) => {
     const isSKUser = localAuthentications.find((auth) => auth.type === 'securityKey');
     const isMPUser = localAuthentications.find((auth) => auth.type === 'masterPassword');
     const ssoInfo = localAuthentications.find((auth) => auth.type === 'sso');
+    const isOTPAtLogin = remoteAuthentications.find((auth) => auth.type === 'totp' && auth.requiredOnLogin);
 
     if (isMPLessUser || isSKUser) {
         throw new Error('Your account authentication methods is not supported yet');
     }
 
+    // We prevent non interactive devices for OTP2 and SSO
+    if (isNonInteractiveDevice) {
+        if (isOTPAtLogin) {
+            throw new Error("You can't register a non-interactive device when you have OTP at each login enabled.");
+        }
+        if (ssoInfo) {
+            throw new Error("You can't register a non-interactive device when you are using SSO.");
+        }
+    }
+
+    let masterPassword: string | undefined;
     if (ssoInfo) {
         let response;
         if (ssoInfo.isNitroProvider) {
             response = await doConfidentialSSOVerification({
+                authTicket: deviceRegistrationAuthTicket,
                 requestedLogin: login,
             });
         } else {
             response = await doSSOVerification({
+                authTicket: deviceRegistrationAuthTicket,
                 requestedLogin: login,
                 serviceProviderURL: ssoInfo.serviceProviderUrl,
             });
@@ -68,7 +84,8 @@ export const registerDevice = async (params: RegisterDevice) => {
         authTicket = response.authTicket;
         ssoSpKey = response.ssoSpKey;
     } else if (isMPUser) {
-        authTicket = deviceRegistrationAuthTicket;
+        masterPassword = await askMasterPassword();
+        authTicket = await loginWithOpaque(login, masterPassword, deviceRegistrationAuthTicket);
     }
 
     if (authTicket === null) {
@@ -82,5 +99,5 @@ export const registerDevice = async (params: RegisterDevice) => {
         authTicket,
     });
 
-    return { ...completeDeviceRegistrationResponse, ssoSpKey };
+    return { ...completeDeviceRegistrationResponse, ssoSpKey, masterPassword };
 };

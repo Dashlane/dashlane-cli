@@ -11,9 +11,9 @@ import { CLI_VERSION, cliVersionToString } from '../../cliVersion.js';
 import { perform2FAVerification, registerDevice } from '../auth/index.js';
 import { DeviceConfiguration, LocalConfiguration } from '../../types.js';
 import { askEmailAddress, askMasterPassword } from '../../utils/dialogs.js';
-import { get2FAStatusUnauthenticated } from '../../endpoints/get2FAStatusUnauthenticated.js';
 import { getEnvDeviceCredentials, hasEnvDeviceCredentials } from '../../utils/index.js';
 import { logger } from '../../logger.js';
+import { getRemoteAuthenticationAndSSOInfo, RemoteOrSSOAuthenticationType } from '../auth/utils';
 
 const SERVICE = 'dashlane-cli';
 
@@ -89,7 +89,15 @@ const getLocalConfigurationWithoutDB = async (
 
     // Register the user's device
     const deviceCredentials = getEnvDeviceCredentials();
-    const { deviceAccessKey, deviceSecretKey, serverKey, ssoServerKey, ssoSpKey, remoteKeys } = deviceCredentials
+    const {
+        deviceAccessKey,
+        deviceSecretKey,
+        serverKey,
+        ssoServerKey,
+        ssoSpKey,
+        remoteKeys,
+        masterPassword: masterpasswordDevice,
+    } = deviceCredentials
         ? {
               deviceAccessKey: deviceCredentials.accessKey,
               deviceSecretKey: deviceCredentials.secretKey,
@@ -97,6 +105,7 @@ const getLocalConfigurationWithoutDB = async (
               ssoServerKey: undefined,
               ssoSpKey: undefined,
               remoteKeys: [],
+              masterPassword: undefined,
           }
         : await registerDevice({
               login,
@@ -105,23 +114,28 @@ const getLocalConfigurationWithoutDB = async (
 
     // Get the authentication type (mainly to identify if the user is with OTP2)
     // if non-interactive device, we consider it as email_token, so we don't need to call the API
-    const { type } = hasEnvDeviceCredentials()
-        ? { type: 'email_token' as const }
-        : await get2FAStatusUnauthenticated({ login });
+    let type: RemoteOrSSOAuthenticationType = RemoteOrSSOAuthenticationType.email_token;
+    let isSSO = false;
 
+    if (!hasEnvDeviceCredentials()) {
+        const authenticationInfo = await getRemoteAuthenticationAndSSOInfo({ login, deviceAccessKey });
+        isSSO = authenticationInfo.isSSO;
+        type = authenticationInfo.remoteAuthentication;
+    }
+
+    const isTotpLogin = type === RemoteOrSSOAuthenticationType.totp_login;
     let masterPassword = '';
     const masterPasswordEnv = process.env.DASHLANE_MASTER_PASSWORD;
     let serverKeyEncrypted = null;
-    const isSSO = type === 'sso';
 
     // In case of SSO
     if (isSSO) {
         masterPassword = decryptSsoRemoteKey({ ssoServerKey, ssoSpKey, remoteKeys });
     } else {
-        masterPassword = masterPasswordEnv ?? (await askMasterPassword());
+        masterPassword = masterPasswordEnv ?? masterpasswordDevice ?? (await askMasterPassword());
 
         // In case of OTP2
-        if (type === 'totp_login' && serverKey) {
+        if (isTotpLogin && serverKey) {
             serverKeyEncrypted = encryptAesCbcHmac256(localKey, Buffer.from(serverKey));
             masterPassword = serverKey + masterPassword;
         }
@@ -254,6 +268,11 @@ export const replaceMasterPassword = async (
     }
 
     newMasterPassword += await askMasterPassword();
+
+    // notes : No Opaque Login is performed here as this code is not  reached if the user has an Opaque Enveloppe
+    // Indeed, this code is only reached if the user synced the data with a wrong MP which won't be possible as soon as an Opaque
+    // Enveloppe is set for an user.
+    // Consider removing this function and the review the check for the setting where it is used when Opaque is fully rolled-out.
 
     const derivate = await getDerivateUsingParametersFromEncryptedData(
         newMasterPassword,

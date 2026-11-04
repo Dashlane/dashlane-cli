@@ -5,7 +5,7 @@ type PerformTokenVerification = {
     verification:
         | {
               token: string;
-              intent: 'new_device';
+              intent: 'token:new_device';
               tokenRequestId: string;
           }
         | {

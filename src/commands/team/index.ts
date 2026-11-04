@@ -7,6 +7,8 @@ import {
     runTeamLogs,
     runTeamMembers,
     runTeamMcp,
+    runTeamProposeMembers,
+    runTeamRemoveMembers,
     runTeamReport,
 } from '../../command-handlers/index.js';
 import {
@@ -61,6 +63,25 @@ export const teamCommands = (params: { program: Command }) => {
         .option('--csv', 'Output in CSV format')
         .option('--human-readable', 'Output dates in human readable format')
         .action(runTeamLogs);
+
+    teamGroup
+        .command('propose-members')
+        .alias('pm')
+        .description('Propose logins to join the team')
+        .argument('<logins...>', 'Logins to be proposed to the team')
+        .option('--skip-account-creation-required-alerts', 'Do not alert about members requiring account creation')
+        .option('--skip-proposals', 'Do not send proposal notifications')
+        .option('--skip-removals', 'Do not send removal notifications')
+        .option('--skip-reproposals', 'Do not send reproposal notifications')
+        .option('--sender-email <senderEmail>', 'Email address to use as the sender of notifications')
+        .action(runTeamProposeMembers);
+
+    teamGroup
+        .command('remove-members')
+        .alias('rm')
+        .description('Remove members from the team')
+        .argument('<logins...>', 'Logins to remove from the team')
+        .action(runTeamRemoveMembers);
 
     teamGroup
         .command('report')
