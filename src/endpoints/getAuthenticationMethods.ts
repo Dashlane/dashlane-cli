@@ -43,11 +43,7 @@ export interface GetAuthenticationMethodsResult {
 
 // Unused for now
 export type GetAuthenticationMethodsError =
-    | 'INVALID_AUTH_TICKET'
-    | 'SSO_BLOCKED'
-    | 'TEAM_SOFT_DISCONTINUED'
-    | 'DEACTIVATED_USER'
-    | 'EXPIRED_VERSION';
+    'INVALID_AUTH_TICKET' | 'SSO_BLOCKED' | 'TEAM_SOFT_DISCONTINUED' | 'DEACTIVATED_USER' | 'EXPIRED_VERSION';
 
 export const getAuthenticationMethods = ({ login, ...params }: GetAuthenticationMethodsParams) => {
     const payload =

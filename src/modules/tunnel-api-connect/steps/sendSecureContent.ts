@@ -1,4 +1,4 @@
-import sodium from 'libsodium-wrappers';
+import sodium, { type StateAddress } from 'libsodium-wrappers';
 import { secureContentBodyDataSchema } from './schemas.js';
 import type { SecureContentRequest, SecureContentResponse, SendSecureContentParams } from './types.js';
 import { SecureTunnelNotInitialized, SendSecureContentDataDecryptionError } from '../errors.js';
@@ -8,7 +8,7 @@ import { requestAppApi, requestEnrolledDeviceApi, requestUserApi } from '../../.
 
 const verifySendSecureBodySchemaValidator = new TypeCheck<SecureContentResponse>(secureContentBodyDataSchema);
 
-export const encryptData = <P = any>(clientStateOut: sodium.StateAddress, payload: P) =>
+export const encryptData = <P = any>(clientStateOut: StateAddress, payload: P) =>
     sodium.crypto_secretstream_xchacha20poly1305_push(
         clientStateOut,
         sodium.from_string(JSON.stringify(payload)),
@@ -81,12 +81,13 @@ export const sendSecureContent = async <R extends ApiRequestsDefault>(
 
     const decryptedResponse = sodium.crypto_secretstream_xchacha20poly1305_pull(
         clientStateIn,
-        sodium.from_hex(body.encryptedData)
-    ).message;
+        sodium.from_hex(body.encryptedData),
+        null
+    );
 
-    if (decryptedResponse === undefined) {
+    if (decryptedResponse === false) {
         throw new SendSecureContentDataDecryptionError();
     }
 
-    return JSON.parse(sodium.to_string(decryptedResponse)) as R['output'];
+    return JSON.parse(sodium.to_string(decryptedResponse.message)) as R['output'];
 };

@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
-import { DASHLANE_APP_REGEX, extractSsoInfoFromUrl } from './utils.js';
 import { performSSOVerificationWithAuthTicket } from '../../../endpoints/performSSOVerificationWithAuthTicket.js';
+import { DASHLANE_APP_REGEX, extractSsoInfoFromUrl } from './utils.js';
 
 interface SSOParams {
     authTicket: string;
@@ -37,7 +37,7 @@ const openIdPAndWaitForRedirectURL = async (serviceProviderURL: string, userLogi
                     .fill(userLogin)
                     .catch(() => null);
             } catch (error) {
-                reject(error as Error);
+                reject(error instanceof Error ? error : new Error(String(error)));
             }
         })();
     });

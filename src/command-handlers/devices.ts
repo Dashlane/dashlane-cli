@@ -16,9 +16,10 @@ export async function listAllDevices(options: { json: boolean }) {
     const listDevicesResponse = await listDevices({ localConfiguration, login: deviceConfiguration.login });
     db.close();
 
-    const result: OutputDevice[] = listDevicesResponse.devices.map(
-        (device) => <OutputDevice>{ ...device, isCurrentDevice: device.deviceId === localConfiguration.accessKey }
-    );
+    const result: OutputDevice[] = listDevicesResponse.devices.map((device) => ({
+        ...device,
+        isCurrentDevice: device.deviceId === localConfiguration.accessKey,
+    }));
 
     if (options.json) {
         logger.content(JSON.stringify(result));
