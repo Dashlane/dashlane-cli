@@ -79,7 +79,7 @@ export const getIds = async (params: GetIds): Promise<VaultId[]> => {
         ) as Record<string, string>;
 
         // Transaction type (PASSPORT, IDCARD, ...) is the primary, reliable classifier and filter key.
-        return { ...fields, kwType, type: transactions[index].type } as VaultId;
+        return { ...fields, kwType, type: transactions[index].type };
     });
 
     return filterMatches<VaultId>(beautifiedIds, filters, [

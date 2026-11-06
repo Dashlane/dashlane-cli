@@ -1,5 +1,16 @@
-import type sodium from 'libsodium-wrappers';
+import type { StateAddress } from 'libsodium-wrappers';
 import type { ClientHelloParsedResponse, SendSecureContentParams, TerminateHelloResponse } from './steps/index.js';
+
+export interface KeyPair {
+    publicKey: Uint8Array;
+    privateKey: Uint8Array;
+    keyType: string;
+}
+
+export interface CryptoKX {
+    sharedRx: Uint8Array;
+    sharedTx: Uint8Array;
+}
 
 export interface ApiRequestsDefault {
     input: Record<string, unknown> | NonNullable<unknown> | undefined;
@@ -13,9 +24,9 @@ export interface ApiData {
         tunnelUuid: string;
     };
     terminateHello: {
-        clientStateIn: sodium.StateAddress;
-        clientStateOut: sodium.StateAddress;
-        sessionKeys: sodium.CryptoKX;
+        clientStateIn: StateAddress;
+        clientStateOut: StateAddress;
+        sessionKeys: CryptoKX;
         serverPublicKey: Buffer;
         serverHeader: Buffer;
     };
@@ -23,11 +34,11 @@ export interface ApiData {
 
 export interface ApiConnectParams {
     useProductionCertificate: boolean;
-    clientKeyPair?: sodium.KeyPair;
+    clientKeyPair?: KeyPair;
 }
 
 export interface ApiConnectInternalParams extends ApiConnectParams {
-    clientKeyPair: sodium.KeyPair;
+    clientKeyPair: KeyPair;
 }
 
 export interface ApiConnect {
