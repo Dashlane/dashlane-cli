@@ -7,9 +7,9 @@ jobs:
         strategy:
             matrix:
                 settings:
-                    - host: macos-13
+                    - host: macos-15-intel
                       target: macos-x64
-                    - host: macos-14
+                    - host: macos-15
                       target: macos-arm64
                     - host: windows-2022
                       target: win-x64
@@ -25,7 +25,7 @@ jobs:
               with:
                   node-version: 24.x
 
-            - if: matrix.settings.host == 'macos-14'
+            - if: matrix.settings.host == 'macos-15'
               run: brew install python-setuptools
             - if: matrix.settings.host == 'macos-13'
               run: pip install setuptools
