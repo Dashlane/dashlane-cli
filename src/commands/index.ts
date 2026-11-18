@@ -7,6 +7,7 @@ import {
     runSync,
     runPassword,
     runSecureNote,
+    runId,
     runLock,
     runLogout,
     runRead,
@@ -14,6 +15,7 @@ import {
     runExec,
     runBackup,
     runSecret,
+    runStatus,
 } from '../command-handlers/index.js';
 
 export const rootCommands = (params: { program: Command }) => {
@@ -24,6 +26,8 @@ export const rootCommands = (params: { program: Command }) => {
         .alias('s')
         .description('Manually synchronize the local vault with Dashlane')
         .action(runSync);
+
+    program.command('status').description('Get the status of the CLI (logged in, locked, etc.)').action(runStatus);
 
     program
         .command('read')
@@ -97,6 +101,22 @@ export const rootCommands = (params: { program: Command }) => {
             'Filter secrets based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to title only'
         )
         .action(runSecret);
+
+    program
+        .command('id')
+        .description(
+            'Retrieve a personal ID item (passport, ID card, identity, driver license, tax number, ...) from the local vault'
+        )
+        .addOption(
+            new Option('-o, --output <type>', 'How to print the IDs. The JSON option outputs all the matching items')
+                .choices(['text', 'json'])
+                .default('text')
+        )
+        .argument(
+            '[filters...]',
+            'Filter items based on any parameter using <param>=<value>; if <param> is not specified in the filter, will default to type and name fields'
+        )
+        .action(runId);
 
     accountsCommands({ program });
 

@@ -1,5 +1,5 @@
-import type sodium from 'libsodium-wrappers';
-import { ApiRequestsDefault } from '../types.js';
+import type { StateAddress } from 'libsodium-wrappers';
+import { ApiRequestsDefault, CryptoKX } from '../types.js';
 import { EnclavePcr } from '@dashlane/nsm-attestation';
 
 export interface ApiEndpointResponse<T> {
@@ -47,14 +47,12 @@ interface EnrolledDeviceAuthenticationParams {
 }
 
 export type AuthenticationParams =
-    | AppAuthenticationParams
-    | UserDeviceAuthenticationParams
-    | EnrolledDeviceAuthenticationParams;
+    AppAuthenticationParams | UserDeviceAuthenticationParams | EnrolledDeviceAuthenticationParams;
 
 export interface SendSecureContentParams<R extends ApiRequestsDefault> {
     path: R['path'];
-    clientStateIn: sodium.StateAddress;
-    clientStateOut: sodium.StateAddress;
+    clientStateIn: StateAddress;
+    clientStateOut: StateAddress;
     payload: R['input'];
     authentication?: AuthenticationParams;
 }
@@ -65,9 +63,9 @@ export interface TerminateHelloParams {
 }
 
 export interface TerminateHelloResponse {
-    clientStateIn: sodium.StateAddress;
-    clientStateOut: sodium.StateAddress;
-    sessionKeys: sodium.CryptoKX;
+    clientStateIn: StateAddress;
+    clientStateOut: StateAddress;
+    sessionKeys: CryptoKX;
     serverPublicKey: Buffer;
     serverHeader: Buffer;
 }

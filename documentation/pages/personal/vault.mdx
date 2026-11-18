@@ -90,6 +90,30 @@ dcli secret [filters]
 dcli secret title=api_keys -o json
 ```
 
+## Get a personal ID
+
+The `id` command retrieves structured personal identity items stored in your vault:
+passports, ID cards, identity records, driver's licenses, social security IDs, and tax
+numbers (fiscal statements). Use filters the same way as the other commands. By default
+it matches on the item type and name fields; you can also select a different output among
+`text, json`. The JSON option outputs all matching items with every field they contain.
+
+```sh copy
+dcli id [filters]
+```
+
+```sh copy filename="Return every personal ID item as JSON"
+dcli id -o json
+```
+
+```sh copy filename="Return only passports"
+dcli id type=passport
+```
+
+```sh copy filename="Return the tax number for someone named John"
+dcli id type=fiscalstatement firstName=john
+```
+
 ## Options
 
 By default an automatic synchronization is performed once per hour.

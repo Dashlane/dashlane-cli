@@ -1,8 +1,8 @@
-export interface RequestLogin2Data {
+export interface RequestLogin3Data {
     login: string;
 }
 
-export interface RequestLogin2Output {
+export interface RequestLogin3Output {
     domainName: string;
     idpAuthorizeUrl: string;
     spCallbackUrl: string;
@@ -10,19 +10,19 @@ export interface RequestLogin2Output {
     validatedDomains: string[];
 }
 
-export interface RequestLogin2Request {
-    path: 'authentication/RequestLogin2';
-    input: RequestLogin2Data;
-    output: RequestLogin2Output;
+export interface RequestLogin3Request {
+    path: 'authentication/RequestLogin3';
+    input: RequestLogin3Data;
+    output: RequestLogin3Output;
 }
 
-export interface ConfirmLogin2Data {
+export interface ConfirmLogin3Data {
     teamUuid: string;
     domainName: string;
     samlResponse: string;
 }
 
-export interface ConfirmLogin2Output {
+export interface ConfirmLogin3Output {
     ssoToken: string;
     userServiceProviderKey: string;
     exists: boolean;
@@ -30,8 +30,8 @@ export interface ConfirmLogin2Output {
     expectedAuthenticationMethods: string[];
 }
 
-export interface ConfirmLogin2Request {
-    path: 'authentication/ConfirmLogin2';
-    input: ConfirmLogin2Data;
-    output: ConfirmLogin2Output;
+export interface ConfirmLogin3Request {
+    path: 'authentication/ConfirmLogin3';
+    input: ConfirmLogin3Data;
+    output: ConfirmLogin3Output;
 }

@@ -15,7 +15,7 @@ interface DashlaneApiErrorResponse {
     errors: { type: string; code: string; message: string }[];
 }
 
-class DashlaneApiError extends Error {
+export class DashlaneApiError extends Error {
     public code: string; // ex "invalid_otp_already_used"
     public type: string; // ex "business_error"
     constructor(details: DashlaneApiErrorResponse['errors'][0]) {
@@ -65,6 +65,15 @@ const requestApi = async <T>(params: RequestApi): Promise<T> => {
     }
 
     if (response.statusCode !== 200) {
+        let details;
+        try {
+            details = (JSON.parse(response.body) as DashlaneApiErrorResponse).errors[0];
+        } catch (parseError) {
+            logger.debug('Failed to parse error response', parseError);
+        }
+        if (details) {
+            throw new DashlaneApiError(details);
+        }
         throw new Error('Server responded an error : ' + response.body);
     }
     return (JSON.parse(response.body) as { data: T }).data;

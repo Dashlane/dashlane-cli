@@ -1,9 +1,9 @@
 import { authenticator, hotp } from 'otplib';
 
 enum HashAlgorithms {
-    'SHA1' = 'sha1',
-    'SHA256' = 'sha256',
-    'SHA512' = 'sha512',
+    SHA1 = 'sha1',
+    SHA256 = 'sha256',
+    SHA512 = 'sha512',
 }
 
 interface Otpauth {

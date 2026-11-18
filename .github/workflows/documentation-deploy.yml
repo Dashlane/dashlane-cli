@@ -2,11 +2,22 @@ name: Documentation Website Deploy CI
 
 on:
     push:
-        tags:
-            - 'v*.*.*'
+        branches:
+            - master
+        paths:
+            - 'documentation/**'
+            - '.github/workflows/documentation-deploy.yml'
+    # Allows deploying the current state of master from the Actions tab,
+    # for instance to retry a failed deploy.
+    workflow_dispatch:
 
 permissions:
     contents: write
+
+# Never let two deploys write to gh-pages at the same time; queue them instead.
+concurrency:
+    group: documentation-deploy
+    cancel-in-progress: false
 
 jobs:
     build:
@@ -16,12 +27,12 @@ jobs:
                 working-directory: 'documentation'
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
 
             - name: Set up Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v7
               with:
-                  node-version: 22
+                  node-version: 24
 
             - name: Build
               run: |

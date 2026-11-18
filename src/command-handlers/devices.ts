@@ -1,8 +1,7 @@
 import { connectAndPrepare, reset } from '../modules/database/index.js';
 import { deactivateDevices, listDevices, ListDevicesOutput } from '../endpoints/index.js';
-import { askConfirmReset, epochTimestampToIso } from '../utils/index.js';
+import { askConfirmReset, askEmailAddress, epochTimestampToIso } from '../utils/index.js';
 import { registerDevice } from '../modules/auth/index.js';
-import { get2FAStatusUnauthenticated } from '../endpoints/get2FAStatusUnauthenticated.js';
 import { logger } from '../logger.js';
 
 type OutputDevice = ListDevicesOutput['devices'][number] & {
@@ -17,9 +16,10 @@ export async function listAllDevices(options: { json: boolean }) {
     const listDevicesResponse = await listDevices({ localConfiguration, login: deviceConfiguration.login });
     db.close();
 
-    const result: OutputDevice[] = listDevicesResponse.devices.map(
-        (device) => <OutputDevice>{ ...device, isCurrentDevice: device.deviceId === localConfiguration.accessKey }
-    );
+    const result: OutputDevice[] = listDevicesResponse.devices.map((device) => ({
+        ...device,
+        isCurrentDevice: device.deviceId === localConfiguration.accessKey,
+    }));
 
     if (options.json) {
         logger.content(JSON.stringify(result));
@@ -96,24 +96,12 @@ export async function removeAllDevices(devices: string[] | null, options: { all:
 }
 
 export const registerNonInteractiveDevice = async (deviceName: string, options: { json: boolean }) => {
-    const {
-        localConfiguration: { login, masterPassword },
-        db,
-    } = await connectAndPrepare({ autoSync: false });
+    const login = await askEmailAddress();
 
-    const { type } = await get2FAStatusUnauthenticated({ login });
-
-    if (type === 'totp_login') {
-        throw new Error("You can't register a non-interactive device when you have OTP at each login enabled.");
-    }
-
-    if (type === 'sso') {
-        throw new Error("You can't register a non-interactive device when you are using SSO.");
-    }
-
-    const { deviceAccessKey, deviceSecretKey } = await registerDevice({
+    const { deviceAccessKey, deviceSecretKey, masterPassword } = await registerDevice({
         login,
         deviceName: `Non-Interactive - ${deviceName}`,
+        isNonInteractiveDevice: true,
     });
 
     const serviceDeviceKeysPayload = {
@@ -138,6 +126,4 @@ export const registerNonInteractiveDevice = async (deviceName: string, options: 
         );
         logger.content(`export DASHLANE_SERVICE_DEVICE_KEYS=${serviceDeviceKeys}`);
     }
-
-    db.close();
 };

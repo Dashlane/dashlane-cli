@@ -1,0 +1,91 @@
+import { Callout } from 'nextra/components';
+import { EnrolledDeviceCredentialsBanner } from '../../src/banners';
+
+# Adding and removing members
+
+<EnrolledDeviceCredentialsBanner />
+
+Both commands take one or more logins (usually emails) and are a convenient way to automate onboarding and offboarding, for instance from a script synchronizing your team with your identity provider. See [Active Directory Sync](./ad-sync.mdx) for a complete working example.
+
+## Proposing members
+
+Proposing a login invites it to join your team. The member is added to the team as _pending_ until they accept the invitation.
+
+```sh copy
+dcli t propose-members john.doe@example.com jane.doe@example.com
+```
+
+The command is also available under the `pm` alias:
+
+```sh copy
+dcli t pm john.doe@example.com
+```
+
+### Options
+
+By default, Dashlane sends notification emails to the proposed members. The following options let you control these notifications:
+
+| Option                                        | Description                                                                              |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `--skip-account-creation-required-alerts`     | Do not alert about members requiring account creation                                      |
+| `--skip-proposals`                            | Do not send proposal notifications                                                         |
+| `--skip-removals`                             | Do not send removal notifications                                                          |
+| `--skip-reproposals`                          | Do not send reproposal notifications (for logins that were already proposed before)        |
+| `--sender-email <senderEmail>`                | Email address to use as the sender of the notifications                                    |
+
+For instance, to add members silently:
+
+```sh copy
+dcli t propose-members john.doe@example.com --skip-proposals --skip-reproposals
+```
+
+### Output
+
+```json
+{
+    "proposedMembers": { "john.doe@example.com": true },
+    "refusedMembers": { "jane.doe@example.com": "ALREADY_IN_TEAM" },
+    "accountCreationRequiredMembers": ["new.hire@example.com"]
+}
+```
+
+| Property                         | Type                               | Description                                                       |
+| --------------------------------- | ----------------------------------- | ------------------------------------------------------------------ |
+| `proposedMembers`                | `Record<string, boolean>`           | Map of proposed login to whether the proposal succeeded            |
+| `refusedMembers`                 | `Record<string, boolean \| string>` | Map of refused login to either a boolean or a reason string        |
+| `accountCreationRequiredMembers` | `Array` of `string`                 | Logins that require an account to be created before being proposed |
+
+## Removing members
+
+Removing a login revokes its access to the team. Logins that were only proposed and have not joined yet are unproposed instead.
+
+```sh copy
+dcli t remove-members john.doe@example.com jane.doe@example.com
+```
+
+The command is also available under the `rm` alias:
+
+```sh copy
+dcli t rm john.doe@example.com
+```
+
+<Callout type="warning">
+    Removing a member revokes their access to the team's shared items. This action cannot be undone from the CLI: the
+    login has to be proposed again to rejoin the team.
+</Callout>
+
+### Output
+
+```json
+{
+    "removedMembers": { "john.doe@example.com": true },
+    "unproposedMembers": { "new.hire@example.com": true },
+    "refusedMembers": { "jane.doe@example.com": "NOT_IN_TEAM" }
+}
+```
+
+| Property            | Type                      | Description                                                      |
+| -------------------- | -------------------------- | ----------------------------------------------------------------- |
+| `removedMembers`    | `Record<string, boolean>` | Map of removed login to whether the removal succeeded             |
+| `unproposedMembers` | `Record<string, boolean>` | Map of login to whether the pending member was unproposed         |
+| `refusedMembers`    | `Record<string, string>`  | Map of refused login to a reason string                           |

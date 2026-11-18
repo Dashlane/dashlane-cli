@@ -1,8 +1,9 @@
 import { chromium } from 'playwright-core';
+import { performSSOVerificationWithAuthTicket } from '../../../endpoints/performSSOVerificationWithAuthTicket.js';
 import { DASHLANE_APP_REGEX, extractSsoInfoFromUrl } from './utils.js';
-import { performSSOVerification } from '../../../endpoints/performSSOVerification.js';
 
 interface SSOParams {
+    authTicket: string;
     requestedLogin: string;
     serviceProviderURL: string;
 }
@@ -36,13 +37,13 @@ const openIdPAndWaitForRedirectURL = async (serviceProviderURL: string, userLogi
                     .fill(userLogin)
                     .catch(() => null);
             } catch (error) {
-                reject(error as Error);
+                reject(error instanceof Error ? error : new Error(String(error)));
             }
         })();
     });
 };
 
-export const doSSOVerification = async ({ requestedLogin, serviceProviderURL }: SSOParams) => {
+export const doSSOVerification = async ({ authTicket, requestedLogin, serviceProviderURL }: SSOParams) => {
     const redirectURL = await openIdPAndWaitForRedirectURL(serviceProviderURL, requestedLogin);
     const ssoInfo = extractSsoInfoFromUrl(redirectURL);
 
@@ -54,7 +55,8 @@ export const doSSOVerification = async ({ requestedLogin, serviceProviderURL }: 
         throw new Error('SSO Migration is not supported');
     }
 
-    const ssoVerificationResult = await performSSOVerification({
+    const ssoVerificationResult = await performSSOVerificationWithAuthTicket({
+        authTicket,
         login: ssoInfo.login,
         ssoToken: ssoInfo.ssoToken,
     });
