@@ -28,10 +28,7 @@ jobs:
               with:
                   node-version: 24.x
 
-            - if: matrix.settings.host == 'macos-15'
-              run: brew install python-setuptools
-            - if: matrix.settings.host == 'macos-13'
-              run: pip install setuptools
+            - run: brew install python-setuptools
             - run: yarn
             - run: yarn run build
             # remove dev dependencies before packaging
@@ -63,7 +60,7 @@ jobs:
               shell: bash
 
             - name: Sign Artifact with CodeSignTool
-              uses: sslcom/esigner-codesign@develop
+              uses: sslcom/esigner-codesign@v1.3.2
               with:
                   command: sign
                   username: ${{ secrets.ES_USERNAME }}
